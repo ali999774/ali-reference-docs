@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Color Palette Explorer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface2: #eeecea;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.15);
+    --text: #1a1917;
+    --muted: #888;
+    --faint: #ccc;
+    --accent: #2a6e2a;
+    --radius: 10px;
+    --radius-lg: 16px;
+    --mono: 'DM Mono', monospace;
+    --serif: 'Fraunces', serif;
+  }
+  html.dark {
+    --bg: #0f0f0f;
+    --surface: #181818;
+    --surface2: #222222;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #f0ede8;
+    --muted: #888;
+    --faint: #444;
+    --accent: #c8ff57;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 14px; line-height: 1.6; }
+  body { min-height: 100vh; }
+
+  /* Layout */
+  .layout { display: grid; grid-template-columns: 340px 1fr; min-height: 100vh; }
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 2rem 1.5rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+  .main { padding: 2rem; overflow-y: auto; }
+
+  /* Header */
+  .wordmark { font-family: var(--serif); font-size: 22px; font-weight: 300; color: var(--text); letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+  .wordmark em { font-style: italic; color: var(--accent); }
+  .tagline { font-size: 11px; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+
+  /* Controls */
+  .section-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; }
+  .control-group { display: flex; flex-direction: column; gap: 8px; }
+  .control-row { display: flex; align-items: center; gap: 10px; }
+  .control-row label { font-size: 12px; color: var(--muted); min-width: 70px; }
+  .control-row input[type=range] { flex: 1; -webkit-appearance: none; height: 2px; background: var(--border2); border-radius: 1px; outline: none; }
+  .control-row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--accent); cursor: pointer; }
+  .control-row .val { font-size: 11px; color: var(--text); min-width: 36px; text-align: right; }
+  .hex-row { display: flex; gap: 8px; align-items: center; }
+  input[type="color"] { width: 36px; height: 36px; border: 1px solid var(--border2); border-radius: var(--radius); background: none; cursor: pointer; padding: 2px; }
+  input[type="text"] { flex: 1; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 7px 10px; font-family: var(--mono); font-size: 13px; outline: none; }
+  input[type="text"]:focus { border-color: var(--border2); }
+  select { width: 100%; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: var(--radius); padding: 8px 10px; font-family: var(--mono); font-size: 12px; outline: none; cursor: pointer; }
+  select:focus { border-color: var(--border2); }
+
+  /* Main swatch */
+  .main-swatch { width: 100%; height: 64px; border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; letter-spacing: 0.06em; }
+  .main-swatch:hover { opacity: 0.88; }
+  .hsl-label { font-size: 10px; color: var(--muted); text-align: center; margin-top: 5px; }
+
+  /* Shades */
+  .shades-row { display: flex; gap: 3px; }
+  .shade-item { flex: 1; cursor: pointer; transition: transform 0.1s; }
+  .shade-item:hover { transform: scaleY(1.1); transform-origin: bottom; }
+  .shade-block { border-radius: 6px; }
+  .shade-hex { font-size: 8px; color: var(--muted); text-align: center; margin-top: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Harmony */
+  .harmony-row { display: flex; gap: 4px; }
+  .harmony-swatch { flex: 1; height: 36px; border-radius: var(--radius); cursor: pointer; transition: transform 0.1s; }
+  .harmony-swatch:hover { transform: scale(1.04); }
+
+  /* Divider */
+  .divider { border: none; border-top: 1px solid var(--border); }
+
+  /* Main content tabs */
+  .tabs { display: flex; gap: 4px; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0; }
+  .tab { padding: 8px 16px; font-family: var(--mono); font-size: 12px; color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color 0.15s; letter-spacing: 0.04em; background: none; border-top: none; border-left: none; border-right: none; }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Use cases grid */
+  .usecases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+  .usecase-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+  .usecase-preview { height: 140px; padding: 1rem; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+  .usecase-body { padding: 1rem; border-top: 1px solid var(--border); }
+  .usecase-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 4px; }
+  .usecase-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* Preview: Brand colors */
+  .brand-chips { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+  .brand-chip { height: 28px; border-radius: 6px; display: flex; align-items: center; padding: 0 10px; font-size: 10px; font-weight: 500; }
+
+  /* Preview: Tailwind */
+  .tw-tokens { display: flex; flex-direction: column; gap: 4px; width: 100%; font-size: 10px; }
+  .tw-line { display: flex; align-items: center; gap: 8px; }
+  .tw-dot { width: 14px; height: 14px; border-radius: 3px; flex-shrink: 0; }
+  .tw-key { color: var(--accent); }
+  .tw-val { color: var(--muted); }
+
+  /* Preview: Slide */
+  .slide-mock { background: white; border-radius: 8px; width: 200px; height: 110px; padding: 14px; position: relative; overflow: hidden; }
+  .slide-mock .slide-header { height: 8px; border-radius: 4px; margin-bottom: 8px; }
+  .slide-mock .slide-line { height: 5px; border-radius: 3px; margin-bottom: 5px; }
+  .slide-mock .slide-accent { position: absolute; top: 0; left: 0; width: 6px; height: 100%; }
+
+  /* Preview: Handout */
+  .handout-mock { background: #fff; border-radius: 8px; width: 160px; height: 110px; padding: 10px; }
+  .handout-header { height: 24px; border-radius: 4px; margin-bottom: 8px; display: flex; align-items: center; padding: 0 8px; }
+  .handout-line { height: 4px; border-radius: 2px; margin-bottom: 5px; }
+
+  /* Preview: App UI */
+  .app-mock { background: #1a1a1a; border-radius: 10px; width: 160px; height: 110px; padding: 10px; overflow: hidden; }
+  .app-nav { height: 18px; border-radius: 4px; margin-bottom: 8px; }
+  .app-card { height: 36px; border-radius: 6px; margin-bottom: 6px; display: flex; align-items: center; padding: 0 8px; }
+  .app-btn { height: 20px; border-radius: 10px; width: 70px; margin: 0 auto; display: flex; align-items: center; justify-content: center; font-size: 8px; font-weight: 500; color: #000; }
+
+  /* Preview: Ghost blog */
+  .blog-mock { background: #fff; border-radius: 8px; width: 180px; height: 110px; padding: 12px; }
+  .blog-tag { height: 14px; border-radius: 10px; width: 50px; margin-bottom: 8px; }
+  .blog-title { height: 8px; border-radius: 3px; margin-bottom: 5px; }
+  .blog-subtitle { height: 6px; border-radius: 3px; margin-bottom: 5px; }
+  .blog-link { height: 6px; border-radius: 3px; width: 60px; }
+
+  /* Preview: WCAG */
+  .wcag-mock { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+  .wcag-row-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 6px; font-size: 10px; }
+  .wcag-badge { font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
+
+  /* WCAG panel */
+  .wcag-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 12px; }
+  .wcag-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; }
+  .wcag-pair { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .wcag-sample { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; }
+  .wcag-details .ratio { font-size: 18px; font-weight: 500; }
+  .wcag-details .level { font-size: 11px; margin-top: 2px; }
+  .pass-aa { color: #2a8a1e; }
+  .pass-aaa { color: #1466a8; }
+  .fail { color: #c0392b; }
+  html.dark .pass-aa { color: #7dff6b; }
+  html.dark .pass-aaa { color: #57c8ff; }
+  html.dark .fail { color: #ff6b6b; }
+
+  /* Export panel */
+  .export-block { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+  .export-block pre { font-family: var(--mono); font-size: 11px; color: var(--text); line-height: 1.7; overflow-x: auto; white-space: pre-wrap; }
+  .export-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .export-title { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+  .copy-btn { background: var(--surface); border: 1px solid var(--border2); color: var(--text); border-radius: 6px; padding: 4px 10px; font-family: var(--mono); font-size: 11px; cursor: pointer; transition: background 0.15s; }
+  .copy-btn:hover { background: var(--border); }
+
+  /* Toast */
+  #toast { position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--accent); color: #000; border-radius: var(--radius); padding: 8px 16px; font-size: 12px; font-weight: 500; display: none; z-index: 999; }
+
+  /* Theme toggle */
+  .theme-toggle { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 20px; padding: 4px 10px 4px 6px; cursor: pointer; transition: background 0.2s; user-select: none; }
+  .theme-toggle:hover { background: var(--border); }
+  .toggle-track { width: 28px; height: 16px; border-radius: 8px; background: var(--faint); position: relative; transition: background 0.2s; flex-shrink: 0; }
+  html.dark .toggle-track { background: var(--accent); }
+  .toggle-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--surface); position: absolute; top: 2px; left: 2px; transition: transform 0.2s, background 0.2s; }
+  html.dark .toggle-thumb { transform: translateX(12px); }
+  .toggle-label { font-size: 11px; color: var(--muted); letter-spacing: 0.04em; }
+  .header-row { display: flex; align-items: flex-start; justify-content: space-between; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--faint); border-radius: 3px; }
+
+  @media (max-width: 768px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div>
+      <div class="header-row">
+        <div>
+          <div class="wordmark">palette <em>explorer</em></div>
+          <div class="tagline">color tools for makers</div>
+        </div>
+        <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          <span class="toggle-label" id="toggle-label">light</span>
+        </button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-label">Base color</div>
+      <div class="hex-row" style="margin-bottom: 10px;">
+        <input type="color" id="base-color" value="#5228D2">
+        <input type="text" id="hex-input" value="#5228D2" maxlength="7">
+      </div>
+      <div id="main-swatch" class="main-swatch"></div>
+      <div id="hsl-label" class="hsl-label"></div>
+    </div>
+
+    <div>
+      <div class="section-label">Harmony</div>
+      <select id="harmony">
+        <option value="monochromatic">Monochromatic</option>
+        <option value="complementary">Complementary</option>
+        <option value="analogous">Analogous</option>
+        <option value="triadic">Triadic</option>
+        <option value="split-complementary">Split complementary</option>
+        <option value="tetradic">Tetradic</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <div class="section-label">Adjustments</div>
+      <div class="control-row">
+        <label>Saturation</label>
+        <input type="range" id="sat" min="0" max="100" value="68" step="1">
+        <span class="val" id="sat-out">68%</span>
+      </div>
+      <div class="control-row">
+        <label>Lightness</label>
+        <input type="range" id="light" min="5" max="95" value="27" step="1">
+        <span class="val" id="light-out">27%</span>
+      </div>
+      <div class="control-row">
+        <label>Hue shift</label>
+        <input type="range" id="hue-shift" min="-180" max="180" value="0" step="1">
+        <span class="val" id="hue-out">0°</span>
+      </div>
+      <div class="control-row">
+        <label>Shades</label>
+        <input type="range" id="shades-count" min="2" max="12" value="8" step="1">
+        <span class="val" id="shades-out">8</span>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div>
+      <div class="section-label">Shades</div>
+      <div id="shades-row" class="shades-row"></div>
+    </div>
+
+    <div id="harmony-section" style="display:none">
+      <div class="section-label">Harmony palette</div>
+      <div id="harmony-row" class="harmony-row"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="tabs">
+      <button class="tab active" data-tab="usecases">Use cases</button>
+      <button class="tab" data-tab="wcag">Accessibility</button>
+      <button class="tab" data-tab="export">Export</button>
+    </div>
+
+    <!-- USE CASES TAB -->
+    <div class="tab-panel active" id="tab-usecases">
+      <div class="usecases-grid" id="usecases-grid">
+
+        <!-- Card 1: Brand identity -->
+        <div class="usecase-card">
+          <div class="usecase-preview" id="preview-brand"></div>
+          <div class="usecase-body">
+            <div class="usecase-title">Brand identity</div>
+            <div class="usecase-desc">Lock in primary, secondary, and accent before any design work. Export directly to Tailwind or CSS variables.</div>
+          </div>
+        </div>
+
+        <!-- Card 2: Tailwind config -->
+        <div class="usecase-card">
+          <div class="usecase-preview" id="preview-tailwind" style="align-items: flex-start; padding: 1rem 1.25rem;"></div>
+          <div class="usecase-body">
+            <div class="usecase-title">Tailwind config</div>
+            <div class="usecase-desc">Copy shade tokens directly into tailwind.config.js. No eyeballing — mathematically harmonious scales.</div>
+          </div>
+        </div>
+
+        <!-- Card 3: Teaching slides -->
+        <div class="usecase-card">
+          <div class="usecase-preview" id="preview-slides"></div>
+          <div class="usecase-body">
+            <div class="usecase-title">Teaching slides</div>
+            <div class="usecase-desc">Consistent slide decks for residents and students. Pick once, apply across your whole presentation system.</div>
+          </div>
+        </div>
+
+        <!-- Card 4: Patient handouts -->
+        <div class="usecase-card">
+          <div class="usecase-preview" id="preview-handout"></div>
+          <div class="usecase-body">
+            <div class="usecase-title">Patient handouts</div>
+            <div class="usecase-desc">Warm, trustworthy palettes for discharge instructions and Spanish-language materials. Tone matters.</div>
+          </div>
+        </div>
+
+        <!-- Card 5: App UI -->
+        <div class="usecase-card">
+          <div class="usecase-preview" id="preview-app"></div>
+          <div class="usecase-body">
+            <div class="usecase-title">App UI (Morning Momentum)</div>
+            <div class="usecase-desc">Dark mode, light mode, accent states — preview how your palette holds up across all app surfaces.</div>
+          </div>
+        </div>
+
+        <!-- Card 6: Blog theme -->
+        <div class="usecase-card">
+          <div class="usecase-preview" id="preview-blog"></div>
+          <div class="usecase-body">
+            <div class="usecase-title">Blog / Ghost theme</div>
+            <div class="usecase-desc">Use a split-complementary of your app primary as your Momentum Lab blog accent. Related, but distinct.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- WCAG TAB -->
+    <div class="tab-panel" id="tab-wcag">
+      <div id="wcag-grid" class="wcag-grid"></div>
+    </div>
+
+    <!-- EXPORT TAB -->
+    <div class="tab-panel" id="tab-export">
+      <div class="export-block">
+        <div class="export-header">
+          <span class="export-title">CSS variables</span>
+          <button class="copy-btn" onclick="copyExport('css')">Copy</button>
+        </div>
+        <pre id="export-css"></pre>
+      </div>
+      <div class="export-block">
+        <div class="export-header">
+          <span class="export-title">Tailwind config</span>
+          <button class="copy-btn" onclick="copyExport('tw')">Copy</button>
+        </div>
+        <pre id="export-tw"></pre>
+      </div>
+      <div class="export-block">
+        <div class="export-header">
+          <span class="export-title">JSON tokens</span>
+          <button class="copy-btn" onclick="copyExport('json')">Copy</button>
+        </div>
+        <pre id="export-json"></pre>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast">Copied to clipboard</div>
+
+<script>
+// ── Helpers ──────────────────────────────────────────────────
+function hexToHsl(hex) {
+  let r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255;
+  let max=Math.max(r,g,b),min=Math.min(r,g,b),h,s,l=(max+min)/2;
+  if(max===min){h=s=0;}else{let d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);switch(max){case r:h=((g-b)/d+(g<b?6:0))/6;break;case g:h=((b-r)/d+2)/6;break;case b:h=((r-g)/d+4)/6;break;}}
+  return [Math.round(h*360),Math.round(s*100),Math.round(l*100)];
+}
+function hslToHex(h,s,l) {
+  h=((h%360)+360)%360;s/=100;l/=100;
+  let c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2,r,g,b;
+  if(h<60){r=c;g=x;b=0;}else if(h<120){r=x;g=c;b=0;}else if(h<180){r=0;g=c;b=x;}else if(h<240){r=0;g=x;b=c;}else if(h<300){r=x;g=0;b=c;}else{r=c;g=0;b=x;}
+  return '#'+[r+m,g+m,b+m].map(v=>Math.round(v*255).toString(16).padStart(2,'0')).join('');
+}
+function contrastRatio(h1,h2) {
+  function lum(h){let r=parseInt(h.slice(1,3),16)/255,g=parseInt(h.slice(3,5),16)/255,b=parseInt(h.slice(5,7),16)/255;return 0.2126*[r,g,b].map(v=>v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4))[0]+0.7152*[r,g,b].map(v=>v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4))[1]+0.0722*[r,g,b].map(v=>v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4))[2];}
+  function lumR(h){let rv=parseInt(h.slice(1,3),16)/255,gv=parseInt(h.slice(3,5),16)/255,bv=parseInt(h.slice(5,7),16)/255;let c=[rv,gv,bv].map(v=>v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4));return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2];}
+  let l1=lumR(h1),l2=lumR(h2),li=Math.max(l1,l2),da=Math.min(l1,l2);
+  return (li+0.05)/(da+0.05);
+}
+function textOn(bg) { let [,, l]=hexToHsl(bg); return l>52?'#111111':'#f5f5f0'; }
+function getShades(h,s,n) {
+  let out=[];for(let i=0;i<n;i++){let li=Math.round(95-((95-6)/(n-1))*i);out.push(hslToHex(h,s,li));}return out;
+}
+function getHarmony(h,s,l,type) {
+  switch(type){
+    case 'complementary':return[[h,s,l],[h+180,s,l]];
+    case 'analogous':return[[h-30,s,l],[h,s,l],[h+30,s,l]];
+    case 'triadic':return[[h,s,l],[h+120,s,l],[h+240,s,l]];
+    case 'split-complementary':return[[h,s,l],[h+150,s,l],[h+210,s,l]];
+    case 'tetradic':return[[h,s,l],[h+90,s,l],[h+180,s,l],[h+270,s,l]];
+    default:return[[h,s,l]];
+  }
+}
+function showToast(msg='Copied to clipboard') {
+  let t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',1500);
+}
+function copyText(txt){navigator.clipboard.writeText(txt).catch(()=>{});showToast();}
+
+// ── State ─────────────────────────────────────────────────────
+let state = { h:255, s:68, l:27, hueShift:0, shades:8, harmony:'monochromatic' };
+
+// ── Render ────────────────────────────────────────────────────
+function render() {
+  const { h, s, l, hueShift, shades, harmony } = state;
+  const H = ((h + hueShift) % 360 + 360) % 360;
+  const baseHex = hslToHex(H, s, l);
+  const shadesArr = getShades(H, s, shades);
+  const harmonyColors = getHarmony(H, s, l, harmony);
+
+  // Sidebar: main swatch
+  const ms = document.getElementById('main-swatch');
+  ms.style.background = baseHex; ms.style.color = textOn(baseHex);
+  ms.textContent = baseHex.toUpperCase();
+  ms.onclick = () => copyText(baseHex.toUpperCase());
+  document.getElementById('hsl-label').textContent = `hsl(${H}, ${s}%, ${l}%)`;
+
+  // Sidebar: shades
+  const sr = document.getElementById('shades-row'); sr.innerHTML = '';
+  const sh = Math.max(36, Math.min(52, Math.round(240 / shades)));
+  shadesArr.forEach(hex => {
+    const wrap = document.createElement('div'); wrap.className = 'shade-item';
+    wrap.innerHTML = `<div class="shade-block" style="height:${sh}px;background:${hex}"></div><div class="shade-hex">${hex.toUpperCase()}</div>`;
+    wrap.onclick = () => copyText(hex.toUpperCase());
+    sr.appendChild(wrap);
+  });
+
+  // Sidebar: harmony
+  const hs = document.getElementById('harmony-section');
+  const hr = document.getElementById('harmony-row'); hr.innerHTML = '';
+  if(harmonyColors.length > 1) {
+    hs.style.display = 'block';
+    harmonyColors.forEach(([hh,ss,ll]) => {
+      const hx = hslToHex(hh,ss,ll);
+      const sw = document.createElement('div'); sw.className = 'harmony-swatch';
+      sw.style.background = hx; sw.title = hx.toUpperCase();
+      sw.onclick = () => copyText(hx.toUpperCase());
+      hr.appendChild(sw);
+    });
+  } else { hs.style.display = 'none'; }
+
+  // Use cases previews
+  renderBrand(baseHex, shadesArr);
+  renderTailwind(shadesArr);
+  renderSlides(baseHex, shadesArr);
+  renderHandout(baseHex, shadesArr);
+  renderApp(baseHex, shadesArr);
+  renderBlog(baseHex, shadesArr, H, s, l);
+
+  // WCAG tab
+  renderWCAG(baseHex, shadesArr, H, s);
+
+  // Export tab
+  renderExports(baseHex, shadesArr, H, s);
+}
+
+function renderBrand(base, shades) {
+  const el = document.getElementById('preview-brand'); el.innerHTML = '';
+  el.style.background = '#111';
+  const chips = [
+    { label: 'Primary', hex: base },
+    { label: 'Light', hex: shades[1] },
+    { label: 'Dark', hex: shades[shades.length-2] },
+  ];
+  const wrap = document.createElement('div'); wrap.className = 'brand-chips';
+  chips.forEach(c => {
+    const d = document.createElement('div'); d.className = 'brand-chip';
+    d.style.background = c.hex; d.style.color = textOn(c.hex);
+    d.textContent = `${c.label}  ${c.hex.toUpperCase()}`;
+    wrap.appendChild(d);
+  });
+  el.appendChild(wrap);
+}
+
+function renderTailwind(shades) {
+  const el = document.getElementById('preview-tailwind'); el.innerHTML = '';
+  el.style.background = '#0f0f0f';
+  const names = ['50','100','200','300','400','500','600','700','800','900','950'];
+  const shown = shades.slice(0, 5);
+  const wrap = document.createElement('div'); wrap.className = 'tw-tokens';
+  shown.forEach((hex, i) => {
+    const d = document.createElement('div'); d.className = 'tw-line';
+    d.innerHTML = `<div class="tw-dot" style="background:${hex}"></div><span class="tw-key">${names[i] || i*100}:</span><span class="tw-val">'${hex.toUpperCase()}'</span>`;
+    wrap.appendChild(d);
+  });
+  el.appendChild(wrap);
+}
+
+function renderSlides(base, shades) {
+  const el = document.getElementById('preview-slides'); el.innerHTML = '';
+  el.style.background = '#1a1a1a';
+  const slide = document.createElement('div'); slide.className = 'slide-mock';
+  const light = shades[1];
+  slide.innerHTML = `
+    <div class="slide-accent" style="background:${base}"></div>
+    <div style="padding-left:12px">
+      <div class="slide-header" style="background:${base};width:80%"></div>
+      <div class="slide-line" style="background:${light};opacity:0.6;width:90%"></div>
+      <div class="slide-line" style="background:${light};opacity:0.4;width:70%"></div>
+      <div class="slide-line" style="background:${light};opacity:0.4;width:80%"></div>
+      <div style="display:flex;gap:6px;margin-top:8px">
+        <div style="width:40px;height:22px;border-radius:4px;background:${base};opacity:0.15"></div>
+        <div style="width:40px;height:22px;border-radius:4px;background:${base};opacity:0.15"></div>
+      </div>
+    </div>`;
+  el.appendChild(slide);
+}
+
+function renderHandout(base, shades) {
+  const el = document.getElementById('preview-handout'); el.innerHTML = '';
+  el.style.background = '#e8e8e8';
+  const mock = document.createElement('div'); mock.className = 'handout-mock';
+  mock.innerHTML = `
+    <div class="handout-header" style="background:${base}">
+      <span style="font-size:8px;color:${textOn(base)};font-weight:500">Patient Instructions</span>
+    </div>
+    <div class="handout-line" style="background:#ddd;width:90%"></div>
+    <div class="handout-line" style="background:#ddd;width:75%"></div>
+    <div class="handout-line" style="background:${shades[2]};opacity:0.5;width:85%;margin-top:4px"></div>
+    <div class="handout-line" style="background:#ddd;width:60%"></div>`;
+  el.appendChild(mock);
+}
+
+function renderApp(base, shades) {
+  const el = document.getElementById('preview-app'); el.innerHTML = '';
+  el.style.background = '#111';
+  const mock = document.createElement('div'); mock.className = 'app-mock';
+  const accent = shades[Math.floor(shades.length * 0.4)];
+  mock.innerHTML = `
+    <div class="app-nav" style="background:${base}"></div>
+    <div class="app-card" style="background:${shades[shades.length-2]}">
+      <div style="width:8px;height:8px;border-radius:50%;background:${base};margin-right:6px"></div>
+      <div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.3);flex:1"></div>
+    </div>
+    <div class="app-card" style="background:${shades[shades.length-3]};opacity:0.7">
+      <div style="width:8px;height:8px;border-radius:50%;background:${accent};margin-right:6px"></div>
+      <div style="height:5px;border-radius:3px;background:rgba(255,255,255,0.2);flex:1"></div>
+    </div>
+    <div class="app-btn" style="background:${base};color:${textOn(base)}">Start →</div>`;
+  el.appendChild(mock);
+}
+
+function renderBlog(base, shades, H, s, l) {
+  const el = document.getElementById('preview-blog'); el.innerHTML = '';
+  el.style.background = '#e8e8e8';
+  const splitComp = hslToHex((H+150)%360, s, l);
+  const mock = document.createElement('div'); mock.className = 'blog-mock';
+  mock.innerHTML = `
+    <div class="blog-tag" style="background:${splitComp}"></div>
+    <div class="blog-title" style="background:#ccc;width:90%"></div>
+    <div class="blog-subtitle" style="background:#ddd;width:80%"></div>
+    <div class="blog-subtitle" style="background:#ddd;width:70%"></div>
+    <div class="blog-link" style="background:${base};opacity:0.7;margin-top:6px"></div>`;
+  el.appendChild(mock);
+}
+
+function renderWCAG(base, shades, H, s) {
+  const grid = document.getElementById('wcag-grid'); grid.innerHTML = '';
+  const pairs = [
+    [base, '#ffffff', 'Base on white'],
+    [base, '#000000', 'Base on black'],
+    [shades[0], base, 'Lightest on base'],
+    [shades[shades.length-1], '#ffffff', 'Darkest on white'],
+    [base, shades[0], 'Base on lightest'],
+    [shades[shades.length-2], shades[0], 'Dark on light'],
+  ];
+  pairs.forEach(([bg, fg, label]) => {
+    const r = contrastRatio(bg, fg);
+    const passAA = r >= 4.5, passAAA = r >= 7;
+    const level = passAAA ? 'AAA' : passAA ? 'AA' : 'Fail';
+    const cls = passAAA ? 'pass-aaa' : passAA ? 'pass-aa' : 'fail';
+    const card = document.createElement('div'); card.className = 'wcag-card';
+    card.innerHTML = `
+      <div class="wcag-pair">
+        <div class="wcag-sample" style="background:${bg};color:${fg}">Aa</div>
+        <div class="wcag-details">
+          <div class="ratio ${cls}">${r.toFixed(2)}:1</div>
+          <div class="level ${cls}">${level}</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">${label}</div>
+      <div style="font-size:10px;color:var(--faint);margin-top:4px">${bg.toUpperCase()} / ${fg.toUpperCase()}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+function renderExports(base, shades, H, s) {
+  const names = ['50','100','200','300','400','500','600','700','800','900'];
+  const padded = shades.slice(0, 10);
+
+  const cssLines = [':root {', `  --color-primary: ${base};`];
+  padded.forEach((h,i) => cssLines.push(`  --color-${names[i]||i*100}: ${h};`));
+  cssLines.push('}');
+  document.getElementById('export-css').textContent = cssLines.join('\n');
+
+  const twLines = ["// tailwind.config.js", "module.exports = {", "  theme: {", "    extend: {", "      colors: {", "        brand: {"];
+  padded.forEach((h,i) => twLines.push(`          '${names[i]||i*100}': '${h}',`));
+  twLines.push("        },", "      },", "    },", "  },", "};");
+  document.getElementById('export-tw').textContent = twLines.join('\n');
+
+  const tokens = { brand: {} };
+  padded.forEach((h,i) => tokens.brand[names[i]||i*100] = { value: h, type: 'color' });
+  document.getElementById('export-json').textContent = JSON.stringify(tokens, null, 2);
+}
+
+// ── Copy export blocks ─────────────────────────────────────────
+function copyExport(type) {
+  const id = type === 'css' ? 'export-css' : type === 'tw' ? 'export-tw' : 'export-json';
+  copyText(document.getElementById(id).textContent);
+}
+
+// ── Tabs ──────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Input bindings ────────────────────────────────────────────
+document.getElementById('base-color').addEventListener('input', e => {
+  document.getElementById('hex-input').value = e.target.value;
+  const [h] = hexToHsl(e.target.value);
+  state.h = h; render();
+});
+document.getElementById('hex-input').addEventListener('input', e => {
+  const v = e.target.value;
+  if (/^#[0-9a-fA-F]{6}$/.test(v)) {
+    document.getElementById('base-color').value = v;
+    const [h] = hexToHsl(v); state.h = h; render();
+  }
+});
+document.getElementById('sat').addEventListener('input', e => { state.s = +e.target.value; document.getElementById('sat-out').textContent = e.target.value + '%'; render(); });
+document.getElementById('light').addEventListener('input', e => { state.l = +e.target.value; document.getElementById('light-out').textContent = e.target.value + '%'; render(); });
+document.getElementById('hue-shift').addEventListener('input', e => { state.hueShift = +e.target.value; const v = +e.target.value; document.getElementById('hue-out').textContent = (v >= 0 ? '+' : '') + v + '°'; render(); });
+document.getElementById('shades-count').addEventListener('input', e => { state.shades = +e.target.value; document.getElementById('shades-out').textContent = e.target.value; render(); });
+document.getElementById('harmony').addEventListener('change', e => { state.harmony = e.target.value; render(); });
+
+// ── Theme toggle ──────────────────────────────────────────────
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  document.getElementById('toggle-label').textContent = isDark ? 'dark' : 'light';
+}
+
+render();
+</script>
+</body>
+</html>
