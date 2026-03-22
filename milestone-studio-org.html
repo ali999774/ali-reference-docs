@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milestone Studio — Team Reference</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #fafaf8; --surface: #ffffff; --border: #e5e4df;
+    --text: #1a1a18; --muted: #6b6b66; --faint: #9b9b96;
+    --teal: #0E8C72; --teal-light: #e1f5ee; --teal-dark: #085041;
+    --purple: #7F77DD; --purple-light: #EEEDFE; --purple-dark: #3C3489;
+    --amber: #BA7517; --amber-light: #FAEEDA; --amber-dark: #633806;
+    --blue: #378ADD; --blue-light: #E6F1FB; --blue-dark: #0C447C;
+    --gray-light: #F1EFE8; --gray-dark: #444441;
+    --coral-light: #FAECE7; --coral-dark: #4A1B0C;
+    --green-light: #EAF3DE; --green-dark: #173404;
+    --red: #E24B4A; --shadow: 0 1px 3px rgba(0,0,0,0.07);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a18; --surface: #242422; --border: #333330;
+      --text: #e8e7e2; --muted: #9b9b96; --faint: #6b6b66;
+      --teal-light: #085041; --teal-dark: #9FE1CB;
+      --purple-light: #3C3489; --purple-dark: #CECBF6;
+      --amber-light: #633806; --amber-dark: #FAC775;
+      --blue-light: #0C447C; --blue-dark: #B5D4F4;
+      --gray-light: #333330; --gray-dark: #D3D1C7;
+      --coral-light: #4A1B0C; --coral-dark: #F5C4B3;
+      --green-light: #173404; --green-dark: #C0DD97;
+    }
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); line-height: 1.5; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+  /* Header */
+  .studio-header { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 0.5px solid var(--border); }
+  .studio-name { font-size: 26px; font-weight: 600; letter-spacing: -0.5px; }
+  .studio-tagline { font-size: 14px; color: var(--muted); margin-top: 4px; }
+  .studio-meta { display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .meta-item { font-size: 12px; color: var(--faint); }
+  .meta-item strong { color: var(--muted); font-weight: 500; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 6px; margin-bottom: 2rem; flex-wrap: wrap; }
+  .tab { font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 20px; cursor: pointer; border: 0.5px solid var(--border); color: var(--muted); background: transparent; transition: all 0.15s; }
+  .tab.active { background: var(--text); color: var(--bg); border-color: transparent; }
+  .tab:hover:not(.active) { color: var(--text); border-color: var(--muted); }
+
+  /* Views */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* People grid */
+  .people-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .people-grid { grid-template-columns: 1fr; } }
+
+  .person-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; overflow: hidden; cursor: pointer; transition: border-color 0.15s, box-shadow 0.15s; }
+  .person-card:hover { border-color: var(--muted); box-shadow: var(--shadow); }
+  .person-card.open { border-color: var(--text); }
+
+  .card-top { padding: 1rem; display: flex; gap: 12px; align-items: flex-start; }
+  .av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0; }
+  .av-pm    { background: var(--purple-light); color: var(--purple-dark); }
+  .av-de    { background: var(--amber-light);  color: var(--amber-dark);  }
+  .av-fe    { background: var(--teal-light);   color: var(--teal-dark);   }
+  .av-be    { background: var(--blue-light);   color: var(--blue-dark);   }
+  .av-seo   { background: var(--coral-light);  color: var(--coral-dark);  }
+  .av-qa    { background: var(--green-light);  color: var(--green-dark);  }
+  .av-ops   { background: var(--gray-light);   color: var(--gray-dark);   }
+
+  .av-svg { width: 52px; height: 52px; border-radius: 50%; flex-shrink: 0; border: 2px solid var(--border); overflow: hidden; display: block; }
+  .age-badge { font-size: 10px; font-weight: 500; color: var(--faint); background: var(--gray-light); border-radius: 20px; padding: 1px 7px; margin-left: 6px; vertical-align: middle; }
+
+  .card-meta { flex: 1; }
+  .card-name  { font-size: 14px; font-weight: 600; }
+  .card-title { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .badges     { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .bdg { font-size: 10px; padding: 2px 7px; border-radius: 20px; font-weight: 500; }
+  .bdg-sonnet  { background: var(--purple-light); color: var(--purple-dark); }
+  .bdg-opus    { background: var(--amber-light);  color: var(--amber-dark);  }
+  .bdg-gempro  { background: var(--teal-light);   color: var(--teal-dark);   }
+  .bdg-flash   { background: var(--blue-light);   color: var(--blue-dark);   }
+  .bdg-lite    { background: var(--gray-light);   color: var(--gray-dark);   }
+
+  .card-body { display: none; border-top: 0.5px solid var(--border); padding: 1rem; }
+  .person-card.open .card-body { display: block; }
+
+  .section { margin-bottom: 0.75rem; }
+  .section:last-child { margin-bottom: 0; }
+  .slabel { font-size: 10px; font-weight: 600; color: var(--faint); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+  .sitem { font-size: 12px; color: var(--muted); padding: 2px 0; padding-left: 12px; position: relative; }
+  .sitem::before { content: "–"; position: absolute; left: 0; color: var(--faint); }
+  .tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .tag { font-size: 10px; padding: 2px 8px; border-radius: 20px; background: var(--bg); border: 0.5px solid var(--border); color: var(--muted); }
+
+  /* Workflow */
+  .flow { display: flex; flex-direction: column; gap: 0; }
+  .flow-phase { font-size: 10px; font-weight: 600; color: var(--faint); text-transform: uppercase; letter-spacing: 0.07em; margin: 1.25rem 0 0.5rem; }
+  .flow-phase:first-child { margin-top: 0; }
+  .flow-node { background: var(--surface); border: 0.5px solid var(--border); border-radius: 10px; padding: 0.75rem 1rem; }
+  .flow-node-name { font-size: 14px; font-weight: 600; }
+  .flow-node-sub  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .flow-parallel  { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 500px) { .flow-parallel { grid-template-columns: 1fr; } }
+  .flow-arrow { text-align: center; color: var(--faint); font-size: 18px; padding: 4px 0; }
+  .flow-node.highlight { border-color: var(--teal); }
+  .flow-node.highlight2 { border-color: var(--amber); }
+  .gate-note { font-size: 11px; color: var(--teal-dark); background: var(--teal-light); border-radius: 6px; padding: 4px 10px; margin-top: 6px; display: inline-block; }
+
+  /* Interactions */
+  .int-table { width: 100%; border-collapse: collapse; }
+  .int-table th { font-size: 10px; font-weight: 600; color: var(--faint); text-transform: uppercase; letter-spacing: 0.06em; padding: 0.5rem 0.75rem; text-align: left; border-bottom: 0.5px solid var(--border); }
+  .int-table td { font-size: 12px; color: var(--muted); padding: 0.6rem 0.75rem; border-bottom: 0.5px solid var(--border); vertical-align: top; }
+  .int-table tr:last-child td { border-bottom: none; }
+  .int-name { font-weight: 600; color: var(--text); }
+  .int-arrow { color: var(--faint); }
+  .int-doc { font-family: monospace; font-size: 11px; color: var(--teal-dark); background: var(--teal-light); padding: 1px 6px; border-radius: 4px; }
+  .int-none { font-style: italic; color: var(--faint); }
+
+  /* Performance */
+  .perf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 600px) { .perf-grid { grid-template-columns: 1fr; } }
+  .perf-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 1rem; }
+  .perf-name { font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .metric { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+  .metric-lbl { font-size: 11px; color: var(--muted); width: 75px; flex-shrink: 0; }
+  .metric-bar { flex: 1; height: 4px; border-radius: 2px; background: var(--border); }
+  .metric-fill { height: 100%; border-radius: 2px; }
+  .m-leverage { background: var(--purple); }
+  .m-error    { background: var(--red); }
+  .m-critical { background: var(--teal); }
+  .metric-val { font-size: 11px; color: var(--faint); width: 18px; text-align: right; }
+  .perf-note { font-size: 11px; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 0.5px solid var(--border); line-height: 1.5; }
+  .verdict { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 20px; display: inline-block; margin-top: 6px; }
+  .v-keep { background: var(--teal-light); color: var(--teal-dark); }
+  .v-watch { background: var(--amber-light); color: var(--amber-dark); }
+  .v-crit { background: var(--coral-light); color: var(--coral-dark); }
+
+  /* Salary */
+  .sal-list { display: flex; flex-direction: column; gap: 8px; }
+  .sal-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 10px; padding: 0.875rem 1rem; }
+  .sal-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .sal-name { font-size: 14px; font-weight: 600; }
+  .sal-title-sm { font-size: 11px; font-weight: 400; color: var(--muted); margin-left: 6px; }
+  .sal-range { font-size: 14px; font-weight: 600; color: var(--teal-dark); }
+  .sal-bar { height: 4px; border-radius: 2px; background: var(--border); margin-bottom: 6px; }
+  .sal-fill { height: 100%; border-radius: 2px; background: var(--teal); }
+  .sal-note { font-size: 11px; color: var(--muted); line-height: 1.5; }
+  .sal-insight { font-size: 11px; color: var(--amber-dark); background: var(--amber-light); border-radius: 6px; padding: 3px 8px; display: inline-block; margin-top: 5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="studio-header">
+    <div class="studio-name">Milestone Studio</div>
+    <div class="studio-tagline">A simulated 10-person software studio. Current engagement: milestonepediatrics.ai</div>
+    <div class="studio-meta">
+      <span class="meta-item"><strong>Founded</strong> March 2026</span>
+      <span class="meta-item"><strong>Headcount</strong> 10 agents</span>
+      <span class="meta-item"><strong>Stack</strong> React · Vite · Tailwind · Supabase · Vercel</span>
+      <span class="meta-item"><strong>Client</strong> Dr. Ali K.</span>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" onclick="show('people',this)">The People</button>
+    <button class="tab" onclick="show('workflow',this)">Workflow</button>
+    <button class="tab" onclick="show('interactions',this)">Interactions</button>
+    <button class="tab" onclick="show('performance',this)">Performance</button>
+    <button class="tab" onclick="show('salary',this)">Salaries</button>
+    <button class="tab" onclick="show('authority',this)">Authority Map</button>
+    <button class="tab" onclick="show('backgrounds',this)">Backgrounds</button>
+    <button class="tab" onclick="show('network',this)">Network</button>
+  </div>
+
+  <!-- ── PEOPLE ── -->
+  <div id="v-people" class="view active">
+    <div class="people-grid">
+
+      <!-- Sophia -->
+      <div class="person-card" onclick="toggle(this)">
+        <div class="card-top">
+          <svg class="av-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#EEEDFE"/>
+            <!-- Body / blazer -->
+            <rect x="10" y="36" width="32" height="20" rx="6" fill="#5B5BD6"/>
+            <rect x="22" y="36" width="8" height="10" fill="#fff" opacity="0.3"/>
+            <!-- Neck -->
+            <rect x="22" y="30" width="8" height="8" fill="#F5C5A3"/>
+            <!-- Head -->
+            <ellipse cx="26" cy="22" rx="11" ry="12" fill="#F5C5A3"/>
+            <!-- Hair - long dark straight -->
+            <ellipse cx="26" cy="14" rx="11" ry="6" fill="#2c1b18"/>
+            <rect x="15" y="14" width="4" height="14" rx="2" fill="#2c1b18"/>
+            <rect x="33" y="14" width="4" height="14" rx="2" fill="#2c1b18"/>
+            <!-- Glasses -->
+            <rect x="18" y="20" width="7" height="5" rx="2" fill="none" stroke="#4a4a4a" stroke-width="1.2"/>
+            <rect x="27" y="20" width="7" height="5" rx="2" fill="none" stroke="#4a4a4a" stroke-width="1.2"/>
+            <line x1="25" y1="22" x2="27" y2="22" stroke="#4a4a4a" stroke-width="1"/>
+            <!-- Eyes -->
+            <circle cx="21" cy="22" r="1.2" fill="#2c1b18"/>
+            <circle cx="30" cy="22" r="1.2" fill="#2c1b18"/>
+            <!-- Smile -->
+            <path d="M22 26 Q26 29 30 26" fill="none" stroke="#c8917a" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <div class="card-meta">
+            <div class="card-name">Sophia Chen <span class="age-badge">32</span></div>
+            <div class="card-title">Project Manager</div>
+            <div class="badges"><span class="bdg bdg-flash">Gemini Flash</span><span class="bdg bdg-lite">Minimal thinking</span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <div class="slabel">Day to day</div>
+            <div class="sitem">Owns the master spec — the single source of truth</div>
+            <div class="sitem">Writes one scoped ticket per team member</div>
+            <div class="sitem">Tracks phase status in STATUS.md</div>
+            <div class="sitem">Writes handoff notes between sequential phases</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Personality</div>
+            <div class="tags"><span class="tag">Organized</span><span class="tag">Process-first</span><span class="tag">Never writes code</span><span class="tag">Silent enabler</span></div>
+          </div>
+          <div class="section">
+            <div class="slabel">Why she matters</div>
+            <div class="sitem">If her spec is vague, every downstream brief suffers. Clarity multiplies through the whole team.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Marco -->
+      <div class="person-card" onclick="toggle(this)">
+        <div class="card-top">
+          <svg class="av-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#FAEEDA"/>
+            <!-- Body / graphic tee -->
+            <rect x="10" y="36" width="32" height="20" rx="6" fill="#e8a000"/>
+            <circle cx="26" cy="42" r="4" fill="#fff" opacity="0.25"/>
+            <!-- Neck -->
+            <rect x="22" y="30" width="8" height="8" fill="#C68642"/>
+            <!-- Head -->
+            <ellipse cx="26" cy="22" rx="11" ry="12" fill="#C68642"/>
+            <!-- Hair - short dark -->
+            <ellipse cx="26" cy="13" rx="11" ry="5" fill="#4a312c"/>
+            <rect x="15" y="13" width="3" height="7" rx="1.5" fill="#4a312c"/>
+            <rect x="34" y="13" width="3" height="7" rx="1.5" fill="#4a312c"/>
+            <!-- Beard -->
+            <ellipse cx="26" cy="30" rx="8" ry="4" fill="#4a312c" opacity="0.7"/>
+            <!-- Eyes -->
+            <circle cx="21" cy="21" r="1.5" fill="#2c1b18"/>
+            <circle cx="31" cy="21" r="1.5" fill="#2c1b18"/>
+            <!-- Eyebrows -->
+            <path d="M19 18.5 Q21 17.5 23 18.5" fill="none" stroke="#4a312c" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M29 18.5 Q31 17.5 33 18.5" fill="none" stroke="#4a312c" stroke-width="1.2" stroke-linecap="round"/>
+            <!-- Smile under beard -->
+            <path d="M22 26 Q26 28 30 26" fill="none" stroke="#9a6030" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <div class="card-meta">
+            <div class="card-name">Marco Rivera <span class="age-badge">36</span></div>
+            <div class="card-title">Brand & UX Designer</div>
+            <div class="badges"><span class="bdg bdg-gempro">Gemini 3.1 Pro</span><span class="bdg bdg-opus">High thinking</span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <div class="slabel">Day to day</div>
+            <div class="sitem">Defines every color, font, and spacing token — the visual law</div>
+            <div class="sitem">Builds 6 shared components everyone imports: Nav, Footer, Button, Card, Badge, SectionWrapper</div>
+            <div class="sitem">Documents all decisions in HANDOFF-marco.md</div>
+            <div class="sitem">Thinks about trust psychology and conversion, not just aesthetics</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Personality</div>
+            <div class="tags"><span class="tag">Opinionated</span><span class="tag">Detail-obsessed</span><span class="tag">High standards</span><span class="tag">Visual law</span></div>
+          </div>
+          <div class="section">
+            <div class="slabel">Why he matters most</div>
+            <div class="sitem">Highest leverage on the team. Every pixel flows from his tokens. A wrong color is a site-wide problem. Always audit before the parallel phase.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jordan -->
+      <div class="person-card" onclick="toggle(this)">
+        <div class="card-top">
+          <svg class="av-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#e1f5ee"/>
+            <!-- Body / sweater -->
+            <rect x="10" y="36" width="32" height="20" rx="6" fill="#3c4f5c"/>
+            <rect x="20" y="36" width="12" height="4" rx="2" fill="#2a3840"/>
+            <!-- Neck -->
+            <rect x="22" y="30" width="8" height="8" fill="#F0C27F"/>
+            <!-- Head -->
+            <ellipse cx="26" cy="22" rx="11" ry="12" fill="#F0C27F"/>
+            <!-- Hair - curly dark -->
+            <ellipse cx="26" cy="13" rx="12" ry="6" fill="#1a1a18"/>
+            <circle cx="17" cy="16" r="4" fill="#1a1a18"/>
+            <circle cx="35" cy="16" r="4" fill="#1a1a18"/>
+            <circle cx="21" cy="13" r="3.5" fill="#1a1a18"/>
+            <circle cx="31" cy="13" r="3.5" fill="#1a1a18"/>
+            <!-- Eyes -->
+            <ellipse cx="21" cy="22" rx="1.8" ry="1.2" fill="#2c1b18"/>
+            <ellipse cx="31" cy="22" rx="1.8" ry="1.2" fill="#2c1b18"/>
+            <!-- Eyebrows - strong -->
+            <path d="M18.5 19 Q21 18 23.5 19" fill="none" stroke="#1a1a18" stroke-width="1.4" stroke-linecap="round"/>
+            <path d="M28.5 19 Q31 18 33.5 19" fill="none" stroke="#1a1a18" stroke-width="1.4" stroke-linecap="round"/>
+            <!-- Smile -->
+            <path d="M22 26.5 Q26 30 30 26.5" fill="none" stroke="#c8917a" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <div class="card-meta">
+            <div class="card-name">Jordan Park <span class="age-badge">38</span></div>
+            <div class="card-title">Frontend Lead — two acts</div>
+            <div class="badges"><span class="bdg bdg-gempro">Gemini Pro (Act 1)</span><span class="bdg bdg-opus">Opus (Act 2)</span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <div class="slabel">Act 1 — goes third</div>
+            <div class="sitem">Scaffolds the entire project: Vite, React, routing, folder structure</div>
+            <div class="sitem">Creates stub pages for Priya and Tyler to fill</div>
+            <div class="sitem">Sets up .env, gitignore, Supabase client stub, privacy route</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Act 2 — goes last before QA</div>
+            <div class="sitem">Wires Tyler's form UI to Rachel's API — the critical integration moment</div>
+            <div class="sitem">Visual consistency pass across all pages and breakpoints</div>
+            <div class="sitem">Final build check, README.md, hands to Dev Kumar</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Personality</div>
+            <div class="tags"><span class="tag">Architect</span><span class="tag">Connector</span><span class="tag">Idle in the middle</span><span class="tag">Both gates owner</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Priya -->
+      <div class="person-card" onclick="toggle(this)">
+        <div class="card-top">
+          <svg class="av-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#d1f4e0"/>
+            <!-- Body -->
+            <rect x="10" y="36" width="32" height="20" rx="6" fill="#e8a000"/>
+            <!-- Neck -->
+            <rect x="22" y="30" width="8" height="8" fill="#C68642"/>
+            <!-- Head -->
+            <ellipse cx="26" cy="22" rx="11" ry="12" fill="#C68642"/>
+            <!-- Hair - bun -->
+            <rect x="15" y="12" width="22" height="10" rx="5" fill="#1a1a18"/>
+            <circle cx="26" cy="11" r="5" fill="#1a1a18"/>
+            <circle cx="26" cy="8" r="4" fill="#1a1a18"/>
+            <!-- Bun detail -->
+            <circle cx="26" cy="8" r="2" fill="#333" opacity="0.5"/>
+            <!-- Side hair -->
+            <rect x="15" y="14" width="3" height="12" rx="1.5" fill="#1a1a18"/>
+            <rect x="34" y="14" width="3" height="12" rx="1.5" fill="#1a1a18"/>
+            <!-- Eyes -->
+            <ellipse cx="21" cy="22" rx="1.6" ry="1.4" fill="#1a1a18"/>
+            <ellipse cx="31" cy="22" rx="1.6" ry="1.4" fill="#1a1a18"/>
+            <!-- Eyebrows -->
+            <path d="M19 19.5 Q21 18.5 23 19.5" fill="none" stroke="#1a1a18" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M29 19.5 Q31 18.5 33 19.5" fill="none" stroke="#1a1a18" stroke-width="1.3" stroke-linecap="round"/>
+            <!-- Smile -->
+            <path d="M22 26 Q26 29.5 30 26" fill="none" stroke="#9a6030" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <div class="card-meta">
+            <div class="card-name">Priya Nair <span class="age-badge">30</span></div>
+            <div class="card-title">Frontend Dev — Marketing Pages</div>
+            <div class="badges"><span class="bdg bdg-sonnet">Claude Sonnet 4.6</span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <div class="slabel">Day to day</div>
+            <div class="sitem">Builds Home and About — highest-traffic, highest-stakes pages</div>
+            <div class="sitem">Writes pain point copy that makes parents feel seen</div>
+            <div class="sitem">Three CTA instances, hero section, mobile sticky bar</div>
+            <div class="sitem">Credentials strip, physician photo slot, bio structure</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Why Claude, not Gemini</div>
+            <div class="sitem">Writes copy and React simultaneously. Claude's GDPval Elo (1633) beats Gemini (1317) here — fewer rework iterations, more polished output.</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Personality</div>
+            <div class="tags"><span class="tag">Empathetic</span><span class="tag">Conversion-focused</span><span class="tag">No jargon ever</span><span class="tag">Parent psychology</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tyler -->
+      <div class="person-card" onclick="toggle(this)">
+        <div class="card-top">
+          <svg class="av-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#ffecd2"/>
+            <!-- Body / hoodie -->
+            <rect x="10" y="36" width="32" height="20" rx="6" fill="#3b5998"/>
+            <path d="M20 36 Q26 42 32 36" fill="none" stroke="#2a4080" stroke-width="2"/>
+            <!-- Hood detail -->
+            <path d="M14 36 Q18 30 26 28 Q34 30 38 36" fill="#3b5998" stroke="#2a4080" stroke-width="1"/>
+            <!-- Neck -->
+            <rect x="22" y="30" width="8" height="8" fill="#FCDDB0"/>
+            <!-- Head -->
+            <ellipse cx="26" cy="22" rx="11" ry="12" fill="#FCDDB0"/>
+            <!-- Hair - short sides, top -->
+            <ellipse cx="26" cy="13" rx="11" ry="5" fill="#b58143"/>
+            <rect x="15" y="13" width="3" height="8" rx="1.5" fill="#b58143"/>
+            <rect x="34" y="13" width="3" height="8" rx="1.5" fill="#b58143"/>
+            <!-- Eyes -->
+            <circle cx="21" cy="22" r="1.5" fill="#4a3728"/>
+            <circle cx="31" cy="22" r="1.5" fill="#4a3728"/>
+            <!-- Eyebrows -->
+            <path d="M19 19.5 Q21 18.5 23 19.5" fill="none" stroke="#b58143" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M29 19.5 Q31 18.5 33 19.5" fill="none" stroke="#b58143" stroke-width="1.2" stroke-linecap="round"/>
+            <!-- Smile - big friendly -->
+            <path d="M21 26 Q26 30.5 31 26" fill="none" stroke="#c8917a" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <div class="card-meta">
+            <div class="card-name">Tyler Morris <span class="age-badge">27</span></div>
+            <div class="card-title">Frontend Dev — Utility Pages</div>
+            <div class="badges"><span class="bdg bdg-sonnet">Claude Sonnet 4.6</span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <div class="slabel">Day to day</div>
+            <div class="sitem">Builds Services, FAQ, Contact — the objection-removal pages</div>
+            <div class="sitem">Builds the two-step WaitlistForm component (UI only)</div>
+            <div class="sitem">Writes all form micro-copy: helpers, errors, success, loading</div>
+            <div class="sitem">Builds Accordion FAQ with animation</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Hidden critical output</div>
+            <div class="sitem">His TypeScript interfaces (WaitlistStep1Data, WaitlistStep2Data) are what Rachel and Jordan depend on. If they're wrong, integration breaks silently.</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Personality</div>
+            <div class="tags"><span class="tag">Friction-reducer</span><span class="tag">Form UX specialist</span><span class="tag">Detail copy</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rachel -->
+      <div class="person-card" onclick="toggle(this)">
+        <div class="card-top">
+          <svg class="av-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#E6F1FB"/>
+            <!-- Body / blazer -->
+            <rect x="10" y="36" width="32" height="20" rx="6" fill="#1f3a5f"/>
+            <rect x="23" y="36" width="6" height="10" fill="#fff" opacity="0.15"/>
+            <!-- Neck -->
+            <rect x="22" y="30" width="8" height="8" fill="#F0C27F"/>
+            <!-- Head -->
+            <ellipse cx="26" cy="22" rx="11" ry="12" fill="#F0C27F"/>
+            <!-- Hair - straight, dark, shoulder length -->
+            <ellipse cx="26" cy="13" rx="11" ry="5" fill="#2c1b18"/>
+            <rect x="15" y="13" width="4" height="16" rx="2" fill="#2c1b18"/>
+            <rect x="33" y="13" width="4" height="16" rx="2" fill="#2c1b18"/>
+            <!-- Glasses - round, intellectual -->
+            <circle cx="21" cy="22" r="3.5" fill="none" stroke="#1a1a18" stroke-width="1.3"/>
+            <circle cx="31" cy="22" r="3.5" fill="none" stroke="#1a1a18" stroke-width="1.3"/>
+            <line x1="24.5" y1="22" x2="27.5" y2="22" stroke="#1a1a18" stroke-width="1"/>
+            <line x1="17.5" y1="22" x2="15" y2="21" stroke="#1a1a18" stroke-width="1"/>
+            <line x1="34.5" y1="22" x2="37" y2="21" stroke="#1a1a18" stroke-width="1"/>
+            <!-- Eyes behind glasses -->
+            <circle cx="21" cy="22" r="1.3" fill="#2c1b18"/>
+            <circle cx="31" cy="22" r="1.3" fill="#2c1b18"/>
+            <!-- Eyebrows -->
+            <path d="M18 18.5 Q21 17.5 24 18.5" fill="none" stroke="#2c1b18" stroke-width="1.1" stroke-linecap="round"/>
+            <path d="M28 18.5 Q31 17.5 34 18.5" fill="none" stroke="#2c1b18" stroke-width="1.1" stroke-linecap="round"/>
+            <!-- Subtle smile -->
+            <path d="M23 26.5 Q26 28.5 29 26.5" fill="none" stroke="#c8917a" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <div class="card-meta">
+            <div class="card-name">Rachel Lin <span class="age-badge">33</span></div>
+            <div class="card-title">Backend Developer</div>
+            <div class="badges"><span class="bdg bdg-opus">Claude Opus 4.6</span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <div class="slabel">Day to day</div>
+            <div class="sitem">Designs Supabase schema with RLS — insert-only public, read for authenticated</div>
+            <div class="sitem">Writes three typed API functions including upsert on duplicate email</div>
+            <div class="sitem">Publishes HANDOFF-rachel.md — the API contract everyone depends on</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Why Opus — non-negotiable</div>
+            <div class="sitem">RLS errors expose children's data. Schema mistakes are expensive to migrate. Upsert logic on conflict needs careful reasoning. One session, Opus, no exceptions.</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Personality</div>
+            <div class="tags"><span class="tag">Isolated worker</span><span class="tag">Contract publisher</span><span class="tag">Never touches pages</span><span class="tag">Precision over speed</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nina -->
+      <div class="person-card" onclick="toggle(this)">
+        <div class="card-top">
+          <svg class="av-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#ffdfbf"/>
+            <!-- Body -->
+            <rect x="10" y="36" width="32" height="20" rx="6" fill="#e25c00"/>
+            <!-- Neck -->
+            <rect x="22" y="30" width="8" height="8" fill="#FCDDB0"/>
+            <!-- Head -->
+            <ellipse cx="26" cy="22" rx="11" ry="12" fill="#FCDDB0"/>
+            <!-- Curly hair - auburn -->
+            <circle cx="16" cy="17" r="5" fill="#a55728"/>
+            <circle cx="36" cy="17" r="5" fill="#a55728"/>
+            <circle cx="20" cy="13" r="5" fill="#a55728"/>
+            <circle cx="32" cy="13" r="5" fill="#a55728"/>
+            <circle cx="26" cy="11" r="5.5" fill="#a55728"/>
+            <circle cx="22" cy="17" r="4" fill="#a55728"/>
+            <circle cx="30" cy="17" r="4" fill="#a55728"/>
+            <!-- Side curls -->
+            <circle cx="15" cy="22" r="3.5" fill="#a55728"/>
+            <circle cx="37" cy="22" r="3.5" fill="#a55728"/>
+            <!-- Eyes -->
+            <circle cx="21" cy="22" r="1.5" fill="#4a3728"/>
+            <circle cx="31" cy="22" r="1.5" fill="#4a3728"/>
+            <!-- Eyebrows -->
+            <path d="M19 19.5 Q21 18.5 23 19.5" fill="none" stroke="#a55728" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M29 19.5 Q31 18.5 33 19.5" fill="none" stroke="#a55728" stroke-width="1.2" stroke-linecap="round"/>
+            <!-- Warm smile -->
+            <path d="M21 26 Q26 30 31 26" fill="none" stroke="#c8917a" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          <div class="card-meta">
+            <div class="card-name">Nina Walsh <span class="age-badge">29</span></div>
+            <div class="card-title">SEO & Content Specialist</div>
+            <div class="badges"><span class="bdg bdg-lite">Flash-Lite</span><span class="bdg bdg-lite">Minimal</span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <div class="slabel">Day to day</div>
+            <div class="sitem">Writes all meta titles and descriptions — includes "Houston", parent-facing</div>
+            <div class="sitem">Generates sitemap.xml, robots.txt, four JSON-LD schema blocks</div>
+            <div class="sitem">Audits copy for readability — flags medical jargon</div>
+            <div class="sitem">Documents GBP setup, NAP consistency, OG image needs</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Why Flash-Lite</div>
+            <div class="sitem">Structured deterministic XML and HTML output. Deep reasoning adds zero value. Fastest and cheapest model is exactly right. Good local model candidate.</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Personality</div>
+            <div class="tags"><span class="tag">Methodical</span><span class="tag">Local SEO expert</span><span class="tag">Isolated from pages</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dev Kumar -->
+      <div class="person-card" onclick="toggle(this)">
+        <div class="card-top">
+          <svg class="av-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#EAF3DE"/>
+            <!-- Body / V-neck -->
+            <rect x="10" y="36" width="32" height="20" rx="6" fill="#262e33"/>
+            <path d="M22 36 L26 42 L30 36" fill="none" stroke="#1a2226" stroke-width="2"/>
+            <!-- Neck -->
+            <rect x="22" y="30" width="8" height="8" fill="#C68642"/>
+            <!-- Head -->
+            <ellipse cx="26" cy="22" rx="11" ry="12" fill="#C68642"/>
+            <!-- Hair - short, dark, neat wave -->
+            <ellipse cx="26" cy="13" rx="11" ry="5" fill="#1a1a18"/>
+            <rect x="15" y="13" width="3" height="8" rx="1.5" fill="#1a1a18"/>
+            <rect x="34" y="13" width="3" height="8" rx="1.5" fill="#1a1a18"/>
+            <!-- Side part line -->
+            <path d="M18 13 Q22 12 26 13" fill="none" stroke="#333" stroke-width="0.8"/>
+            <!-- Eyes - focused/alert -->
+            <ellipse cx="21" cy="22" rx="1.7" ry="1.5" fill="#1a1a18"/>
+            <ellipse cx="31" cy="22" rx="1.7" ry="1.5" fill="#1a1a18"/>
+            <!-- Eyebrows - slightly furrowed (thinking) -->
+            <path d="M18.5 19 Q21 17.8 23.5 19" fill="none" stroke="#1a1a18" stroke-width="1.3" stroke-linecap="round"/>
+            <path d="M28.5 19 Q31 17.8 33.5 19" fill="none" stroke="#1a1a18" stroke-width="1.3" stroke-linecap="round"/>
+            <!-- Neutral/serious expression -->
+            <path d="M22.5 26.5 Q26 27.5 29.5 26.5" fill="none" stroke="#9a6030" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <div class="card-meta">
+            <div class="card-name">Dev Kumar <span class="age-badge">26</span></div>
+            <div class="card-title">QA Engineer</div>
+            <div class="badges"><span class="bdg bdg-lite">Flash-Lite</span><span class="bdg bdg-lite">Low thinking</span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <div class="slabel">Day to day</div>
+            <div class="sitem">Tests every page at 6 breakpoints: 375px → 1440px</div>
+            <div class="sitem">Full form sequence: Step 1, Step 2, skip, duplicate, network error</div>
+            <div class="sitem">Trust signal audit: badge visible in hero, no placeholders rendered</div>
+            <div class="sitem">Lighthouse mobile mode — all four scores documented</div>
+            <div class="sitem">Cross-browser: Chrome, Safari, Firefox, iOS Safari</div>
+            <div class="sitem">Signs off with "QA PASS" — Elena cannot proceed without it</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Personality</div>
+            <div class="tags"><span class="tag">Methodical breaker</span><span class="tag">Zero tolerance</span><span class="tag">Never writes code</span><span class="tag">Last defense</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Elena -->
+      <div class="person-card" onclick="toggle(this)">
+        <div class="card-top">
+          <svg class="av-svg" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+            <rect width="52" height="52" fill="#d1f4e0"/>
+            <!-- Body / blazer -->
+            <rect x="10" y="36" width="32" height="20" rx="6" fill="#1c3a2a"/>
+            <rect x="21" y="36" width="10" height="3" rx="1.5" fill="#fff" opacity="0.2"/>
+            <!-- Neck -->
+            <rect x="22" y="30" width="8" height="8" fill="#FCDDB0"/>
+            <!-- Head -->
+            <ellipse cx="26" cy="22" rx="11" ry="12" fill="#FCDDB0"/>
+            <!-- Hair - straight chestnut, shoulder length -->
+            <ellipse cx="26" cy="13" rx="11" ry="5" fill="#724133"/>
+            <rect x="15" y="13" width="4" height="18" rx="2" fill="#724133"/>
+            <rect x="33" y="13" width="4" height="18" rx="2" fill="#724133"/>
+            <!-- Glasses - rectangular, confident -->
+            <rect x="17" y="20" width="8" height="5" rx="1.5" fill="none" stroke="#2c1b18" stroke-width="1.3"/>
+            <rect x="27" y="20" width="8" height="5" rx="1.5" fill="none" stroke="#2c1b18" stroke-width="1.3"/>
+            <line x1="25" y1="22.5" x2="27" y2="22.5" stroke="#2c1b18" stroke-width="1"/>
+            <line x1="17" y1="22.5" x2="14.5" y2="21.5" stroke="#2c1b18" stroke-width="1"/>
+            <line x1="35" y1="22.5" x2="37.5" y2="21.5" stroke="#2c1b18" stroke-width="1"/>
+            <!-- Eyes -->
+            <circle cx="21" cy="22.5" r="1.3" fill="#2c1b18"/>
+            <circle cx="31" cy="22.5" r="1.3" fill="#2c1b18"/>
+            <!-- Eyebrows -->
+            <path d="M18 19 Q21 18 24 19" fill="none" stroke="#724133" stroke-width="1.2" stroke-linecap="round"/>
+            <path d="M28 19 Q31 18 34 19" fill="none" stroke="#724133" stroke-width="1.2" stroke-linecap="round"/>
+            <!-- Composed smile -->
+            <path d="M22.5 27 Q26 29 29.5 27" fill="none" stroke="#c8917a" stroke-width="1.2" stroke-linecap="round"/>
+          </svg>
+          <div class="card-meta">
+            <div class="card-name">Elena Bosch <span class="age-badge">34</span></div>
+            <div class="card-title">DevOps Engineer</div>
+            <div class="badges"><span class="bdg bdg-sonnet">Claude Sonnet 4.6</span></div>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="section">
+            <div class="slabel">Day to day</div>
+            <div class="sitem">vercel.json: SPA rewrite + 6 security headers including HSTS</div>
+            <div class="sitem">GitHub Actions CI: type check + build on every push</div>
+            <div class="sitem">DNS: Namecheap → Vercel, SSL confirmation</div>
+            <div class="sitem">.env audit — no service role key, no committed secrets</div>
+            <div class="sitem">RUNBOOK.md — plain-language ops guide for Dr. Ali as solo maintainer</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Hard rule</div>
+            <div class="sitem">Never deploys without Dev Kumar's QA PASS. This rule does not bend.</div>
+          </div>
+          <div class="section">
+            <div class="slabel">Personality</div>
+            <div class="tags"><span class="tag">Security-conscious</span><span class="tag">Documentation gift</span><span class="tag">Gate enforcer</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── WORKFLOW ── -->
+  <div id="v-workflow" class="view">
+    <div class="flow">
+
+      <div class="flow-phase">Phase A — Strategy (sequential)</div>
+      <div class="flow-node">
+        <div class="flow-node-name">Sophia Chen — Project Manager</div>
+        <div class="flow-node-sub">Spec + tickets → goes first, alone → gates everything</div>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-phase">Phase B — Design foundation (sequential, blocks parallel phase)</div>
+      <div class="flow-node highlight2">
+        <div class="flow-node-name">Marco Rivera — Brand & UX Designer</div>
+        <div class="flow-node-sub">Design tokens + 6 shared components → Priya and Tyler import these → always audit before proceeding</div>
+        <span class="gate-note">Gate: audit Marco before anyone else starts</span>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-phase">Phase C — Scaffold (sequential)</div>
+      <div class="flow-node highlight2">
+        <div class="flow-node-name">Jordan Park — Frontend Lead Act 1</div>
+        <div class="flow-node-sub">Project scaffold, routing, stub pages, .env → parallel agents cannot start without this</div>
+        <span class="gate-note">Gate: audit Jordan before parallel phase</span>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-phase">Phase D — Parallel build (all four simultaneously)</div>
+      <div class="flow-parallel">
+        <div class="flow-node">
+          <div class="flow-node-name">Priya Nair</div>
+          <div class="flow-node-sub">Home + About pages — owns src/pages/Home.tsx and About.tsx exclusively</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-name">Tyler Morris</div>
+          <div class="flow-node-sub">Services + FAQ + Contact UI — owns src/pages/Services, FAQ, Contact exclusively</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-name">Rachel Lin</div>
+          <div class="flow-node-sub">Supabase schema + API — owns src/lib/supabase.ts and src/api/ exclusively</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-node-name">Nina Walsh</div>
+          <div class="flow-node-sub">SEO + meta + schema — owns index.html and public/ exclusively</div>
+        </div>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-phase">Phase E — Integration (sequential, highest complexity)</div>
+      <div class="flow-node highlight">
+        <div class="flow-node-name">Jordan Park — Frontend Lead Act 2</div>
+        <div class="flow-node-sub">Merges all parallel work · wires Tyler's form to Rachel's API · visual pass · README · uses Opus</div>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-phase">Phase F — QA (sequential)</div>
+      <div class="flow-node">
+        <div class="flow-node-name">Dev Kumar — QA Engineer</div>
+        <div class="flow-node-sub">Full test pass → signs off with "QA PASS" → Elena cannot proceed without this</div>
+        <span class="gate-note">Gate: hard stop — no deploy without QA PASS</span>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-phase">Phase G — Deploy (sequential)</div>
+      <div class="flow-node">
+        <div class="flow-node-name">Elena Bosch — DevOps Engineer</div>
+        <div class="flow-node-sub">Vercel config · CI/CD · DNS · security headers · RUNBOOK.md → site goes live</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── INTERACTIONS ── -->
+  <div id="v-interactions" class="view">
+    <table class="int-table">
+      <thead>
+        <tr><th>From</th><th></th><th>To</th><th>What they pass</th><th>Document</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="int-name">Sophia</span></td><td class="int-arrow">→</td><td>Everyone</td><td>Master spec + scoped tickets</td><td><span class="int-doc">SOPHIA-spec.md</span></td></tr>
+        <tr><td><span class="int-name">Marco</span></td><td class="int-arrow">→</td><td>Jordan, Priya, Tyler</td><td>Design tokens + component library + key decisions</td><td><span class="int-doc">HANDOFF-marco.md</span></td></tr>
+        <tr><td><span class="int-name">Jordan Act 1</span></td><td class="int-arrow">→</td><td>Priya, Tyler, Rachel, Nina</td><td>Working scaffold with stub files ready to fill</td><td><span class="int-doc">HANDOFF-jordan-act1.md</span></td></tr>
+        <tr><td><span class="int-name">Rachel</span></td><td class="int-arrow">→</td><td>Tyler, Jordan Act 2</td><td>TypeScript interfaces + full API contract</td><td><span class="int-doc">HANDOFF-rachel.md</span></td></tr>
+        <tr><td><span class="int-name">Tyler</span></td><td class="int-arrow">→</td><td>Jordan Act 2</td><td>Form UI with placeholder handlers + TypeScript interfaces</td><td><span class="int-doc">HANDOFF-tyler.md</span></td></tr>
+        <tr><td><span class="int-name">Priya</span></td><td class="int-arrow">→</td><td>Jordan Act 2</td><td>Home + About pages complete</td><td><span class="int-doc">HANDOFF-priya.md</span></td></tr>
+        <tr><td><span class="int-name">Nina</span></td><td class="int-arrow">→</td><td>Dr. Ali</td><td>Readability notes + GBP setup + OG image guidance</td><td><span class="int-doc">HANDOFF-nina.md</span></td></tr>
+        <tr><td><span class="int-name">Jordan Act 2</span></td><td class="int-arrow">→</td><td>Dev Kumar</td><td>Integrated build, form wired, visual pass, README</td><td><span class="int-doc">HANDOFF-jordan-act2.md</span></td></tr>
+        <tr><td><span class="int-name">Dev Kumar</span></td><td class="int-arrow">→</td><td>Elena</td><td>QA PASS sign-off + full bug report</td><td><span class="int-doc">qa-report.md</span></td></tr>
+        <tr><td><span class="int-name">Elena</span></td><td class="int-arrow">→</td><td>Dr. Ali</td><td>Live site + RUNBOOK.md for solo maintenance</td><td><span class="int-doc">RUNBOOK.md</span></td></tr>
+        <tr><td><span class="int-name">Priya ↔ Tyler</span></td><td class="int-arrow">—</td><td>No contact</td><td>They never share files. Jordan merges their work at integration.</td><td><span class="int-none">None — by design</span></td></tr>
+        <tr><td><span class="int-name">Rachel ↔ Priya/Tyler</span></td><td class="int-arrow">—</td><td>No contact</td><td>Rachel exports types. Tyler imports them. Jordan wires the connection.</td><td><span class="int-none">Code interface only</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ── PERFORMANCE ── -->
+  <div id="v-performance" class="view">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1.25rem;">Leverage = how much their output affects everyone else. Error risk = how expensive their mistakes are. Critical path = how much the project depends on them specifically.</div>
+    <div class="perf-grid">
+
+      <div class="perf-card">
+        <div class="perf-name">Marco Rivera</div>
+        <div class="metric"><span class="metric-lbl">Leverage</span><div class="metric-bar"><div class="metric-fill m-leverage" style="width:100%"></div></div><span class="metric-val">10</span></div>
+        <div class="metric"><span class="metric-lbl">Error risk</span><div class="metric-bar"><div class="metric-fill m-error" style="width:90%"></div></div><span class="metric-val">9</span></div>
+        <div class="metric"><span class="metric-lbl">Critical path</span><div class="metric-bar"><div class="metric-fill m-critical" style="width:100%"></div></div><span class="metric-val">10</span></div>
+        <div class="perf-note">Highest leverage on the team. Every pixel on every page flows from his tokens. Always audit before the parallel phase.</div>
+        <span class="verdict v-crit">Always audit — never skip</span>
+      </div>
+
+      <div class="perf-card">
+        <div class="perf-name">Jordan Park</div>
+        <div class="metric"><span class="metric-lbl">Leverage</span><div class="metric-bar"><div class="metric-fill m-leverage" style="width:100%"></div></div><span class="metric-val">10</span></div>
+        <div class="metric"><span class="metric-lbl">Error risk</span><div class="metric-bar"><div class="metric-fill m-error" style="width:80%"></div></div><span class="metric-val">8</span></div>
+        <div class="metric"><span class="metric-lbl">Critical path</span><div class="metric-bar"><div class="metric-fill m-critical" style="width:100%"></div></div><span class="metric-val">10</span></div>
+        <div class="perf-note">Owns the two most critical moments: scaffold (everyone depends on it) and integration (touches everything). Act 2 must use Opus.</div>
+        <span class="verdict v-crit">Act 2 = Opus, no exceptions</span>
+      </div>
+
+      <div class="perf-card">
+        <div class="perf-name">Rachel Lin</div>
+        <div class="metric"><span class="metric-lbl">Leverage</span><div class="metric-bar"><div class="metric-fill m-leverage" style="width:90%"></div></div><span class="metric-val">9</span></div>
+        <div class="metric"><span class="metric-lbl">Error risk</span><div class="metric-bar"><div class="metric-fill m-error" style="width:100%"></div></div><span class="metric-val">10</span></div>
+        <div class="metric"><span class="metric-lbl">Critical path</span><div class="metric-bar"><div class="metric-fill m-critical" style="width:80%"></div></div><span class="metric-val">8</span></div>
+        <div class="perf-note">Highest error risk. A broken RLS policy exposes children's personal data. Schema mistakes are expensive migrations. Opus-only session.</div>
+        <span class="verdict v-crit">Opus only — security critical</span>
+      </div>
+
+      <div class="perf-card">
+        <div class="perf-name">Dev Kumar</div>
+        <div class="metric"><span class="metric-lbl">Leverage</span><div class="metric-bar"><div class="metric-fill m-leverage" style="width:80%"></div></div><span class="metric-val">8</span></div>
+        <div class="metric"><span class="metric-lbl">Error risk</span><div class="metric-bar"><div class="metric-fill m-error" style="width:20%"></div></div><span class="metric-val">2</span></div>
+        <div class="metric"><span class="metric-lbl">Critical path</span><div class="metric-bar"><div class="metric-fill m-critical" style="width:90%"></div></div><span class="metric-val">9</span></div>
+        <div class="perf-note">Lowest error risk — he only reads. But his sign-off is the gate protecting the live site. Skipping QA is the most common shortcut that causes production incidents.</div>
+        <span class="verdict v-keep">Keep — never skip QA</span>
+      </div>
+
+      <div class="perf-card">
+        <div class="perf-name">Priya Nair</div>
+        <div class="metric"><span class="metric-lbl">Leverage</span><div class="metric-bar"><div class="metric-fill m-leverage" style="width:80%"></div></div><span class="metric-val">8</span></div>
+        <div class="metric"><span class="metric-lbl">Error risk</span><div class="metric-bar"><div class="metric-fill m-error" style="width:50%"></div></div><span class="metric-val">5</span></div>
+        <div class="metric"><span class="metric-lbl">Critical path</span><div class="metric-bar"><div class="metric-fill m-critical" style="width:80%"></div></div><span class="metric-val">8</span></div>
+        <div class="perf-note">Home page is the highest-traffic page. Her headline and pain points section either make parents stay or bounce. Review copy before Jordan Act 2.</div>
+        <span class="verdict v-keep">Keep — review copy at handoff</span>
+      </div>
+
+      <div class="perf-card">
+        <div class="perf-name">Elena Bosch</div>
+        <div class="metric"><span class="metric-lbl">Leverage</span><div class="metric-bar"><div class="metric-fill m-leverage" style="width:70%"></div></div><span class="metric-val">7</span></div>
+        <div class="metric"><span class="metric-lbl">Error risk</span><div class="metric-bar"><div class="metric-fill m-error" style="width:80%"></div></div><span class="metric-val">8</span></div>
+        <div class="metric"><span class="metric-lbl">Critical path</span><div class="metric-bar"><div class="metric-fill m-critical" style="width:70%"></div></div><span class="metric-val">7</span></div>
+        <div class="perf-note">High error risk concentrated in security config. Missing HSTS or committed .env are silent vulnerabilities. Her RUNBOOK.md is a gift to future-you.</div>
+        <span class="verdict v-watch">Watch — audit security config</span>
+      </div>
+
+      <div class="perf-card">
+        <div class="perf-name">Tyler Morris</div>
+        <div class="metric"><span class="metric-lbl">Leverage</span><div class="metric-bar"><div class="metric-fill m-leverage" style="width:70%"></div></div><span class="metric-val">7</span></div>
+        <div class="metric"><span class="metric-lbl">Error risk</span><div class="metric-bar"><div class="metric-fill m-error" style="width:70%"></div></div><span class="metric-val">7</span></div>
+        <div class="metric"><span class="metric-lbl">Critical path</span><div class="metric-bar"><div class="metric-fill m-critical" style="width:70%"></div></div><span class="metric-val">7</span></div>
+        <div class="perf-note">His TypeScript interfaces are an unsung critical output. If WaitlistStep1Data is wrong, Rachel and Jordan's integration breaks silently. Review HANDOFF before Act 2.</div>
+        <span class="verdict v-watch">Watch — interfaces must be reviewed</span>
+      </div>
+
+      <div class="perf-card">
+        <div class="perf-name">Sophia Chen</div>
+        <div class="metric"><span class="metric-lbl">Leverage</span><div class="metric-bar"><div class="metric-fill m-leverage" style="width:60%"></div></div><span class="metric-val">6</span></div>
+        <div class="metric"><span class="metric-lbl">Error risk</span><div class="metric-bar"><div class="metric-fill m-error" style="width:70%"></div></div><span class="metric-val">7</span></div>
+        <div class="metric"><span class="metric-lbl">Critical path</span><div class="metric-bar"><div class="metric-fill m-critical" style="width:90%"></div></div><span class="metric-val">9</span></div>
+        <div class="perf-note">A vague spec makes every downstream brief weaker. Her errors are silent and compound. Always review her spec before generating agent briefs.</div>
+        <span class="verdict v-keep">Keep — audit spec before briefs</span>
+      </div>
+
+      <div class="perf-card">
+        <div class="perf-name">Nina Walsh</div>
+        <div class="metric"><span class="metric-lbl">Leverage</span><div class="metric-bar"><div class="metric-fill m-leverage" style="width:50%"></div></div><span class="metric-val">5</span></div>
+        <div class="metric"><span class="metric-lbl">Error risk</span><div class="metric-bar"><div class="metric-fill m-error" style="width:30%"></div></div><span class="metric-val">3</span></div>
+        <div class="metric"><span class="metric-lbl">Critical path</span><div class="metric-bar"><div class="metric-fill m-critical" style="width:40%"></div></div><span class="metric-val">4</span></div>
+        <div class="perf-note">Lowest error risk — mistakes are easy to catch and fix. Good local model candidate (Qwen3 32B). Matters for long-term organic growth, not launch-day functionality.</div>
+        <span class="verdict v-keep">Keep — consider local model</span>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── SALARY ── -->
+  <div id="v-salary" class="view">
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1.25rem;">Market-rate US salaries for a 10-person software studio. These reflect what real firms pay — useful for understanding relative value, seniority, and who is underpaid relative to their leverage.</div>
+    <div class="sal-list">
+
+      <div class="sal-card">
+        <div class="sal-top"><div><span class="sal-name">Jordan Park</span><span class="sal-title-sm">Frontend Lead</span></div><span class="sal-range">$145–175k</span></div>
+        <div class="sal-bar"><div class="sal-fill" style="width:95%"></div></div>
+        <div class="sal-note">Highest paid engineer. Owns architecture and integration — the two highest-leverage moments. Acts as both senior IC and tech lead. The most expensive model (Opus) is justified for Act 2.</div>
+      </div>
+
+      <div class="sal-card">
+        <div class="sal-top"><div><span class="sal-name">Rachel Lin</span><span class="sal-title-sm">Backend Developer</span></div><span class="sal-range">$130–155k</span></div>
+        <div class="sal-bar"><div class="sal-fill" style="width:88%"></div></div>
+        <div class="sal-note">Backend engineers with security and data modeling expertise are scarce and expensive. Her errors are the most costly on the team — Opus spend is justified every time.</div>
+      </div>
+
+      <div class="sal-card">
+        <div class="sal-top"><div><span class="sal-name">Elena Bosch</span><span class="sal-title-sm">DevOps Engineer</span></div><span class="sal-range">$115–140k</span></div>
+        <div class="sal-bar"><div class="sal-fill" style="width:80%"></div></div>
+        <div class="sal-note">DevOps is chronically undervalued until something breaks in production. Her RUNBOOK.md alone saves hours of future debugging. Good DevOps is hard to find.</div>
+      </div>
+
+      <div class="sal-card">
+        <div class="sal-top"><div><span class="sal-name">Marco Rivera</span><span class="sal-title-sm">Brand & UX Designer</span></div><span class="sal-range">$110–140k</span></div>
+        <div class="sal-bar"><div class="sal-fill" style="width:78%"></div></div>
+        <div class="sal-note">Senior designers who understand trust psychology and conversion — not just aesthetics — command strong compensation. Marco is that rare hybrid.</div>
+        <span class="sal-insight">Highest leverage per dollar on the team</span>
+      </div>
+
+      <div class="sal-card">
+        <div class="sal-top"><div><span class="sal-name">Priya Nair</span><span class="sal-title-sm">Frontend Developer</span></div><span class="sal-range">$95–120k</span></div>
+        <div class="sal-bar"><div class="sal-fill" style="width:65%"></div></div>
+        <div class="sal-note">Mid-senior frontend. Her copy + code dual skill is rarer than pure engineering and commands a premium above standard frontend rates. Good retention risk to watch.</div>
+      </div>
+
+      <div class="sal-card">
+        <div class="sal-top"><div><span class="sal-name">Tyler Morris</span><span class="sal-title-sm">Frontend Developer</span></div><span class="sal-range">$90–115k</span></div>
+        <div class="sal-bar"><div class="sal-fill" style="width:60%"></div></div>
+        <div class="sal-note">Mid-level frontend. His TypeScript interface output is more valuable than his title suggests. Undersalary risk if he keeps delivering critical integration contracts.</div>
+        <span class="sal-insight">Promotion candidate after this project</span>
+      </div>
+
+      <div class="sal-card">
+        <div class="sal-top"><div><span class="sal-name">Sophia Chen</span><span class="sal-title-sm">Project Manager</span></div><span class="sal-range">$85–110k</span></div>
+        <div class="sal-bar"><div class="sal-fill" style="width:55%"></div></div>
+        <div class="sal-note">PMs are the most underappreciated role in tech. Without Sophia, coordination breaks down and every agent works in isolation. Her salary doesn't reflect her actual leverage.</div>
+        <span class="sal-insight">Underpaid relative to impact</span>
+      </div>
+
+      <div class="sal-card">
+        <div class="sal-top"><div><span class="sal-name">Dev Kumar</span><span class="sal-title-sm">QA Engineer</span></div><span class="sal-range">$80–100k</span></div>
+        <div class="sal-bar"><div class="sal-fill" style="width:48%"></div></div>
+        <div class="sal-note">QA is systematically undervalued across the industry. A production bug costs 10–100x more to fix than a QA-caught bug. Dev Kumar's salary doesn't reflect his prevention value.</div>
+        <span class="sal-insight">Prevention value = 10x their cost</span>
+      </div>
+
+      <div class="sal-card">
+        <div class="sal-top"><div><span class="sal-name">Nina Walsh</span><span class="sal-title-sm">SEO & Content</span></div><span class="sal-range">$70–90k</span></div>
+        <div class="sal-bar"><div class="sal-fill" style="width:35%"></div></div>
+        <div class="sal-note">Content and SEO roles are the most replaceable on the team. Her work matters for long-term organic growth but has the lowest launch-day criticality. Local model candidate.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── AUTHORITY MAP ── -->
+  <div id="v-authority" class="view">
+
+    <!-- Legend -->
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;margin-bottom:1.75rem;padding:0.875rem 1rem;background:var(--surface);border:0.5px solid var(--border);border-radius:10px;">
+      <div style="font-size:11px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;width:100%;margin-bottom:4px;">Authority types</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span style="display:inline-block;width:28px;height:3px;background:var(--teal);border-radius:2px"></span>Gate authority — can block progress</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span style="display:inline-block;width:28px;height:3px;background:var(--purple);border-radius:2px"></span>Design authority — output governs others visually</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span style="display:inline-block;width:28px;height:3px;background:var(--amber);border-radius:2px"></span>Technical authority — integration and architecture</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span style="display:inline-block;width:28px;height:3px;background:var(--blue);border-radius:2px"></span>Contract authority — publishes API others must follow</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><span style="display:inline-block;width:28px;height:3px;border:1.5px dashed var(--faint);border-radius:2px"></span>Coordination — manages project flow, no technical veto</div>
+    </div>
+
+    <!-- Org + Authority combined -->
+    <div style="display:flex;flex-direction:column;gap:0;">
+
+      <!-- Dr. Ali -->
+      <div style="display:flex;justify-content:center;margin-bottom:0;">
+        <div style="background:var(--text);color:var(--bg);border-radius:10px;padding:0.75rem 1.5rem;text-align:center;min-width:200px;">
+          <div style="font-size:15px;font-weight:700;">Dr. Ali K.</div>
+          <div style="font-size:11px;opacity:0.7;margin-top:2px;">Founder · Creative Director · Client</div>
+          <div style="font-size:10px;opacity:0.5;margin-top:2px;">All final decisions</div>
+        </div>
+      </div>
+
+      <!-- connector down -->
+      <div style="display:flex;justify-content:center;"><div style="width:2px;height:20px;background:var(--border)"></div></div>
+
+      <!-- Sophia row -->
+      <div style="display:flex;justify-content:center;margin-bottom:0;">
+        <div style="background:var(--surface);border:0.5px dashed var(--faint);border-radius:10px;padding:0.65rem 1.25rem;text-align:center;min-width:190px;">
+          <div style="font-size:13px;font-weight:600;">Sophia Chen</div>
+          <div style="font-size:11px;color:var(--muted);">Project Manager</div>
+          <div style="margin-top:6px;display:flex;justify-content:center;gap:4px;flex-wrap:wrap;">
+            <span style="font-size:10px;background:var(--gray-light);color:var(--gray-dark);padding:2px 7px;border-radius:20px;">Coordination only</span>
+            <span style="font-size:10px;background:var(--gray-light);color:var(--gray-dark);padding:2px 7px;border-radius:20px;">No technical veto</span>
+          </div>
+          <div style="font-size:10px;color:var(--faint);margin-top:5px;font-style:italic;">Manages the process, not the people</div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:center;"><div style="width:2px;height:20px;background:var(--border)"></div></div>
+
+      <!-- Three columns: Design | Technical | Independent -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;align-items:start;">
+
+        <!-- Design authority column -->
+        <div style="display:flex;flex-direction:column;gap:0;align-items:center;">
+          <div style="width:3px;height:20px;background:var(--purple);border-radius:2px;"></div>
+          <div style="background:var(--surface);border:2px solid var(--purple);border-radius:10px;padding:0.75rem;width:100%;text-align:center;">
+            <div style="font-size:11px;font-weight:700;color:var(--purple-dark);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Design Authority</div>
+            <div style="font-size:13px;font-weight:600;">Marco Rivera</div>
+            <div style="font-size:11px;color:var(--muted);">Brand & UX Designer</div>
+            <div style="font-size:10px;color:var(--purple-dark);background:var(--purple-light);border-radius:6px;padding:3px 8px;margin-top:6px;">Visual law — his tokens govern all pages</div>
+          </div>
+          <div style="width:3px;height:16px;background:var(--purple);opacity:0.4;border-radius:2px;"></div>
+          <div style="font-size:10px;color:var(--purple-dark);text-align:center;font-style:italic;padding:0 4px;">governs visually</div>
+          <div style="width:3px;height:16px;background:var(--purple);opacity:0.4;border-radius:2px;"></div>
+          <div style="background:var(--purple-light);border:0.5px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;width:100%;text-align:center;">
+            <div style="font-size:11px;color:var(--purple-dark);">Priya, Tyler, Jordan</div>
+            <div style="font-size:10px;color:var(--faint);">import his components — cannot override his tokens</div>
+          </div>
+        </div>
+
+        <!-- Technical authority column -->
+        <div style="display:flex;flex-direction:column;gap:0;align-items:center;">
+          <div style="width:3px;height:20px;background:var(--amber);border-radius:2px;"></div>
+          <div style="background:var(--surface);border:2px solid var(--amber);border-radius:10px;padding:0.75rem;width:100%;text-align:center;">
+            <div style="font-size:11px;font-weight:700;color:var(--amber-dark);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Technical Authority</div>
+            <div style="font-size:13px;font-weight:600;">Jordan Park</div>
+            <div style="font-size:11px;color:var(--muted);">Frontend Lead</div>
+            <div style="font-size:10px;color:var(--amber-dark);background:var(--amber-light);border-radius:6px;padding:3px 8px;margin-top:6px;">Owns scaffold + final integration</div>
+          </div>
+          <div style="width:3px;height:16px;background:var(--amber);opacity:0.4;border-radius:2px;"></div>
+          <div style="font-size:10px;color:var(--amber-dark);text-align:center;font-style:italic;padding:0 4px;">merges + reviews</div>
+          <div style="width:3px;height:16px;background:var(--amber);opacity:0.4;border-radius:2px;"></div>
+          <div style="display:flex;flex-direction:column;gap:6px;width:100%;">
+            <div style="background:var(--amber-light);border:0.5px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;text-align:center;">
+              <div style="font-size:11px;color:var(--amber-dark);">Priya Nair</div>
+              <div style="font-size:10px;color:var(--faint);">Home + About → Jordan reviews</div>
+            </div>
+            <div style="background:var(--amber-light);border:0.5px solid var(--border);border-radius:8px;padding:0.5rem 0.75rem;text-align:center;">
+              <div style="font-size:11px;color:var(--amber-dark);">Tyler Morris</div>
+              <div style="font-size:10px;color:var(--faint);">Utility pages + form UI → Jordan wires</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Independent specialists column -->
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+          <div style="width:3px;height:20px;background:var(--border);border-radius:2px;"></div>
+          <div style="font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:0.05em;text-align:center;">Independent Specialists</div>
+          <div style="background:var(--blue-light);border:2px solid var(--blue);border-radius:10px;padding:0.65rem 0.75rem;width:100%;text-align:center;">
+            <div style="font-size:11px;font-weight:700;color:var(--blue-dark);margin-bottom:2px;">Contract Authority</div>
+            <div style="font-size:13px;font-weight:600;">Rachel Lin</div>
+            <div style="font-size:11px;color:var(--muted);">Backend Developer</div>
+            <div style="font-size:10px;color:var(--blue-dark);margin-top:4px;">Publishes API contract — Tyler + Jordan must follow her types</div>
+          </div>
+          <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:8px;padding:0.65rem 0.75rem;width:100%;text-align:center;">
+            <div style="font-size:13px;font-weight:600;">Nina Walsh</div>
+            <div style="font-size:11px;color:var(--muted);">SEO Specialist</div>
+            <div style="font-size:10px;color:var(--faint);margin-top:3px;">Isolated — owns index.html and public/ only</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div style="height:20px;"></div>
+
+      <!-- Gate authority row — full width -->
+      <div style="border:2px solid var(--teal);border-radius:10px;padding:1rem;background:var(--surface);">
+        <div style="font-size:11px;font-weight:700;color:var(--teal-dark);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;text-align:center;">Gate Authority — blocks the build from proceeding</div>
+        <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:8px;align-items:center;">
+
+          <div style="background:var(--teal-light);border-radius:8px;padding:0.65rem;text-align:center;">
+            <div style="font-size:13px;font-weight:600;">Marco Rivera</div>
+            <div style="font-size:10px;color:var(--teal-dark);margin-top:2px;">Audit must pass before parallel phase starts</div>
+            <div style="font-size:10px;color:var(--faint);margin-top:2px;">gates → Priya, Tyler, Jordan</div>
+          </div>
+
+          <div style="color:var(--teal);font-size:18px;text-align:center;">→</div>
+
+          <div style="background:var(--teal-light);border-radius:8px;padding:0.65rem;text-align:center;">
+            <div style="font-size:13px;font-weight:600;">Dev Kumar</div>
+            <div style="font-size:10px;color:var(--teal-dark);margin-top:2px;">QA PASS required before deploy</div>
+            <div style="font-size:10px;color:var(--faint);margin-top:2px;">gates → Elena</div>
+          </div>
+
+          <div style="color:var(--teal);font-size:18px;text-align:center;">→</div>
+
+          <div style="background:var(--teal-light);border-radius:8px;padding:0.65rem;text-align:center;">
+            <div style="font-size:13px;font-weight:600;">Elena Bosch</div>
+            <div style="font-size:10px;color:var(--teal-dark);margin-top:2px;">Deploy sign-off — site goes live</div>
+            <div style="font-size:10px;color:var(--faint);margin-top:2px;">gates → production</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div style="height:24px;"></div>
+
+      <!-- The key insight cards -->
+      <div style="font-size:11px;font-weight:700;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;">Key insights — how this differs from a traditional org chart</div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:0.875rem;border-left:3px solid var(--teal);">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Dev Kumar outranks Elena — but not on paper</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5;">Dev Kumar earns less and has a junior title. But he holds absolute blocking power over Elena — the highest-paid non-lead. This is gate authority: you don't need a senior title to hold a gate. In real firms, QA engineers who understand this dynamic become politically important.</div>
+        </div>
+
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:0.875rem;border-left:3px solid var(--purple);">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Marco has authority without a report line</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5;">Priya and Tyler don't report to Marco — they report to Jordan. But they cannot override Marco's design tokens. His authority is enforced through the code itself, not through management. Real designers who understand this build systems that are self-enforcing.</div>
+        </div>
+
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:0.875rem;border-left:3px solid var(--blue);">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Rachel's contract authority is invisible until integration</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5;">Rachel works in isolation and never talks to Priya or Tyler directly. But the TypeScript interfaces she publishes are law — Tyler must build his form to match them, and Jordan must wire them correctly. If Rachel's types are wrong, integration fails silently.</div>
+        </div>
+
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:0.875rem;border-left:3px solid var(--amber);">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Sophia coordinates everything but controls nothing</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5;">Sophia has no technical veto. She cannot override Marco's color choices or Rachel's schema. Her authority is purely coordinative — she manages the process, not the people. This is why PMs who try to make technical decisions lose credibility fast in real firms.</div>
+        </div>
+
+        <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:10px;padding:0.875rem;border-left:3px solid var(--amber);grid-column:1/-1;">
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Jordan is the only person who holds authority twice</div>
+          <div style="font-size:12px;color:var(--muted);line-height:1.5;">Act 1: technical authority as scaffold architect — sets the foundation everyone builds on. Act 2: integration authority — the only person with a full view of all parallel work, with the power to accept or reject what everyone produced. This double role is why Jordan is the highest-paid engineer and why Act 2 uses the most powerful model. In a real firm, this person is often called a "Staff Engineer" or "Principal Engineer" rather than just a lead.</div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── BACKGROUNDS ── -->
+  <div id="v-backgrounds" class="view">
+
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6;">
+      Real-world equivalent credentials, education, and career paths for each role.
+      Understanding what it takes to reach each position helps calibrate expectations —
+      and explains why certain agents cost more, need more powerful models, and
+      carry more responsibility than others.
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <!-- Sophia -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer;" onclick="toggleBg(this)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--purple-light);color:var(--purple-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">SC</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Sophia Chen</div>
+            <div style="font-size:11px;color:var(--muted);">Project Manager · 6 years experience</div>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px;">click to expand</div>
+        </div>
+        <div class="bg-body" style="display:none;border-top:0.5px solid var(--border);padding:1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Education</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">BS Business Administration — UC San Diego</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">PMP Certification — Project Management Institute</div>
+              <div style="font-size:12px;color:var(--muted);">Certified Scrum Master (CSM)</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Career Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 1–2: Coordinator at a mid-size digital agency</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 3–4: Junior PM, learned Agile and Scrum in-practice</div>
+              <div style="font-size:12px;color:var(--muted);">Year 5–6: PM at a product studio managing 3–5 concurrent projects</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">What she actually knows</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Jira, Linear, Notion, Asana at expert level. Fluent in Agile and Waterfall. Knows enough code to read a PR description but cannot write it. Understands technical debt as a concept and can communicate it to non-technical stakeholders. Her real skill is decomposing ambiguous goals into scoped, executable tasks — and keeping people unblocked without micromanaging.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">What she doesn't know (and shouldn't need to)</div>
+            <div style="font-size:12px;color:var(--muted);">She doesn't write code, design components, or configure servers. She's not expected to. Her value is coordination and clarity — the moment she starts making technical decisions, the quality of those decisions will be lower than the engineer's and she loses team trust fast.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Real-world comp context</div>
+            <div style="font-size:12px;color:var(--muted);">PMs are chronically underpaid relative to their leverage. A bad PM costs engineering teams 20–30% productivity through poor specs, misaligned priorities, and missing context. A great PM is invisible — things just run smoothly and engineers don't know why.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Marco -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer;" onclick="toggleBg(this)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--amber-light);color:var(--amber-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">MR</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Marco Rivera</div>
+            <div style="font-size:11px;color:var(--muted);">Brand & UX Designer · 8 years experience</div>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px;">click to expand</div>
+        </div>
+        <div class="bg-body" style="display:none;border-top:0.5px solid var(--border);padding:1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Education</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">BFA Graphic Design — California College of the Arts</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Self-taught in Figma, Framer, Tailwind CSS</div>
+              <div style="font-size:12px;color:var(--muted);">Nielsen Norman UX Certification</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Career Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 1–2: Junior designer at a branding agency</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 3–5: Mid-level UX designer at a SaaS company</div>
+              <div style="font-size:12px;color:var(--muted);">Year 6–8: Senior designer at a product studio, built 3 design systems from scratch</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">What he actually knows</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Figma at expert level. Deep understanding of color theory, typography, visual hierarchy. Can write Tailwind CSS fluently — rare for a designer, essential for this role. Knows enough React to understand component architecture even if he doesn't write it daily. Has built design systems that shipped to production and understands what breaks when tokens are inconsistent across a codebase.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">What makes a senior designer vs junior</div>
+            <div style="font-size:12px;color:var(--muted);">A junior designer makes things look good. A senior designer makes things convert. Marco has worked on enough healthcare and professional service sites to understand trust psychology — why certain colors feel clinical, why certain layouts create anxiety, why "above the fold" still matters on mobile. That knowledge is what the brief asks him to apply.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Tools of the trade</div>
+            <div style="font-size:12px;color:var(--muted);">Figma, FigJam, Framer, Adobe Creative Suite, Storybook (for component documentation), Tailwind, basic Git. Probably has a subscription to Mobbin and Dribbble for reference. Uses Stark for accessibility contrast checking.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jordan -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer;" onclick="toggleBg(this)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">JP</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Jordan Park</div>
+            <div style="font-size:11px;color:var(--muted);">Frontend Lead (Staff Engineer equivalent) · 10 years experience</div>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px;">click to expand</div>
+        </div>
+        <div class="bg-body" style="display:none;border-top:0.5px solid var(--border);padding:1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Education</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">BS Computer Science — University of Washington</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Focus: Human-Computer Interaction, Web Systems</div>
+              <div style="font-size:12px;color:var(--muted);">Open source contributor — 3 published npm packages</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Career Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 1–3: Junior → mid frontend at a startup</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 4–7: Senior frontend at a Series B SaaS company</div>
+              <div style="font-size:12px;color:var(--muted);">Year 8–10: Staff/Lead at a product studio — owns architecture across 5+ concurrent client projects</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">What distinguishes Staff from Senior</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">A senior engineer solves problems within a defined scope. A staff engineer defines the scope. Jordan's value isn't just writing good React — it's knowing how to structure a codebase so that four other developers can work in parallel without stepping on each other. That's a skill that takes years to develop and is genuinely rare. It's why he earns the most and why Act 2 uses Opus.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Technical depth</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">React, TypeScript, Vite, React Router, Zustand/Redux, testing (Vitest, Playwright). Deep understanding of bundling, tree-shaking, and performance optimization. Knows when to use SSR vs CSR vs SSG and why it matters. Has debugged enough production incidents to have strong opinions about error boundaries, loading states, and graceful degradation.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">How to identify a real frontend lead</div>
+            <div style="font-size:12px;color:var(--muted);">They spend as much time thinking about the codebase as writing it. They ask "how will this scale?" before writing the first component. They refactor other people's code not because it's broken but because it will become a problem in six months. They write the README nobody asked for and keep it current.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Priya -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer;" onclick="toggleBg(this)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">PN</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Priya Nair</div>
+            <div style="font-size:11px;color:var(--muted);">Frontend Developer — Marketing Pages · 5 years experience</div>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px;">click to expand</div>
+        </div>
+        <div class="bg-body" style="display:none;border-top:0.5px solid var(--border);padding:1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Education</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">BA Communications + Minor CS — UCLA</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Completed Frontend Web Dev bootcamp post-graduation</div>
+              <div style="font-size:12px;color:var(--muted);">Self-taught in copywriting and conversion design</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Career Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 1: Content marketing at a health tech startup</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 2–3: Marketing developer — learned React on the job</div>
+              <div style="font-size:12px;color:var(--muted);">Year 4–5: Mid frontend at a product studio specializing in landing pages and marketing sites</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Her unusual combination</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Most frontend developers can build a component. Priya can also write the copy that goes in it — and understand why certain words convert better than others. She came from communications and learned code, rather than the other way around. This makes her the only person on the team who thinks simultaneously about what the page says and how it renders. That's why she builds Home and About — the two pages where copy is as important as code.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Technical depth</div>
+            <div style="font-size:12px;color:var(--muted);">React, TypeScript, Tailwind, Framer Motion for animations, responsive design. Not deep on backend — she calls APIs but doesn't design them. Knows enough about SEO to write semantic HTML correctly without being told.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tyler -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer;" onclick="toggleBg(this)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">TM</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Tyler Morris</div>
+            <div style="font-size:11px;color:var(--muted);">Frontend Developer — Utility Pages · 4 years experience</div>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px;">click to expand</div>
+        </div>
+        <div class="bg-body" style="display:none;border-top:0.5px solid var(--border);padding:1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Education</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">BS Computer Science — Arizona State University</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Graduated with concentration in Software Engineering</div>
+              <div style="font-size:12px;color:var(--muted);">Active on GitHub — consistent open source contributions since year 2</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Career Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 1: Junior full-stack at a small agency</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 2–3: Frontend-focused mid at a B2B SaaS startup</div>
+              <div style="font-size:12px;color:var(--muted);">Year 4: Mid frontend at a product studio — specializes in forms, utility pages, and component libraries</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Why TypeScript interfaces are his hidden superpower</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Tyler's CS background means he thinks in types before he thinks in components. When he defines WaitlistStep1Data and WaitlistStep2Data, he's doing API contract work — the same kind that backend engineers do. Rachel and Jordan depend on his types being correct. Most mid-level frontend engineers don't realize their TypeScript interfaces are a contract for other parts of the system. Tyler does, which is why he's promotion material.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Technical depth</div>
+            <div style="font-size:12px;color:var(--muted);">React, TypeScript, Tailwind, form state management, accessibility. Understands controlled vs uncontrolled inputs deeply — uncommon at his level. Can write a custom hook without looking it up. Has strong opinions about error states and loading UX from building too many broken forms at his previous job.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Rachel -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer;" onclick="toggleBg(this)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--blue-light);color:var(--blue-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">RL</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Rachel Lin</div>
+            <div style="font-size:11px;color:var(--muted);">Backend Developer · 7 years experience</div>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px;">click to expand</div>
+        </div>
+        <div class="bg-body" style="display:none;border-top:0.5px solid var(--border);padding:1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Education</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">BS Computer Science — University of Michigan</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Focus: Databases, Distributed Systems, Security</div>
+              <div style="font-size:12px;color:var(--muted);">AWS Certified Solutions Architect — Associate</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Career Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 1–2: Junior backend at a fintech startup (high security requirements)</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 3–5: Mid backend engineer at a healthcare SaaS — worked under HIPAA compliance requirements</div>
+              <div style="font-size:12px;color:var(--muted);">Year 6–7: Senior backend at a product studio — owns data layer architecture across all client projects</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Why her healthcare background matters here</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Rachel spent two years working under HIPAA compliance at a healthcare SaaS company. She knows the difference between PII and PHI, understands why RLS policies matter for a form collecting children's data, and has the instinct to ask "who can read this row?" before writing any INSERT policy. This background is directly relevant to Milestone Pediatrics even though the waitlist form isn't technically PHI. She's overcalibrated for this project in the best possible way.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Technical depth</div>
+            <div style="font-size:12px;color:var(--muted);">PostgreSQL, Supabase, RLS policies, row-level access patterns, TypeScript API design, edge functions. Understands database normalization, indexing strategy, and migration management. Can reason about upsert semantics and race conditions in a way most backend engineers at her level cannot. Never throws from async functions — a hard habit built from debugging silent failures in production.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Why she works in isolation</div>
+            <div style="font-size:12px;color:var(--muted);">Backend engineers who talk to frontend engineers during the build tend to make their API match the frontend's current assumptions — which changes. Rachel publishes a contract and lets the frontend adapt to it, not the other way around. This is the correct pattern and produces more stable APIs.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nina -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer;" onclick="toggleBg(this)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--coral-light);color:var(--coral-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">NW</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Nina Walsh</div>
+            <div style="font-size:11px;color:var(--muted);">SEO & Content Specialist · 5 years experience</div>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px;">click to expand</div>
+        </div>
+        <div class="bg-body" style="display:none;border-top:0.5px solid var(--border);padding:1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Education</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">BA English Literature — University of Texas Austin</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Google Analytics Certified</div>
+              <div style="font-size:12px;color:var(--muted);">Semrush SEO Fundamentals Certificate</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Career Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 1–2: Content writer at a digital marketing agency</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 3: SEO specialist — learned technical SEO (schema, sitemaps, crawl budgets)</div>
+              <div style="font-size:12px;color:var(--muted);">Year 4–5: Senior SEO & Content at a healthcare marketing agency — specialized in local SEO for medical practices</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Why her healthcare marketing background is directly relevant</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Nina spent two years at a healthcare marketing agency doing local SEO for medical practices — the exact use case here. She knows that "pediatrician near me" is the most valuable search term for this project, that Google Business Profile is as important as the website for local practices, and that Physician schema markup is what triggers the rich results that make a practice stand out in search. She's done this before for actual pediatricians.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">The technical side people underestimate</div>
+            <div style="font-size:12px;color:var(--muted);">Most people think SEO is just keywords. Nina's actual work is closer to structured data engineering — JSON-LD schema markup is code, sitemap.xml is a file she generates precisely, and canonical tag management requires understanding URL architecture. She can read HTML source and audit a site technically. She just doesn't write the application code around it.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dev Kumar -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer;" onclick="toggleBg(this)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--green-light);color:var(--green-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">DK</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Dev Kumar</div>
+            <div style="font-size:11px;color:var(--muted);">QA Engineer · 4 years experience</div>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px;">click to expand</div>
+        </div>
+        <div class="bg-body" style="display:none;border-top:0.5px solid var(--border);padding:1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Education</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">BS Information Technology — Georgia Tech</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">ISTQB Certified Tester — Foundation Level</div>
+              <div style="font-size:12px;color:var(--muted);">Accessibility specialist — WCAG 2.1 trained</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Career Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 1: Manual QA tester at a software consultancy</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 2–3: QA engineer — added automation (Playwright, Cypress)</div>
+              <div style="font-size:12px;color:var(--muted);">Year 4: Senior QA at a product studio — specialized in accessibility auditing and healthcare web applications</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">How QA engineers actually think</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">Dev's mental model is adversarial — he approaches every page assuming it's broken until proven otherwise. He's not trying to confirm things work; he's trying to find where they fail. He's been trained to think about edge cases that engineers don't anticipate: what happens when the network drops mid-form submission, what happens when a parent pastes a 500-character insurance provider name, what happens when someone opens the Contact page at 375px on an old iPhone SE with low contrast mode enabled.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Why accessibility is his specialty</div>
+            <div style="font-size:12px;color:var(--muted);">Dev's healthcare QA background means he's sensitized to accessibility in a way most QA engineers aren't. A parent using a screen reader to find a pediatrician for her child isn't a hypothetical — it's a real user who deserves to use the site. He knows VoiceOver, NVDA, and axe DevTools deeply, and will flag issues that wouldn't show up in a standard browser test.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">The industry's dirty secret about QA</div>
+            <div style="font-size:12px;color:var(--muted);">QA roles are the first to be cut when budgets tighten and the first to be blamed when things break in production. Every experienced engineer has a story about shipping a bug that QA would have caught if they'd had time. Dev's sign-off authority over Elena isn't bureaucracy — it's the studio's institutional memory of what happens when you skip this step.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Elena -->
+      <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;overflow:hidden;">
+        <div style="padding:1rem;display:flex;gap:12px;align-items:flex-start;cursor:pointer;" onclick="toggleBg(this)">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--gray-light);color:var(--gray-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0;">EB</div>
+          <div style="flex:1;">
+            <div style="font-size:14px;font-weight:600;">Elena Bosch</div>
+            <div style="font-size:11px;color:var(--muted);">DevOps Engineer · 7 years experience</div>
+          </div>
+          <div style="font-size:11px;color:var(--faint);margin-top:3px;">click to expand</div>
+        </div>
+        <div class="bg-body" style="display:none;border-top:0.5px solid var(--border);padding:1rem;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Education</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">BS Computer Engineering — UT Austin</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">AWS Certified DevOps Engineer — Professional</div>
+              <div style="font-size:12px;color:var(--muted);">Certified Kubernetes Administrator (CKA)</div>
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Career Path</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 1–2: Systems administrator at a mid-size tech company</div>
+              <div style="font-size:12px;color:var(--muted);margin-bottom:4px;">Year 3–5: DevOps engineer — CI/CD, containerization, cloud infrastructure</div>
+              <div style="font-size:12px;color:var(--muted);">Year 6–7: Senior DevOps at a product studio — specializes in secure deployment pipelines for regulated industries including healthcare</div>
+            </div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">What DevOps actually is (commonly misunderstood)</div>
+            <div style="font-size:12px;color:var(--muted);line-height:1.6;">DevOps isn't just "the person who deploys things." It's the discipline of making software delivery reliable, repeatable, and observable. Elena's job is to make sure that when Dr. Ali pushes a commit to main at 11pm from his phone, the site deploys correctly, the tests run, and if something breaks, it rolls back cleanly — without Dr. Ali having to understand any of that infrastructure. The RUNBOOK.md she writes is proof of this philosophy: it's designed so a non-DevOps person can operate what she built.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Security mindset from regulated industries</div>
+            <div style="font-size:12px;color:var(--muted);">Elena's healthcare DevOps background means she thinks about security headers, env var hygiene, and RLS verification as baseline requirements — not afterthoughts. She's seen what happens when a `.env` file gets committed to a public repo on a healthcare project. She runs `git log --all --full-diff -p -- .env` not because the brief told her to but because she's done this before and knows what it prevents.</div>
+          </div>
+          <div style="margin-top:1rem;padding-top:1rem;border-top:0.5px solid var(--border);">
+            <div style="font-size:10px;font-weight:600;color:var(--faint);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px;">Technical depth</div>
+            <div style="font-size:12px;color:var(--muted);">Vercel, GitHub Actions, Docker, Terraform, AWS (EC2, S3, CloudFront, IAM), Kubernetes basics, Supabase infrastructure. DNS management across major registrars. SSL/TLS configuration. Security headers and web application firewall rules. Monitoring: Datadog, Sentry, UptimeRobot. Can read and write YAML for CI pipelines without looking up syntax.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── NETWORK ── -->
+  <div id="v-network" class="view">
+
+    <div style="font-size:12px;color:var(--muted);margin-bottom:1.25rem;line-height:1.6;">
+      How the team connects. Arrows show the direction of work and information flow.
+      Thick borders = gate authority. Hover nodes for details.
+    </div>
+
+    <!-- Legend -->
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:1.25rem;">
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <div style="width:28px;height:2px;background:var(--teal);"></div> Work flows to
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <div style="width:28px;height:2px;background:var(--amber);border-top:2px dashed var(--amber);"></div> Reads output of
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);">
+        <div style="width:14px;height:14px;border-radius:50%;border:2.5px solid var(--red);background:transparent;"></div> Gate authority
+      </div>
+    </div>
+
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:14px;overflow:hidden;">
+      <svg id="network-svg" viewBox="0 0 860 580" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;">
+        <defs>
+          <marker id="arr-teal" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#0E8C72"/>
+          </marker>
+          <marker id="arr-amber" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#BA7517"/>
+          </marker>
+          <marker id="arr-gray" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#9b9b96"/>
+          </marker>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="2" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+
+        <!-- Phase labels -->
+        <text x="30" y="68" font-size="9" fill="#9b9b96" font-family="system-ui" font-weight="600" letter-spacing="0.08em" text-transform="uppercase">PHASE A</text>
+        <text x="30" y="178" font-size="9" fill="#9b9b96" font-family="system-ui" font-weight="600" letter-spacing="0.08em">PHASE B</text>
+        <text x="30" y="278" font-size="9" fill="#9b9b96" font-family="system-ui" font-weight="600" letter-spacing="0.08em">PHASE C</text>
+        <text x="30" y="348" font-size="9" fill="#9b9b96" font-family="system-ui" font-weight="600" letter-spacing="0.08em">PHASE D</text>
+        <text x="30" y="498" font-size="9" fill="#9b9b96" font-family="system-ui" font-weight="600" letter-spacing="0.08em">E · F · G</text>
+
+        <!-- Phase dividers -->
+        <line x1="80" y1="130" x2="830" y2="130" stroke="#e5e4df" stroke-width="0.5" stroke-dasharray="4,4"/>
+        <line x1="80" y1="230" x2="830" y2="230" stroke="#e5e4df" stroke-width="0.5" stroke-dasharray="4,4"/>
+        <line x1="80" y1="315" x2="830" y2="315" stroke="#e5e4df" stroke-width="0.5" stroke-dasharray="4,4"/>
+        <line x1="80" y1="460" x2="830" y2="460" stroke="#e5e4df" stroke-width="0.5" stroke-dasharray="4,4"/>
+
+        <!-- ── FLOW LINES (drawn before nodes so nodes sit on top) ── -->
+
+        <!-- Sophia → Marco -->
+        <line x1="430" y1="107" x2="430" y2="148" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+
+        <!-- Marco → Jordan -->
+        <line x1="430" y1="207" x2="430" y2="248" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+
+        <!-- Jordan Act1 → Priya -->
+        <line x1="370" y1="297" x2="210" y2="340" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <!-- Jordan Act1 → Tyler -->
+        <line x1="400" y1="297" x2="370" y2="340" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <!-- Jordan Act1 → Rachel -->
+        <line x1="460" y1="297" x2="540" y2="340" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <!-- Jordan Act1 → Nina -->
+        <line x1="490" y1="297" x2="680" y2="340" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+
+        <!-- Marco → Priya (reads design) -->
+        <path d="M 380,185 Q 170,220 190,340" stroke="#BA7517" stroke-width="1" stroke-dasharray="5,3" fill="none" marker-end="url(#arr-amber)"/>
+        <!-- Marco → Tyler (reads design) -->
+        <path d="M 400,190 Q 340,240 355,340" stroke="#BA7517" stroke-width="1" stroke-dasharray="5,3" fill="none" marker-end="url(#arr-amber)"/>
+
+        <!-- Rachel → Tyler (contract) -->
+        <path d="M 510,390 Q 450,415 415,390" stroke="#BA7517" stroke-width="1.5" stroke-dasharray="5,3" fill="none" marker-end="url(#arr-amber)"/>
+
+        <!-- Priya → Jordan Act2 -->
+        <line x1="200" y1="415" x2="360" y2="478" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <!-- Tyler → Jordan Act2 -->
+        <line x1="370" y1="415" x2="390" y2="478" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <!-- Rachel → Jordan Act2 -->
+        <line x1="545" y1="415" x2="440" y2="478" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <!-- Nina → Jordan Act2 (reads output) -->
+        <path d="M 690,415 Q 700,450 455,488" stroke="#9b9b96" stroke-width="1" stroke-dasharray="4,3" fill="none" marker-end="url(#arr-gray)"/>
+
+        <!-- Jordan Act2 → Dev Kumar -->
+        <line x1="500" y1="497" x2="620" y2="497" stroke="#0E8C72" stroke-width="1.5" marker-end="url(#arr-teal)"/>
+        <!-- Dev Kumar → Elena -->
+        <line x1="680" y1="497" x2="760" y2="497" stroke="#0E8C72" stroke-width="2" marker-end="url(#arr-teal)"/>
+
+        <!-- Sophia — Phase A, center -->
+        <g class="net-node" data-tip="Sophia Chen, 32 · PM · Gemini Flash · Owns master spec. Goes first. Everything flows from her clarity." style="cursor:pointer;" onclick="showTip('sophia-tip')">
+          <circle cx="430" cy="85" r="34" fill="#EEEDFE" stroke="#7F77DD" stroke-width="2"/>
+          <text x="430" y="90" text-anchor="middle" font-size="15" font-weight="700" fill="#3C3489" font-family="system-ui">SC</text>
+          <text x="430" y="123" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Sophia</text>
+          <text x="430" y="135" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">PM · 32</text>
+        </g>
+
+        <!-- Marco — Phase B, center -->
+        <g class="net-node" style="cursor:pointer;" onclick="showTip('marco-tip')">
+          <circle cx="430" cy="178" r="34" fill="#FAEEDA" stroke="#BA7517" stroke-width="2.5"/>
+          <text x="430" y="183" text-anchor="middle" font-size="15" font-weight="700" fill="#633806" font-family="system-ui">MR</text>
+          <text x="430" y="216" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Marco</text>
+          <text x="430" y="228" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">Designer · 36</text>
+          <!-- Gate ring -->
+          <circle cx="430" cy="178" r="38" fill="none" stroke="#E24B4A" stroke-width="1.5" stroke-dasharray="4,3"/>
+        </g>
+
+        <!-- Jordan Act 1 — Phase C, center -->
+        <g class="net-node" style="cursor:pointer;" onclick="showTip('jordan-tip')">
+          <circle cx="430" cy="278" r="34" fill="#e1f5ee" stroke="#0E8C72" stroke-width="2.5"/>
+          <text x="430" y="283" text-anchor="middle" font-size="15" font-weight="700" fill="#085041" font-family="system-ui">JP</text>
+          <text x="430" y="316" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Jordan Act 1</text>
+          <text x="430" y="328" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">Lead · 38</text>
+          <circle cx="430" cy="278" r="38" fill="none" stroke="#E24B4A" stroke-width="1.5" stroke-dasharray="4,3"/>
+        </g>
+
+        <!-- Phase D — 4 parallel nodes -->
+        <!-- Priya -->
+        <g class="net-node" style="cursor:pointer;" onclick="showTip('priya-tip')">
+          <circle cx="200" cy="385" r="30" fill="#e1f5ee" stroke="#0E8C72" stroke-width="1.5"/>
+          <text x="200" y="390" text-anchor="middle" font-size="14" font-weight="700" fill="#085041" font-family="system-ui">PN</text>
+          <text x="200" y="420" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Priya</text>
+          <text x="200" y="431" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">Frontend · 30</text>
+        </g>
+
+        <!-- Tyler -->
+        <g class="net-node" style="cursor:pointer;" onclick="showTip('tyler-tip')">
+          <circle cx="370" cy="385" r="30" fill="#e1f5ee" stroke="#0E8C72" stroke-width="1.5"/>
+          <text x="370" y="390" text-anchor="middle" font-size="14" font-weight="700" fill="#085041" font-family="system-ui">TM</text>
+          <text x="370" y="420" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Tyler</text>
+          <text x="370" y="431" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">Frontend · 27</text>
+        </g>
+
+        <!-- Rachel -->
+        <g class="net-node" style="cursor:pointer;" onclick="showTip('rachel-tip')">
+          <circle cx="545" cy="385" r="30" fill="#E6F1FB" stroke="#378ADD" stroke-width="2"/>
+          <text x="545" y="390" text-anchor="middle" font-size="14" font-weight="700" fill="#0C447C" font-family="system-ui">RL</text>
+          <text x="545" y="420" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Rachel</text>
+          <text x="545" y="431" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">Backend · 33</text>
+        </g>
+
+        <!-- Nina -->
+        <g class="net-node" style="cursor:pointer;" onclick="showTip('nina-tip')">
+          <circle cx="700" cy="385" r="28" fill="#FAECE7" stroke="#9b9b96" stroke-width="1.5"/>
+          <text x="700" y="390" text-anchor="middle" font-size="14" font-weight="700" fill="#4A1B0C" font-family="system-ui">NW</text>
+          <text x="700" y="419" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Nina</text>
+          <text x="700" y="430" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">SEO · 29</text>
+        </g>
+
+        <!-- Jordan Act 2 -->
+        <g class="net-node" style="cursor:pointer;" onclick="showTip('jordan2-tip')">
+          <circle cx="415" cy="497" r="32" fill="#FAEEDA" stroke="#BA7517" stroke-width="2.5"/>
+          <text x="415" y="502" text-anchor="middle" font-size="14" font-weight="700" fill="#633806" font-family="system-ui">JP</text>
+          <text x="415" y="534" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Jordan Act 2</text>
+          <text x="415" y="546" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">Integration · Opus</text>
+          <circle cx="415" cy="497" r="36" fill="none" stroke="#E24B4A" stroke-width="1.5" stroke-dasharray="4,3"/>
+        </g>
+
+        <!-- Dev Kumar -->
+        <g class="net-node" style="cursor:pointer;" onclick="showTip('dev-tip')">
+          <circle cx="650" cy="497" r="28" fill="#EAF3DE" stroke="#378ADD" stroke-width="1.5"/>
+          <text x="650" y="502" text-anchor="middle" font-size="14" font-weight="700" fill="#173404" font-family="system-ui">DK</text>
+          <text x="650" y="531" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Dev Kumar</text>
+          <text x="650" y="542" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">QA · 26</text>
+          <circle cx="650" cy="497" r="32" fill="none" stroke="#E24B4A" stroke-width="1.5" stroke-dasharray="4,3"/>
+        </g>
+
+        <!-- Elena -->
+        <g class="net-node" style="cursor:pointer;" onclick="showTip('elena-tip')">
+          <circle cx="790" cy="497" r="28" fill="#F1EFE8" stroke="#444441" stroke-width="1.5"/>
+          <text x="790" y="502" text-anchor="middle" font-size="14" font-weight="700" fill="#444441" font-family="system-ui">EB</text>
+          <text x="790" y="531" text-anchor="middle" font-size="10" font-weight="600" fill="#1a1a18" font-family="system-ui">Elena</text>
+          <text x="790" y="542" text-anchor="middle" font-size="8.5" fill="#6b6b66" font-family="system-ui">DevOps · 34</text>
+        </g>
+
+        <!-- QA PASS label on Dev→Elena line -->
+        <rect x="700" y="487" width="52" height="16" rx="4" fill="#FAEEDA"/>
+        <text x="726" y="499" text-anchor="middle" font-size="8.5" font-weight="600" fill="#BA7517" font-family="system-ui">QA PASS ✓</text>
+
+      </svg>
+    </div>
+
+    <!-- Tooltip cards -->
+    <div id="net-tooltip" style="display:none;margin-top:1rem;background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:1rem;">
+      <div id="net-tip-content" style="font-size:12px;color:var(--muted);line-height:1.6;"></div>
+    </div>
+
+    <!-- Tip data -->
+    <div id="sophia-tip" style="display:none;">
+      <strong style="color:var(--text);">Sophia Chen · 32 · PM</strong><br>
+      Model: Gemini Flash Minimal · Phase A<br><br>
+      Goes first. Her master spec is the foundation every other brief is built on. If her scope is vague, all nine agents suffer downstream. Clarity at this stage multiplies through the entire build. No code, no design — pure coordination.
+    </div>
+    <div id="marco-tip" style="display:none;">
+      <strong style="color:var(--text);">Marco Rivera · 36 · Designer</strong><br>
+      Model: Gemini 3.1 Pro High · Phase B · 🔴 Gate authority<br><br>
+      Highest leverage person on the team. Every color token, font, and spacing decision flows downstream to Priya, Tyler, and Jordan. A wrong hex value at this stage is a site-wide bug. Audit required before Phase D starts.
+    </div>
+    <div id="jordan-tip" style="display:none;">
+      <strong style="color:var(--text);">Jordan Park · 38 · Frontend Lead Act 1</strong><br>
+      Model: Gemini 3.1 Pro Medium · Phase C · 🔴 Gate authority<br><br>
+      Scaffolds the entire project — Vite, React Router, folder structure, stub pages. Creates the containers Priya and Tyler will fill. If the scaffold is wrong, parallel work collides. Audit required before Phase D starts.
+    </div>
+    <div id="priya-tip" style="display:none;">
+      <strong style="color:var(--text);">Priya Nair · 30 · Frontend Dev</strong><br>
+      Model: Claude Sonnet 4.6 · Phase D (parallel)<br><br>
+      Builds Home + About. Her unusual combination: came from communications and learned React, so she thinks about copy and code simultaneously. Reads Marco's design system. Works in Jordan's scaffold.
+    </div>
+    <div id="tyler-tip" style="display:none;">
+      <strong style="color:var(--text);">Tyler Morris · 27 · Frontend Dev</strong><br>
+      Model: Claude Sonnet 4.6 · Phase D (parallel)<br><br>
+      Builds Services, FAQ, Contact, and the two-step WaitlistForm UI. His TypeScript interfaces (WaitlistStep1Data, WaitlistStep2Data) are a contract that Rachel and Jordan depend on. Hidden critical output.
+    </div>
+    <div id="rachel-tip" style="display:none;">
+      <strong style="color:var(--text);">Rachel Lin · 33 · Backend Developer</strong><br>
+      Model: Claude Opus 4.6 · Phase D (parallel)<br><br>
+      Designs the Supabase schema with RLS, writes three typed API functions, publishes HANDOFF-rachel.md. Works in total isolation — her output is the API contract. Tyler's UI must conform to it, not the reverse. Opus only.
+    </div>
+    <div id="nina-tip" style="display:none;">
+      <strong style="color:var(--text);">Nina Walsh · 29 · SEO Specialist</strong><br>
+      Model: Flash-Lite Minimal · Phase D (parallel)<br><br>
+      Generates all meta tags, sitemap.xml, robots.txt, and four JSON-LD schema blocks. Works from the scaffold only — does not touch page components. Her output feeds Jordan Act 2 for final injection.
+    </div>
+    <div id="jordan2-tip" style="display:none;">
+      <strong style="color:var(--text);">Jordan Park · 38 · Frontend Lead Act 2</strong><br>
+      Model: Claude Opus 4.6 · Phase E · 🔴 Gate authority<br><br>
+      The critical integration moment. Wires Tyler's WaitlistForm UI to Rachel's API. Runs visual consistency pass across all pages. Injects Nina's SEO metadata. Final build check. Uses Opus because integration errors are expensive. Hands to Dev Kumar only after build passes.
+    </div>
+    <div id="dev-tip" style="display:none;">
+      <strong style="color:var(--text);">Dev Kumar · 26 · QA Engineer</strong><br>
+      Model: Flash-Lite Low · Phase F · 🔴 Gate authority<br><br>
+      Tests every breakpoint, every form state, every trust signal. Runs Lighthouse. Cross-browser checks. Signs off with "QA PASS" — Elena cannot proceed without it. Adversarial mindset: assumes everything is broken until proven otherwise.
+    </div>
+    <div id="elena-tip" style="display:none;">
+      <strong style="color:var(--text);">Elena Bosch · 34 · DevOps Engineer</strong><br>
+      Model: Claude Sonnet 4.6 · Phase G<br><br>
+      Configures vercel.json, sets security headers, wires GitHub Actions CI, verifies DNS, audits .env for secrets, writes RUNBOOK.md for Dr. Ali as solo maintainer. Hard rule: never deploys without Dev Kumar's QA PASS.
+    </div>
+
+  </div>
+
+</div>
+<script>
+function showTip(id) {
+  const box = document.getElementById('net-tooltip');
+  const content = document.getElementById('net-tip-content');
+  const src = document.getElementById(id);
+  if (!src) return;
+  content.innerHTML = src.innerHTML;
+  box.style.display = 'block';
+  box.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+function show(name, btn) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('v-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+function toggle(card) {
+  const wasOpen = card.classList.contains('open');
+  document.querySelectorAll('.person-card').forEach(c => c.classList.remove('open'));
+  if (!wasOpen) card.classList.add('open');
+}
+function toggleBg(header) {
+  const body = header.nextElementSibling;
+  const label = header.querySelector('div:last-child');
+  const isOpen = body.style.display === 'block';
+  body.style.display = isOpen ? 'none' : 'block';
+  if (label) label.textContent = isOpen ? 'click to expand' : 'click to collapse';
+}
+</script>
+</body>
+</html>

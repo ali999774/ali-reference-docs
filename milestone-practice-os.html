@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milestone Practice OS — Agent Roster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #f8f8f6;
+    --surface: #ffffff;
+    --surface2: #f2f2ef;
+    --border: #e4e3de;
+    --border2: #d0cfc9;
+    --text: #1c1c1a;
+    --muted: #6a6a65;
+    --faint: #9a9a94;
+    --teal: #0E8C72;
+    --teal-light: #dff2ec;
+    --teal-dark: #074f3f;
+    --teal-mid: #1D9E75;
+    --blue: #2878cc;
+    --blue-light: #deeef9;
+    --blue-dark: #0a3d6e;
+    --purple: #6a62c4;
+    --purple-light: #eceafb;
+    --purple-dark: #2e2875;
+    --amber: #b06c10;
+    --amber-light: #faebd6;
+    --amber-dark: #5c3606;
+    --coral: #c04428;
+    --coral-light: #f9e7e2;
+    --coral-dark: #441608;
+    --green: #337010;
+    --green-light: #e5f2d8;
+    --green-dark: #173404;
+    --pink: #b84070;
+    --pink-light: #f8e5ed;
+    --pink-dark: #450f24;
+    --gray-accent: #5a5a55;
+    --gray-light: #eeede8;
+    --gray-dark: #2a2a28;
+    --shadow: 0 1px 4px rgba(0,0,0,0.07);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+  }
+
+  [data-theme="dark"] {
+    --bg: #181816;
+    --surface: #222220;
+    --surface2: #2a2a28;
+    --border: #333330;
+    --border2: #444440;
+    --text: #e6e5e0;
+    --muted: #9a9a94;
+    --faint: #6a6a65;
+    --teal-light: #062e22;
+    --teal-dark: #7fd4bc;
+    --blue-light: #071e38;
+    --blue-dark: #8fc3ef;
+    --purple-light: #1c1852;
+    --purple-dark: #c0baf4;
+    --amber-light: #2e1c04;
+    --amber-dark: #f0ba62;
+    --coral-light: #2a0e05;
+    --coral-dark: #f0a090;
+    --green-light: #0c1e04;
+    --green-dark: #a0d070;
+    --pink-light: #2a0810;
+    --pink-dark: #e898b8;
+    --gray-light: #2a2a28;
+    --gray-dark: #c0c0ba;
+    --shadow: 0 1px 4px rgba(0,0,0,0.3);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+  }
+
+  body {
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    min-height: 100vh;
+    transition: background .2s, color .2s;
+  }
+
+  .wrap { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+
+  /* ── HEADER ── */
+  .header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    margin-bottom: 2.5rem; padding-bottom: 1.5rem;
+    border-bottom: 0.5px solid var(--border);
+    gap: 1rem;
+  }
+  .header-left {}
+  .header-eyebrow {
+    font-size: 11px; font-weight: 500; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--teal);
+    margin-bottom: 6px; font-family: 'DM Mono', monospace;
+  }
+  .header-title { font-size: 28px; font-weight: 600; letter-spacing: -.02em; color: var(--text); }
+  .header-sub { font-size: 14px; color: var(--muted); margin-top: 5px; }
+  .header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; margin-top: 4px; }
+  .theme-btn {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 8px; padding: 7px 13px; font-size: 12px; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all .15s;
+    font-family: 'Outfit', sans-serif;
+  }
+  .theme-btn:hover { background: var(--surface2); color: var(--text); }
+  .version-badge {
+    background: var(--teal-light); color: var(--teal-dark); border: 0.5px solid var(--teal);
+    border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600;
+    font-family: 'DM Mono', monospace; letter-spacing: .04em;
+  }
+
+  /* ── TABS ── */
+  .tabs {
+    display: flex; gap: 2px;
+    border-bottom: 0.5px solid var(--border);
+    margin-bottom: 2rem;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+  }
+  .tab {
+    padding: 10px 18px; font-size: 13px; font-weight: 500;
+    cursor: pointer; border: none; background: none;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    transition: all .15s; white-space: nowrap;
+    font-family: 'Outfit', sans-serif;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+  /* ── VIEW PANELS ── */
+  .view { display: none; }
+  .view.active { display: block; }
+
+  /* ── OWNER BANNER ── */
+  .owner-banner {
+    display: flex; align-items: center; gap: 18px;
+    background: var(--teal-light); border: 1px solid var(--teal);
+    border-radius: 12px; padding: 18px 22px; margin-bottom: 2rem;
+  }
+  .owner-avatar {
+    width: 54px; height: 54px; border-radius: 50%;
+    background: var(--teal); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 600; flex-shrink: 0;
+    letter-spacing: -.01em;
+  }
+  .owner-name { font-size: 16px; font-weight: 600; color: var(--teal-dark); }
+  .owner-desc { font-size: 13px; color: var(--teal-dark); opacity: .75; margin-top: 2px; }
+  .owner-badges { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+  .owner-badge {
+    font-size: 10px; font-weight: 600; padding: 3px 10px; border-radius: 20px;
+    background: var(--teal); color: #fff; letter-spacing: .03em; text-transform: uppercase;
+  }
+
+  /* ── LAYER HEADER ── */
+  .layer-header {
+    display: flex; align-items: center; gap: 10px;
+    margin: 1.8rem 0 .8rem;
+  }
+  .layer-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--faint);
+    font-family: 'DM Mono', monospace;
+  }
+  .layer-line { flex: 1; height: 0.5px; background: var(--border); }
+
+  /* ── AGENT GRID ── */
+  .agent-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(196px, 1fr));
+    gap: 10px; margin-bottom: .5rem;
+  }
+
+  /* ── AGENT CARD ── */
+  .agent-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 11px; padding: 16px; cursor: pointer;
+    transition: box-shadow .15s, transform .12s, border-color .15s;
+    position: relative; overflow: hidden;
+  }
+  .agent-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--border2); }
+  .agent-card:active { transform: scale(.98); }
+  .agent-card.selected { border-color: var(--teal); box-shadow: 0 0 0 2px var(--teal-light); }
+  .card-stripe { position: absolute; top: 0; left: 0; right: 0; height: 3px; border-radius: 11px 11px 0 0; }
+  .card-icon { font-size: 22px; margin-bottom: 10px; display: block; }
+  .card-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; line-height: 1.35; }
+  .card-analog { font-size: 11px; color: var(--muted); margin-bottom: 10px; line-height: 1.4; }
+  .card-status {
+    font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 20px;
+    display: inline-block; letter-spacing: .03em; text-transform: uppercase;
+  }
+  .s-active { background: var(--green-light); color: var(--green); }
+  .s-ready  { background: var(--amber-light); color: var(--amber); }
+  .s-dormant{ background: var(--gray-light); color: var(--gray-accent); }
+
+  /* ── DETAIL PANEL ── */
+  .detail-wrap {
+    background: var(--surface); border: 0.5px solid var(--border2);
+    border-radius: 14px; padding: 24px 28px; margin-top: 1.2rem;
+    display: none; animation: slideIn .18s ease;
+  }
+  .detail-wrap.open { display: block; }
+  @keyframes slideIn { from { opacity:0; transform: translateY(6px); } to { opacity:1; transform: translateY(0); } }
+  .detail-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; gap: 12px; }
+  .detail-icon-name { display: flex; align-items: center; gap: 14px; }
+  .detail-avatar {
+    width: 46px; height: 46px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .detail-title { font-size: 18px; font-weight: 600; line-height: 1.2; }
+  .detail-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .close-btn {
+    background: var(--surface2); border: 0.5px solid var(--border);
+    border-radius: 8px; width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px; color: var(--muted); flex-shrink: 0;
+    transition: all .12s;
+  }
+  .close-btn:hover { background: var(--border); color: var(--text); }
+
+  .detail-section { margin-bottom: 18px; }
+  .detail-section-title {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--faint);
+    font-family: 'DM Mono', monospace;
+    margin-bottom: 10px;
+  }
+  .task-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .task-chip {
+    font-size: 12px; padding: 5px 11px; border-radius: 6px;
+    background: var(--surface2); border: 0.5px solid var(--border);
+    color: var(--text); line-height: 1.4;
+  }
+  .io-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .io-box {
+    background: var(--surface2); border-radius: 8px;
+    padding: 12px 14px; border: 0.5px solid var(--border);
+  }
+  .io-label { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--faint); font-family: 'DM Mono', monospace; margin-bottom: 6px; }
+  .io-text { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .detail-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 18px; padding-top: 16px; border-top: 0.5px solid var(--border); }
+  .meta-pill {
+    font-size: 11px; padding: 4px 12px; border-radius: 6px; font-weight: 500;
+    background: var(--surface2); border: 0.5px solid var(--border); color: var(--muted);
+  }
+  .meta-pill.status { font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: .04em; }
+  .ceiling-note {
+    background: var(--amber-light); border: 0.5px solid var(--amber);
+    border-radius: 8px; padding: 10px 14px; margin-top: 14px;
+    font-size: 12px; color: var(--amber-dark); line-height: 1.5;
+  }
+
+  /* ── ORG CHART ── */
+  .org-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .org-tip { font-size: 12px; color: var(--faint); margin-bottom: 14px; font-style: italic; }
+
+  /* ── ROUTING VIEW ── */
+  .route-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .route-wrap { grid-template-columns: 1fr; } }
+
+  .route-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 11px; padding: 18px 20px;
+  }
+  .route-card-title { font-size: 14px; font-weight: 600; margin-bottom: 14px; }
+  .route-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 8px 0; border-bottom: 0.5px solid var(--border); font-size: 13px;
+  }
+  .route-row:last-child { border-bottom: none; }
+  .route-trigger { flex: 1; color: var(--text); line-height: 1.5; }
+  .route-tag {
+    font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 5px;
+    white-space: nowrap; flex-shrink: 0; letter-spacing: .02em;
+  }
+
+  .loop-steps { display: flex; flex-direction: column; gap: 0; }
+  .loop-step { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; }
+  .loop-step-num {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: var(--teal-light); color: var(--teal-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600; border: 1px solid var(--teal);
+  }
+  .loop-step-title { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .loop-step-desc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .loop-connector { width: 0.5px; height: 20px; background: var(--border); margin-left: 14px; }
+
+  .handoff-note {
+    background: var(--surface2); border: 0.5px solid var(--border);
+    border-radius: 10px; padding: 14px 18px; margin-top: 16px;
+    font-size: 12px; color: var(--muted); line-height: 1.6;
+  }
+  .handoff-note strong { color: var(--text); font-weight: 600; }
+
+  /* ── EXTERNAL PROFESSIONALS ── */
+  .pro-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+  .pro-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 11px; padding: 16px 18px;
+  }
+  .pro-icon { font-size: 20px; margin-bottom: 8px; }
+  .pro-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .pro-role { font-size: 11px; color: var(--muted); margin-bottom: 8px; }
+  .pro-note { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .pro-timing {
+    margin-top: 10px; font-size: 10px; font-weight: 600; padding: 3px 9px;
+    border-radius: 5px; display: inline-block; text-transform: uppercase; letter-spacing: .04em;
+  }
+  .t-now { background: var(--coral-light); color: var(--coral); }
+  .t-pre { background: var(--amber-light); color: var(--amber); }
+  .t-ongoing { background: var(--blue-light); color: var(--blue); }
+
+  /* ── PROFILES TAB ── */
+  .profile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; margin-bottom: 1.5rem; }
+
+  .profile-card {
+    background: var(--surface); border: 0.5px solid var(--border);
+    border-radius: 12px; overflow: hidden; cursor: pointer;
+    transition: box-shadow .15s, transform .12s, border-color .15s;
+  }
+  .profile-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); border-color: var(--border2); }
+  .profile-card:active { transform: scale(.98); }
+  .profile-card.selected { border-color: var(--teal); box-shadow: 0 0 0 2px var(--teal-light); }
+
+  .profile-card-header {
+    padding: 16px 18px 14px; display: flex; align-items: center; gap: 14px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .profile-avatar {
+    width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; font-weight: 700; letter-spacing: .02em;
+    font-family: 'DM Mono', monospace; border: 2px solid;
+  }
+  .profile-name { font-size: 14px; font-weight: 600; margin-bottom: 2px; }
+  .profile-title { font-size: 11px; color: var(--muted); }
+  .profile-card-body { padding: 14px 18px; }
+
+  .profile-section-label {
+    font-size: 9px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--faint); font-family: 'DM Mono', monospace;
+    margin-bottom: 5px; margin-top: 12px;
+  }
+  .profile-section-label:first-child { margin-top: 0; }
+  .profile-edu { font-size: 12px; color: var(--muted); line-height: 1.55; }
+  .profile-exp { font-size: 12px; color: var(--muted); line-height: 1.55; }
+  .profile-quote {
+    font-size: 12px; color: var(--text); line-height: 1.6; font-style: italic;
+    border-left: 2.5px solid; padding-left: 10px; margin-top: 10px;
+  }
+  .profile-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .profile-chip {
+    font-size: 10px; padding: 3px 8px; border-radius: 5px;
+    background: var(--surface2); border: 0.5px solid var(--border);
+    color: var(--muted);
+  }
+
+  /* expanded detail panel for profiles */
+  .profile-detail {
+    background: var(--surface); border: 0.5px solid var(--border2);
+    border-radius: 14px; padding: 24px 28px; margin-top: 1rem;
+    display: none; animation: slideIn .18s ease;
+  }
+  .profile-detail.open { display: block; }
+  .profile-detail-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; gap: 12px; }
+  .profile-detail-avatar {
+    width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; font-family: 'DM Mono', monospace; border: 2px solid;
+  }
+  .profile-detail-name { font-size: 20px; font-weight: 600; }
+  .profile-detail-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .profile-detail-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 640px) { .profile-detail-body { grid-template-columns: 1fr; } }
+  .profile-detail-section { }
+  .profile-detail-label {
+    font-size: 10px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--faint); font-family: 'DM Mono', monospace; margin-bottom: 8px;
+  }
+  .profile-detail-text { font-size: 13px; color: var(--muted); line-height: 1.65; }
+  .profile-exp-item { margin-bottom: 12px; }
+  .profile-exp-role { font-size: 13px; font-weight: 600; color: var(--text); }
+  .profile-exp-org { font-size: 12px; color: var(--muted); margin-bottom: 3px; }
+  .profile-exp-desc { font-size: 12px; color: var(--muted); line-height: 1.55; }
+  .profile-detail-quote {
+    font-size: 13px; font-style: italic; line-height: 1.65;
+    border-left: 3px solid; padding: 10px 14px; border-radius: 0 8px 8px 0;
+    background: var(--surface2); color: var(--text); margin-top: 16px;
+    grid-column: 1 / -1;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .header { flex-direction: column; }
+    .header-title { font-size: 22px; }
+    .agent-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    .io-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-eyebrow">Milestone Pediatrics · Practice OS</div>
+      <div class="header-title">Agent Roster</div>
+      <div class="header-sub">Solo founder + AI agent team. Every task routes to an agent first. You execute what only you can.</div>
+    </div>
+    <div class="header-actions">
+      <span class="version-badge">v0.1 — Pre-launch</span>
+      <button class="theme-btn" onclick="toggleTheme()">☀ / ☾</button>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="showView('roster',this)">The Agents</button>
+    <button class="tab" onclick="showView('profiles',this)">Profiles</button>
+    <button class="tab" onclick="showView('orgchart',this)">Org Chart</button>
+    <button class="tab" onclick="showView('routing',this)">Task Routing</button>
+    <button class="tab" onclick="showView('professionals',this)">External Professionals</button>
+  </div>
+
+  <!-- ═══ ROSTER VIEW ═══ -->
+  <div class="view active" id="view-roster">
+    <div class="owner-banner">
+      <div class="owner-avatar">AH</div>
+      <div>
+        <div class="owner-name">Dr. Ali — Founder & Practice Owner</div>
+        <div class="owner-desc">Non-delegatable roles · You are the studio head on every decision</div>
+        <div class="owner-badges">
+          <span class="owner-badge">Physician</span>
+          <span class="owner-badge">CEO</span>
+          <span class="owner-badge">Compliance Officer</span>
+          <span class="owner-badge">Final Approver</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="roster-layers"></div>
+    <div class="detail-wrap" id="detail-panel"></div>
+  </div>
+
+  <!-- ═══ PROFILES VIEW ═══ -->
+  <div class="view" id="view-profiles">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6">
+      Full professional backgrounds for every agent on the Milestone Pediatrics team. Click any card to expand the complete profile.
+    </p>
+    <div class="profile-grid" id="profile-grid"></div>
+    <div class="profile-detail" id="profile-detail"></div>
+  </div>
+
+  <!-- ═══ ORG CHART VIEW ═══ -->
+  <div class="view" id="view-orgchart">
+    <div class="org-tip">Click any node to open the agent profile in the Agents tab.</div>
+    <div class="org-scroll">
+      <svg width="100%" viewBox="0 0 880 620" style="min-width:700px">
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- OWNER -->
+        <g style="cursor:default">
+          <rect x="290" y="16" width="300" height="60" rx="12" fill="#dff2ec" stroke="#0E8C72" stroke-width="1.5"/>
+          <text font-family="Outfit, sans-serif" font-size="14" font-weight="600" fill="#074f3f" x="440" y="40" text-anchor="middle" dominant-baseline="central">Dr. Ali — Founder</text>
+          <text font-family="Outfit, sans-serif" font-size="11" fill="#0E8C72" x="440" y="60" text-anchor="middle" dominant-baseline="central">Physician · CEO · Compliance Officer</text>
+        </g>
+
+        <!-- L1 LAYER -->
+        <text font-family="DM Mono, monospace" font-size="9" font-weight="600" letter-spacing="1.5" fill="#9a9a94" x="40" y="105">LAYER 1 — ALWAYS ACTIVE</text>
+        <line x1="40" y1="111" x2="840" y2="111" stroke="#e4e3de" stroke-width="0.5"/>
+
+        <!-- L1: Ops -->
+        <g style="cursor:pointer" onclick="goAgent('ops')">
+          <rect x="40" y="122" width="178" height="56" rx="8" fill="#deeef9" stroke="#2878cc" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="12" font-weight="600" fill="#0a3d6e" x="129" y="143" text-anchor="middle" dominant-baseline="central">Marcus Reyes</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#2878cc" x="129" y="162" text-anchor="middle" dominant-baseline="central">Operations</text>
+        </g>
+        <!-- L1: Finance -->
+        <g style="cursor:pointer" onclick="goAgent('finance')">
+          <rect x="238" y="122" width="178" height="56" rx="8" fill="#e5f2d8" stroke="#337010" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="12" font-weight="600" fill="#173404" x="327" y="143" text-anchor="middle" dominant-baseline="central">Diane Okafor</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#337010" x="327" y="162" text-anchor="middle" dominant-baseline="central">Finance</text>
+        </g>
+        <!-- L1: Legal -->
+        <g style="cursor:pointer" onclick="goAgent('legal')">
+          <rect x="436" y="122" width="178" height="56" rx="8" fill="#faebd6" stroke="#b06c10" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="12" font-weight="600" fill="#5c3606" x="525" y="143" text-anchor="middle" dominant-baseline="central">Sandra Whitfield</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#b06c10" x="525" y="162" text-anchor="middle" dominant-baseline="central">Legal &amp; Compliance</text>
+        </g>
+        <!-- L1: Clinical Knowledge -->
+        <g style="cursor:pointer" onclick="goAgent('clinical')">
+          <rect x="634" y="122" width="200" height="56" rx="8" fill="#eceafb" stroke="#6a62c4" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="12" font-weight="600" fill="#2e2875" x="734" y="143" text-anchor="middle" dominant-baseline="central">Dr. Maya Osei</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#6a62c4" x="734" y="162" text-anchor="middle" dominant-baseline="central">Clinical Knowledge</text>
+        </g>
+
+        <!-- Owner → L1 connectors -->
+        <path d="M340 76 L340 100 L129 100 L129 122" fill="none" stroke="#c0c0ba" stroke-width="0.5" marker-end="url(#arr)"/>
+        <path d="M390 76 L390 100 L327 100 L327 122" fill="none" stroke="#c0c0ba" stroke-width="0.5" marker-end="url(#arr)"/>
+        <path d="M490 76 L490 100 L525 100 L525 122" fill="none" stroke="#c0c0ba" stroke-width="0.5" marker-end="url(#arr)"/>
+        <path d="M540 76 L540 100 L734 100 L734 122" fill="none" stroke="#c0c0ba" stroke-width="0.5" marker-end="url(#arr)"/>
+
+        <!-- L2 LAYER -->
+        <text font-family="DM Mono, monospace" font-size="9" font-weight="600" letter-spacing="1.5" fill="#9a9a94" x="40" y="206">LAYER 2 — CLINICAL OPERATIONS</text>
+        <line x1="40" y1="212" x2="840" y2="212" stroke="#e4e3de" stroke-width="0.5"/>
+
+        <g style="cursor:pointer" onclick="goAgent('clinops')">
+          <rect x="256" y="222" width="368" height="56" rx="8" fill="#f9e7e2" stroke="#c04428" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="12" font-weight="600" fill="#441608" x="440" y="243" text-anchor="middle" dominant-baseline="central">Rosa Villanueva</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#c04428" x="440" y="262" text-anchor="middle" dominant-baseline="central">Clinical Operations · MA · RN · Vaccines · Documentation</text>
+        </g>
+        <path d="M440 178 L440 222" fill="none" stroke="#c0c0ba" stroke-width="0.5" marker-end="url(#arr)"/>
+
+        <!-- L3 LAYER -->
+        <text font-family="DM Mono, monospace" font-size="9" font-weight="600" letter-spacing="1.5" fill="#9a9a94" x="40" y="306">LAYER 3 — PATIENT-FACING</text>
+        <line x1="40" y1="312" x2="840" y2="312" stroke="#e4e3de" stroke-width="0.5"/>
+
+        <g style="cursor:pointer" onclick="goAgent('comms')">
+          <rect x="100" y="322" width="266" height="56" rx="8" fill="#f8e5ed" stroke="#b84070" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="12" font-weight="600" fill="#450f24" x="233" y="343" text-anchor="middle" dominant-baseline="central">Camila Restrepo</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#b84070" x="233" y="362" text-anchor="middle" dominant-baseline="central">Communications · Patient Relations</text>
+        </g>
+        <g style="cursor:pointer" onclick="goAgent('insurance')">
+          <rect x="514" y="322" width="266" height="56" rx="8" fill="#dff2ec" stroke="#0E8C72" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="12" font-weight="600" fill="#074f3f" x="647" y="343" text-anchor="middle" dominant-baseline="central">Kevin Tran</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#0E8C72" x="647" y="362" text-anchor="middle" dominant-baseline="central">Insurance &amp; Front Desk</text>
+        </g>
+        <path d="M340 278 L340 312 L233 312 L233 322" fill="none" stroke="#c0c0ba" stroke-width="0.5" marker-end="url(#arr)"/>
+        <path d="M540 278 L540 312 L647 312 L647 322" fill="none" stroke="#c0c0ba" stroke-width="0.5" marker-end="url(#arr)"/>
+
+        <!-- L4 LAYER -->
+        <text font-family="DM Mono, monospace" font-size="9" font-weight="600" letter-spacing="1.5" fill="#9a9a94" x="40" y="406">LAYER 4 — GROWTH &amp; INFRASTRUCTURE</text>
+        <line x1="40" y1="412" x2="840" y2="412" stroke="#e4e3de" stroke-width="0.5"/>
+
+        <!-- Marketing -->
+        <g style="cursor:pointer" onclick="goAgent('marketing')">
+          <rect x="40" y="422" width="168" height="54" rx="8" fill="#faebd6" stroke="#b06c10" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="11" font-weight="600" fill="#5c3606" x="124" y="441" text-anchor="middle" dominant-baseline="central">Jordan Ellis</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#b06c10" x="124" y="460" text-anchor="middle" dominant-baseline="central">Marketing &amp; Growth</text>
+        </g>
+        <!-- HR -->
+        <g style="cursor:pointer" onclick="goAgent('hr')">
+          <rect x="228" y="422" width="168" height="54" rx="8" fill="#eeede8" stroke="#5a5a55" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="11" font-weight="600" fill="#2a2a28" x="312" y="441" text-anchor="middle" dominant-baseline="central">Angela Nwosu</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#5a5a55" x="312" y="460" text-anchor="middle" dominant-baseline="central">HR · First hire prep</text>
+        </g>
+        <!-- Billing -->
+        <g style="cursor:pointer" onclick="goAgent('billing')">
+          <rect x="416" y="422" width="168" height="54" rx="8" fill="#e5f2d8" stroke="#337010" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="11" font-weight="600" fill="#173404" x="500" y="441" text-anchor="middle" dominant-baseline="central">Thomas Graves</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#337010" x="500" y="460" text-anchor="middle" dominant-baseline="central">Billing &amp; RCM</text>
+        </g>
+        <!-- IT -->
+        <g style="cursor:pointer" onclick="goAgent('it')">
+          <rect x="604" y="422" width="236" height="54" rx="8" fill="#deeef9" stroke="#2878cc" stroke-width="0.5"/>
+          <text font-family="Outfit, sans-serif" font-size="11" font-weight="600" fill="#0a3d6e" x="722" y="441" text-anchor="middle" dominant-baseline="central">David Choi</text>
+          <text font-family="Outfit, sans-serif" font-size="10" fill="#2878cc" x="722" y="460" text-anchor="middle" dominant-baseline="central">IT &amp; Systems</text>
+        </g>
+
+        <!-- Handoff note -->
+        <rect x="40" y="508" width="800" height="30" rx="7" fill="#f2f2ef" stroke="#e4e3de" stroke-width="0.5"/>
+        <text font-family="Outfit, sans-serif" font-size="11" fill="#6a6a65" x="440" y="527" text-anchor="middle" dominant-baseline="central">When humans join: agent stays as institutional memory + support. Human becomes senior executor. You supervise outcomes only.</text>
+
+        <!-- Tap note -->
+        <text font-family="Outfit, sans-serif" font-size="10" fill="#9a9a94" font-style="italic" x="440" y="564" text-anchor="middle">Tap any node to open agent profile</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ═══ ROUTING VIEW ═══ -->
+  <div class="view" id="view-routing">
+    <div class="route-wrap">
+      <div class="route-card">
+        <div class="route-card-title">Route by task type</div>
+        <div id="route-table"></div>
+      </div>
+      <div class="route-card">
+        <div class="route-card-title">Standard task loop</div>
+        <div class="loop-steps" id="loop-steps"></div>
+        <div class="handoff-note">
+          <strong>When a human joins:</strong> Agent handles cognitive + documentation work. Human handles physical + interpersonal execution. You supervise outcomes only — no longer in the execution loop.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ PROFESSIONALS VIEW ═══ -->
+  <div class="view" id="view-professionals">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:1.5rem;line-height:1.6">
+      External professionals are not agents — they are real humans who hold legal and financial authority. Agents do prep work <em>for</em> these relationships: research, contract summaries, document drafts, question lists. They never replace them.
+    </p>
+    <div class="pro-grid" id="pro-grid"></div>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const AGENTS = [
+  {
+    id:'ops', layer:1, icon:'⚙️',
+    name:'Marcus Reyes', title:'Operations Agent', analog:'Practice Manager',
+    initials:'MR', status:'active',
+    color:'#2878cc', bg:'#deeef9', dark:'#0a3d6e',
+    education:'MBA, University of Texas at Austin (McCombs) · B.S. Healthcare Administration, Texas A&M',
+    experience:'11 years in healthcare operations — 4 years as practice manager at a 6-physician multispecialty group in Sugar Land; 3 years with MHMD managing clinic transitions; previously operations coordinator at Memorial Hermann outpatient network.',
+    personality:'Systems-minded and methodical. Marcus runs everything through a checklist and never closes a task without documentation. Prefers building reusable templates over one-off solutions. Low drama, high output.',
+    expertise:['Practice SOPs and workflow design','Vendor evaluation and contract prep','Credentialing milestone tracking','Space planning and equipment procurement','Regulatory compliance checklists','MHMD/IPA process navigation','Facilities and clinic build-out management','Medical supply inventory and par level management'],
+    tasks:['SOPs and clinical workflow design','Vendor research and comparison scoring','Credentialing tracking documentation','Supply chain and procurement lists — par levels, reorder points, cost reduction','Space planning, equipment specs, and facilities management','Compliance and policy checklists (HIPAA, OSHA, CLIA)','Meeting agendas and decision logs','Insurance credentialing milestone tracking','Clinic build-out coordination and vendor matrices','Safety checklists and maintenance plans','Lease summary documentation for attorney review'],
+    activates:'Now — pre-launch tasks are mostly operational.',
+    project:'Claude Project: Milestone Ops',
+    inputs:'Context, constraints, vendor quotes, your decisions',
+    outputs:'Drafts, templates, structured plans, scored comparisons'
+  },
+  {
+    id:'finance', layer:1, icon:'💰',
+    name:'Diane Okafor', title:'Finance Agent', analog:'CFO / Financial Analyst',
+    initials:'DO', status:'active',
+    color:'#337010', bg:'#e5f2d8', dark:'#173404',
+    education:'MBA (Finance), Rice University (Jones) · CPA · B.S. Accounting, University of Houston',
+    experience:'14 years in healthcare finance — 5 years as CFO of a solo-to-group pediatric practice expansion in The Woodlands; prior roles in practice valuation at a Houston-based healthcare consulting firm; trained in SBA 7(a) loan structuring for physician practices.',
+    personality:'Precise, conservative, and scenario-driven. Diane builds three versions of every model — optimistic, base, and stress case — and won\'t let you proceed until you\'ve stared at the stress case. She asks uncomfortable questions about burn rate before anyone else does.',
+    expertise:['Pro forma and startup cost modeling','Payer fee schedule benchmarking','Practice loan preparation','Cash flow projection','Revenue cycle financial analysis','Tax structure for solo physician practices'],
+    tasks:['Pro forma modeling and scenario planning (optimistic / base / stress)','Startup cost estimation by category','Fee schedule research and payer benchmarking','Payer contract analysis prep','Cash flow projection templates','Expense categorization frameworks','Revenue cycle education (before billing company onboards)','KPI dashboard design and tracking: Collections %, AR days, Denial rate, Vaccine margin, Visits per day, Payer mix','Monthly financial performance reports','Budget planning (annual and rolling)'],
+    kpis:['Collections %','AR days','Denial rate','Vaccine margin','Visits per day','Payer mix'],
+    outputFormat:'Snapshot → Risks/Considerations → Framework or Model → Next step',
+    activates:'Now — pro forma and practice loan prep are live.',
+    project:'Claude Project: Milestone Finance',
+    inputs:'Numbers, payer mix assumptions, CPA outputs to review',
+    outputs:'Models, analysis, questions to bring to your CPA'
+  },
+  {
+    id:'legal', layer:1, icon:'⚖️',
+    name:'Sandra Whitfield', title:'Legal & Compliance Agent', analog:'Healthcare Attorney Support',
+    initials:'SW', status:'active',
+    color:'#b06c10', bg:'#faebd6', dark:'#5c3606',
+    education:'J.D., University of Texas School of Law · B.A. Political Science, Baylor University',
+    experience:'9 years in healthcare law — specialized in physician practice formation, payer contracting, and HIPAA compliance; former associate at a Houston healthcare law firm advising solo and small group practices; spent 2 years as in-house compliance counsel at a Houston-area hospital system.',
+    personality:'Thorough and slightly paranoid in the best possible way. Sandra reads every contract twice looking for what\'s missing, not just what\'s there. She flags ambiguity before it becomes a dispute. Her output is always annotated — she never just says "this looks fine."',
+    expertise:['HIPAA policy drafting and gap analysis','Physician practice entity formation','Payer contract review and red-flag identification','OSHA and regulatory compliance','Employment law (Texas)','MHMD affiliation agreement review'],
+    tasks:['HIPAA policy drafts and gap analysis','Contract review prep — what to look for before attorney','Employment document templates','OSHA and regulatory checklist maintenance','Credentialing process documentation','Payer contract term glossary and red-flag identification','MHMD affiliation agreement analysis prep'],
+    activates:'Now — contracts and credentialing are active.',
+    project:'Claude Project: Milestone Legal',
+    inputs:'Contract text, payer terms, regulatory questions',
+    outputs:'Annotated drafts, policy templates, review checklists',
+    ceiling:'Prep work only — your healthcare attorney reviews and signs off on everything.'
+  },
+  {
+    id:'clinical', layer:1, icon:'🧠',
+    name:'Dr. Maya Osei', title:'Clinical Knowledge Agent', analog:'Medical Director / CME Support',
+    initials:'MO', status:'active',
+    color:'#6a62c4', bg:'#eceafb', dark:'#2e2875',
+    education:'M.D., Baylor College of Medicine · Pediatrics Residency, Texas Children\'s Hospital · M.P.H. (Epidemiology), Johns Hopkins Bloomberg School of Public Health',
+    experience:'Board-certified general pediatrician with 8 years of academic outpatient practice. Former core faculty at a pediatric residency program. Extensive experience synthesizing clinical guidelines (AAP, CDC, USPSTF), teaching at the bedside, and translating complex evidence into actionable clinical protocols. Published on developmental screening implementation.',
+    personality:'Evidence-first, structured, and pedagogically precise. Maya cites sources automatically and distinguishes clearly between Grade A evidence and expert consensus. She builds teaching materials the way she would want to receive them as a resident — layered, organized, immediately usable.',
+    expertise:['AAP/CDC/USPSTF guideline synthesis','Clinical protocol development','Pediatric teaching content and case prep','Board and MOC prep (ABP)','Medical literature digestion','Developmental and behavioral screening workflows'],
+    tasks:['Guideline summaries and clinical protocols','Patient education material drafts','Teaching content and resident case prep','Board and MOC prep','Medical literature digests (med-lit skill)','Clinical decision support and differential generation'],
+    activates:'Already running — most mature agent in the roster.',
+    project:'Existing workflow (clinical-reasoning + med-lit-digest skills)',
+    inputs:'Clinical questions, articles, case presentations',
+    outputs:'Structured summaries, differentials, teaching materials'
+  },
+  {
+    id:'clinops', layer:2, icon:'🩺',
+    name:'Rosa Villanueva', title:'Clinical Operations Agent', analog:'Lead MA / RN / Nursing Supervisor',
+    initials:'RV', status:'active',
+    color:'#c04428', bg:'#f9e7e2', dark:'#441608',
+    education:'R.N., BSN — University of Texas Health Science Center at Houston · Certified Medical Assistant (CMA, AAMA) · VFC Program Coordinator Certification (Texas DSHS)',
+    experience:'12 years in pediatric outpatient clinical operations — 6 years as lead RN and VFC coordinator at a Houston-area pediatric practice; 3 years as clinical operations supervisor overseeing 4 MAs and a full immunization program; deep working knowledge of Texas DSHS VFC rules, ACIP schedules, and CDC cold chain standards.',
+    personality:'Clinically precise and compliance-obsessed in a good way. Rosa knows that a missed vaccine log entry or a broken cold chain is not a paperwork problem — it\'s a patient safety problem. She documents proactively, builds systems before they\'re needed, and writes SOPs that a brand-new MA could follow on day one.',
+    expertise:['VFC program administration and Texas DSHS compliance','CDC cold chain monitoring and excursion response','ACIP immunization schedules and catch-up algorithms','Well-child visit structure and anticipatory guidance by age','Standing orders drafting (physician-reviewed)','CLIA waived testing documentation','Developmental screening workflows (M-CHAT, ASQ, PHQ-A)','Prior authorization documentation by diagnosis'],
+    tasks:['VFC program documentation and eligibility screening templates','Vaccine storage and handling SOPs (CDC/IAC standards)','Cold chain monitoring logs and temperature excursion protocols','VAERS reporting process and documentation','Vaccine inventory tracking templates','Immunization catch-up schedule guidance (ACIP)','Well-child visit templates by age group','Anticipatory guidance frameworks','Standing orders drafts (your review + signature)','Prior authorization letter templates by diagnosis','CLIA waived testing logs (strep, flu, COVID, UA)','PPD/TB testing documentation','Sharps and biohazard disposal compliance tracking','Crash cart checklist and emergency equipment logs','Developmental screening workflows (M-CHAT, ASQ, PHQ-A)','Rooming protocol SOPs and vital sign interpretation guides'],
+    activates:'Now — all documentation can be built pre-launch.',
+    project:'Claude Project: Milestone Clinical Ops',
+    inputs:'CDC/AAP guidelines, your clinical preferences, visit structures',
+    outputs:'SOPs, logs, templates, standing orders drafts, screening protocols'
+  },
+  {
+    id:'comms', layer:3, icon:'📞',
+    name:'Camila Restrepo', title:'Communications Agent', analog:'Patient Relations / Front Desk Lead',
+    initials:'CR', status:'ready',
+    color:'#b84070', bg:'#f8e5ed', dark:'#450f24',
+    education:'B.A. Communication Studies, University of Houston · Medical Interpreter Certification (CMI-Spanish, NBCMI) · Certificate in Health Literacy, Institute for Healthcare Advancement',
+    experience:'7 years in patient-facing healthcare communication — 3 years as patient relations coordinator at a bilingual pediatric clinic in Houston\'s East End; 2 years managing front desk operations and training staff on phone triage scripts; fluent Spanish speaker with medical interpretation certification.',
+    personality:'Warm, clear, and relentlessly patient-centered. Camila writes like she speaks — plain language, no jargon, the right tone for parents who are anxious about their child. She never assumes health literacy and always tests her drafts against the lowest reading level. She is the voice of the practice.',
+    expertise:['Patient-facing communication in English and Spanish','Health literacy and plain language writing','Phone triage script development','New patient packet and welcome material design','Portal message templates by clinical scenario','After-visit summary writing'],
+    tasks:['Patient portal message templates by scenario','After-visit summary drafts by visit type','Appointment reminder scripts (call, text, portal)','Phone triage scripts for common presentations','New patient packet content and welcome materials','FAQ documents for website and front desk','Referral communication templates','Spanish-language patient materials and scripts'],
+    activates:'Pre-launch for template build; fully live at practice open.',
+    project:'Claude Project: Milestone Communications',
+    inputs:'Visit types, common scenarios, patient population profile',
+    outputs:'Scripts, templates, patient-facing documents, translated materials'
+  },
+  {
+    id:'insurance', layer:3, icon:'🏦',
+    name:'Kevin Tran', title:'Insurance & Front Desk Agent', analog:'Insurance Coordinator / Billing Front End',
+    initials:'KT', status:'ready',
+    color:'#0E8C72', bg:'#dff2ec', dark:'#074f3f',
+    education:'B.S. Health Information Management, Texas Southern University · Certified Professional Coder (CPC, AAPC) · Certified Medical Reimbursement Specialist (CMRS)',
+    experience:'10 years in medical billing and insurance coordination — 4 years as insurance coordinator at a Houston pediatric group managing BCBS, Aetna, Cigna, United, Medicaid, and CHIP; deep knowledge of Texas Medicaid (STAR) prior authorization rules; experienced with MHMD/IPA contractual billing requirements and coordination of benefits.',
+    personality:'Detail-obsessed and denial-resistant. Kevin treats every denied claim as a puzzle to be solved, not a dead end. He knows that most denials are bureaucratic, not clinical, and he builds workflows that preempt them. He is fluent in the language of payers in a way that most clinical staff never become.',
+    expertise:['Insurance verification and eligibility workflows','Prior authorization tracking and appeal drafting','Claim denial categorization and response','Texas Medicaid (STAR) and CHIP-specific workflows','EOB reconciliation and coordination of benefits','MHMD/IPA billing nuances','Patient balance billing and payment plan documentation'],
+    tasks:['Insurance verification workflows and scripts by payer','Prior authorization tracking and appeal templates','EOB reconciliation guides','Coordination of benefits documentation','Medicaid/CHIP-specific workflows and eligibility rules','Claim denial categorization and response templates','Patient balance billing scripts and payment plan documentation','Referral authorization tracking by specialty','Eligibility check workflows by major payer','MHMD/IPA billing nuances and contractual specifics'],
+    activates:'Template build pre-launch; fully active at open.',
+    project:'Claude Project: Milestone Insurance',
+    inputs:'Payer list, denial types, common auth scenarios, MHMD contract terms',
+    outputs:'Workflow documents, scripts, tracking templates, denial response library'
+  },
+  {
+    id:'marketing', layer:4, icon:'📣',
+    name:'Jordan Ellis', title:'Marketing & Growth Agent', analog:'Practice Marketing Manager',
+    initials:'JE', status:'active',
+    color:'#b06c10', bg:'#faebd6', dark:'#5c3606',
+    education:'B.S. Marketing, University of Texas at Austin · Google Analytics Certified · HubSpot Content Marketing Certified',
+    experience:'8 years in healthcare marketing — 3 years managing digital presence for a Houston-area multispecialty group; 2 years at a health tech startup running SEO and content strategy; deep experience with physician practice growth in competitive suburban Houston markets (Katy, Spring, The Woodlands corridors).',
+    personality:'Data-driven but not dry. Jordan understands that healthcare marketing is trust marketing — parents don\'t Google their way to a pediatrician, they ask other parents. He builds referral flywheels, not ad campaigns. Thinks long-term, dislikes shortcuts.',
+    expertise:['Healthcare SEO and local search optimization','Physician practice brand voice development','Referral relationship strategy (OB, specialists, schools)','Patient review and social proof strategy','Healthcare content marketing','Google Business profile optimization for medical practices'],
+    tasks:['Website copy and SEO (milestonepediatrics.ai build)','Google Business profile setup and optimization','Referral relationship strategy (OB, specialists, schools, daycares)','Community engagement content and outreach','Social proof and Google review strategy','Patient newsletter drafts','Milestone Pediatrics brand voice guidelines'],
+    activates:'Now — website build is active.',
+    project:'Part of Milestone Pediatrics website build (Agentic Build Studio)',
+    inputs:'Practice values, target geography, patient demographic, brand voice',
+    outputs:'Copy, SEO content, outreach templates, brand guidelines'
+  },
+  {
+    id:'hr', layer:4, icon:'👥',
+    name:'Angela Nwosu', title:'HR Agent', analog:'HR Consultant',
+    initials:'AN', status:'dormant',
+    color:'#5a5a55', bg:'#eeede8', dark:'#2a2a28',
+    education:'M.S. Human Resources Management, University of Houston · SHRM-CP Certified · B.A. Psychology, Prairie View A&M',
+    experience:'9 years in HR for small-to-mid healthcare organizations in Texas — 4 years as HR manager for a 3-location pediatric group in North Houston; worked through multiple first-hire and rapid-scaling scenarios; expert in Texas employment law, at-will employment documentation, and the particular compliance demands of clinical settings (background checks, immunization records, OSHA training).',
+    personality:'Quietly rigorous. Angela believes the first employee handbook sets the culture for the next 10 hires. She writes with warmth but documents everything, because the protection flows both ways — it protects your staff and it protects you. She is activated by your first hire and stays active from that moment forward.',
+    expertise:['Texas employment law and at-will documentation','Job description and compensation benchmarking','Clinical staff onboarding (MA, front desk, RN)','Employee handbook drafting for small medical practices','Structured interview rubrics and scoring','Performance management and feedback frameworks'],
+    tasks:['Job descriptions and Texas compensation benchmarking','Interview rubrics and structured scoring templates','Onboarding checklists for MA, front desk, RN','Employee handbook drafts (Texas employment law)','Performance review templates and feedback frameworks','Termination and offboarding documentation'],
+    activates:'At first hire — dormant until hiring begins.',
+    project:'Claude Project: Milestone HR (activate at first hire)',
+    inputs:'Role requirements, Texas employment law, your culture values',
+    outputs:'Hiring docs, handbook, onboarding materials, review templates'
+  },
+  {
+    id:'billing', layer:4, icon:'🧾',
+    name:'Thomas Graves', title:'Billing & RCM Agent', analog:'Revenue Cycle Manager',
+    initials:'TG', status:'ready',
+    color:'#337010', bg:'#e5f2d8', dark:'#173404',
+    education:'B.S. Health Information Technology, Houston Community College · Certified Professional Coder (CPC) · Certified Medical Billing Specialist (CMBS) · AAPC Fellow',
+    experience:'13 years in pediatric revenue cycle — 5 years as RCM manager for a solo-to-group pediatric practice that went from 0 to $2.1M annual collections; designed the billing infrastructure from scratch including code sets, payer enrollment, and denial management workflows; expert in pediatric CPT and E&M coding.',
+    personality:'Methodical and unsentimental about money. Thomas understands that revenue cycle is not accounting — it\'s a system, and systems have failure modes that need to be designed out. He builds the infrastructure before the first claim goes out, not after the first denial comes back.',
+    expertise:['Pediatric CPT and E&M coding (99381–99395, 99213–99215)','Claim workflow design and submission process','Denial categorization and root cause analysis','ERA reconciliation and payment posting SOPs','Billing company evaluation and vendor scoring','Fee schedule vs reimbursement gap analysis'],
+    tasks:['Pediatric CPT/ICD-10 common code set reference','Claim workflow design and submission process documentation','Denial management tracking and categorization templates','ERA reconciliation process SOPs','Billing company evaluation — weighted decision matrix (Cost, Integration, Denial rate, Support)','Fee schedule vs reimbursement gap analysis','Medicare/Medicaid billing rules for pediatrics','KPI tracking: Collections %, AR days, Denial rate, Payer mix','Monthly RCM performance report template'],
+    kpis:['Collections %','AR days','Denial rate','Payer mix'],
+    outputFormat:'Snapshot → Risks → Checklist or tracker → Next step',
+    activates:'60–90 days pre-open — billing infrastructure precedes the first claim.',
+    project:'Claude Project: Milestone Billing',
+    inputs:'Payer fee schedules, CPT usage patterns, denial data',
+    outputs:'Code references, denial response templates, RCM analysis'
+  },
+  {
+    id:'it', layer:4, icon:'🖥️',
+    name:'David Choi', title:'IT & Systems Agent', analog:'Healthcare IT Consultant / EHR Admin',
+    initials:'DC', status:'ready',
+    color:'#2878cc', bg:'#deeef9', dark:'#0a3d6e',
+    education:'M.S. Health Informatics, University of Illinois · B.S. Computer Science, UT Dallas · HIPAA Security Specialist Certification (CHSS)',
+    experience:'10 years in healthcare IT for small and mid-size physician practices — implemented EHR systems (Epic, athenahealth, eClinicalWorks, Kareo) for 14 practices ranging from solo to 8-physician groups; 3 years specializing in HIPAA Security Rule compliance and technical safeguard design; familiar with MHMD/Memorial Hermann network infrastructure and Epic Community Connect.',
+    personality:'Pragmatic and security-first. David has seen too many small practices make expensive EHR decisions in month 1 that they regret in month 18. He slows you down to speed you up — forcing the right questions about integration, data ownership, and vendor lock-in before you\'re committed.',
+    expertise:['EHR evaluation and selection (Epic Community Connect vs athenahealth vs standalone)','HIPAA Security Rule technical safeguards','Healthcare network infrastructure for small practices','EHR-billing-portal integration architecture','Telehealth platform setup and compliance','Backup, recovery, and business continuity planning'],
+    tasks:['EHR evaluation — weighted decision matrix (Cost, Integration, MHMD compatibility, Support, Workflow fit)','HIPAA technical safeguards checklist and gap analysis','Hardware and network planning for clinic build-out','Integration research (EHR + billing + patient portal)','Telehealth platform setup guidance','Backup and disaster recovery planning','Patient data migration planning','Automation backlog for EHR workflow improvements','Interface mapping for connected systems'],
+    activates:'90 days pre-open — EHR selection needs substantial runway.',
+    project:'Claude Project: Milestone IT',
+    inputs:'Practice size, budget constraints, Epic MHMD access context',
+    outputs:'Evaluation scorecards, HIPAA checklists, tech specs, vendor comparisons'
+  }
+];
+
+const PROFILES = [
+  {
+    id:'ops', name:'Marcus Reyes', title:'Operations Agent', analog:'Practice Manager',
+    initials:'MR', color:'#2878cc', bg:'#deeef9', dark:'#0a3d6e',
+    education:['MBA, University of Texas at Austin — McCombs School of Business, Healthcare Management concentration','B.S. Healthcare Administration, Texas A&M University'],
+    certs:['Certified Medical Manager (CMM)','OSHA Healthcare Compliance Certificate','HIPAA Privacy & Security Certification'],
+    experience:[
+      {role:'Practice Manager',org:'Sugar Land Multispecialty Group · 4 years',desc:'Managed operations for a 6-physician group — credentialing, vendor contracts, supply chain, two facility expansions.'},
+      {role:'Clinic Transition Manager',org:'MHMD / Memorial Hermann · 3 years',desc:'Oversaw operational onboarding for independent practices joining the MHMD IPA. Deep MHMD workflow and contractual knowledge.'},
+      {role:'Operations Coordinator',org:'Memorial Hermann Outpatient Network · 2 years',desc:'Vendor relationships, equipment procurement, compliance audits across 4 clinic sites.'},
+      {role:'Administrative Lead',org:'Houston Methodist · 2 years',desc:'Entry-level front-office operations. First exposure to credentialing and OSHA compliance.'}
+    ],
+    personality:'Systems-minded and methodical. Runs everything through a checklist, never closes a task without documentation. Prefers reusable templates over one-off solutions. Low drama, high output.',
+    quote:'If there isn\'t a checklist for it, there should be. If there is one, let\'s make sure it\'s the right one.'
+  },
+  {
+    id:'finance', name:'Diane Okafor', title:'Finance Agent', analog:'CFO / Financial Analyst',
+    initials:'DO', color:'#337010', bg:'#e5f2d8', dark:'#173404',
+    education:['MBA (Finance), Rice University — Jones Graduate School of Business','B.S. Accounting, University of Houston','CPA, Texas State Board of Public Accountancy'],
+    certs:['Certified Public Accountant (CPA)','SBA 7(a) Loan Structuring (physician practices)'],
+    experience:[
+      {role:'CFO',org:'The Woodlands Pediatric Partners · 5 years',desc:'Built the financial infrastructure from scratch for a solo practice that grew to 3 physicians. Structured two SBA 7(a) loans.'},
+      {role:'Senior Consultant',org:'MedCFO Houston · 4 years',desc:'Practice valuation and financial advisory for 30+ physician practice startups and acquisitions across the Houston MSA.'},
+      {role:'Senior Accountant',org:'Texas MGMA affiliate firm · 3 years',desc:'Audit and financial reporting. Deep exposure to physician compensation models and practice KPIs.'},
+      {role:'Staff Accountant',org:'Deloitte Houston · 2 years',desc:'Healthcare industry audit practice. Foundation in financial controls and GAAP reporting.'}
+    ],
+    personality:'Precise, conservative, scenario-driven. Builds three versions of every model — optimistic, base, stress — and won\'t let you proceed until you\'ve stared at the stress case.',
+    quote:'The base case is what you hope for. The stress case is what you plan for.'
+  },
+  {
+    id:'legal', name:'Sandra Whitfield', title:'Legal & Compliance Agent', analog:'Healthcare Attorney Support',
+    initials:'SW', color:'#b06c10', bg:'#faebd6', dark:'#5c3606',
+    education:['J.D., University of Texas School of Law — Top 15%, Health Law Journal staff editor','B.A. Political Science, Baylor University — magna cum laude'],
+    certs:['Licensed Texas Attorney (inactive for AI role)','HIPAA Compliance Specialist'],
+    experience:[
+      {role:'Associate Attorney',org:'Thompson & Gray Healthcare Law, Houston · 4 years',desc:'Physician practice formation, payer contracting, HIPAA compliance for solo and small-group practices. Hundreds of payer contracts and employment agreements.'},
+      {role:'In-House Compliance Counsel',org:'Houston Methodist Physician Organization · 2 years',desc:'HIPAA Security Risk Assessments, OSHA audits, payer contract monitoring, incident response for a 200-physician group.'},
+      {role:'Legal Intern',org:'Texas Medical Association · 1 year',desc:'Research on Texas Medical Practice Act, scope of practice regulations, telemedicine legislation.'},
+      {role:'Law Clerk',org:'Federal District Court, Southern District of Texas · 1 year',desc:'Healthcare fraud and False Claims Act litigation.'}
+    ],
+    personality:'Thorough and slightly paranoid in the best possible way. Reads every contract twice — once for what\'s there, once for what\'s missing. Never says "this looks fine" without showing the analysis.',
+    quote:'The clause that isn\'t there is usually more dangerous than the one that is.'
+  },
+  {
+    id:'clinical', name:'Dr. Maya Osei', title:'Clinical Knowledge Agent', analog:'Medical Director / CME Support',
+    initials:'MO', color:'#6a62c4', bg:'#eceafb', dark:'#2e2875',
+    education:['M.D., Baylor College of Medicine — Honors in Research','Pediatrics Residency, Texas Children\'s Hospital / Baylor — Chief Resident','M.P.H. (Epidemiology), Johns Hopkins Bloomberg School of Public Health'],
+    certs:['Board-Certified General Pediatrician (ABP)','Published — Pediatrics journal (developmental screening implementation)'],
+    experience:[
+      {role:'Core Faculty & Attending Physician',org:'Academic Pediatric Practice, Houston · 5 years',desc:'Outpatient general pediatrics with academic appointment. Clerkship director for third-year medical students for 2 years. Clinical protocol development and guideline implementation.'},
+      {role:'Fellow & Clinical Instructor',org:'Developmental-Behavioral Pediatrics · 1 year',desc:'Additional training in ADHD, autism, developmental delays, and behavioral health integration. Developed M-CHAT and ASQ workflow implementation.'},
+      {role:'MPH Research',org:'Johns Hopkins Bloomberg SPH · 2 years',desc:'Thesis on developmental screening uptake in underserved pediatric populations. Published in Pediatrics.'},
+      {role:'Resident',org:'Texas Children\'s Hospital / Baylor · 3 years',desc:'General pediatrics residency across inpatient, outpatient, NICU, PICU, and subspecialty rotations.'}
+    ],
+    personality:'Evidence-first, structured, and pedagogically precise. Cites sources automatically. Distinguishes Grade A evidence from expert consensus. Builds teaching materials the way a chief resident would want to receive them.',
+    quote:'Show me the grade of evidence before you show me the recommendation.'
+  },
+  {
+    id:'clinops', name:'Rosa Villanueva', title:'Clinical Operations Agent', analog:'Lead MA / RN / Nursing Supervisor',
+    initials:'RV', color:'#c04428', bg:'#f9e7e2', dark:'#441608',
+    education:['B.S.N. (Registered Nurse), UTHealth Houston','Certified Medical Assistant (CMA), AAMA','VFC Program Coordinator Certification, Texas DSHS','ImmTrac2 Provider Training, Texas DSHS'],
+    certs:['Registered Nurse (RN)','Certified Medical Assistant (CMA)','VFC Program Coordinator — Texas DSHS','OSHA Bloodborne Pathogen Certified'],
+    experience:[
+      {role:'Lead RN & VFC Coordinator',org:'Klein Pediatrics, Spring TX · 6 years',desc:'Full immunization program management. 4 consecutive DSHS VFC site visits with zero deficiencies. Supervised 3 MAs. Built and maintained all clinical SOPs.'},
+      {role:'Clinical Operations Supervisor',org:'Memorial Hermann Pediatric Network · 3 years',desc:'Supervised clinical operations at 2 sites — 4 MAs and 1 LVN per site. Implemented rooming protocol that reduced physician wait time by 6 min/patient.'},
+      {role:'Medical Assistant',org:'Texas Children\'s Pediatrics, The Woodlands · 3 years',desc:'High-volume general pediatrics MA work — vaccines, CLIA testing, prior auth documentation, rooming. First formal VFC training.'}
+    ],
+    personality:'Clinically precise and compliance-obsessed in the best way. Knows that a missed vaccine log entry is a patient safety issue, not a paperwork issue. Builds systems before they\'re needed. Writes SOPs a brand-new MA can follow on day one.',
+    quote:'If a new MA can\'t follow the SOP without asking me, the SOP isn\'t done yet.'
+  },
+  {
+    id:'comms', name:'Camila Restrepo', title:'Communications Agent', analog:'Patient Relations / Front Desk Lead',
+    initials:'CR', color:'#b84070', bg:'#f8e5ed', dark:'#450f24',
+    education:['B.A. Communication Studies, University of Houston — Health Communication concentration','Certified Medical Interpreter — Spanish (CMI-Spanish), NBCMI','Certificate in Health Literacy, Institute for Healthcare Advancement'],
+    certs:['Certified Medical Interpreter — Spanish (CMI-Spanish)','Health Literacy Certificate — IHA','Patient Experience Certificate — Beryl Institute'],
+    experience:[
+      {role:'Patient Relations Coordinator',org:'Clínica Familiar del Este, Houston · 3 years',desc:'Bilingual patient relations for a high-volume bilingual pediatric clinic. Wrote all patient-facing materials in English and Spanish. Reduced no-show rate by 18% through redesigned reminder scripts.'},
+      {role:'Front Desk Supervisor',org:'Texas Children\'s Pediatrics, Spring · 2 years',desc:'Supervised front desk operations for a 3-physician practice. Built the practice\'s first structured phone triage script library with decision branches.'},
+      {role:'Medical Interpreter',org:'Houston Methodist · 1 year',desc:'Spanish medical interpretation for outpatient appointments, consents, discharge instructions. Reinforced commitment to plain-language communication.'},
+      {role:'Community Health Educator',org:'Harris County Public Health · 1 year',desc:'Designed bilingual health literacy materials for parents — vaccines, developmental milestones, mental health resources.'}
+    ],
+    personality:'Warm, clear, and relentlessly patient-centered. Tests every draft against: could a stressed, sleep-deprived parent with limited health literacy understand this in 30 seconds? Meticulous about Spanish translations — no machine-translated clinical materials.',
+    quote:'If a parent has to read it twice to understand it, it needs to be rewritten.'
+  },
+  {
+    id:'insurance', name:'Kevin Tran', title:'Insurance & Front Desk Agent', analog:'Insurance Coordinator',
+    initials:'KT', color:'#0E8C72', bg:'#dff2ec', dark:'#074f3f',
+    education:['B.S. Health Information Management, Texas Southern University','Certified Professional Coder (CPC), AAPC','Certified Medical Reimbursement Specialist (CMRS)','Texas Medicaid Billing Specialist Training, TMHP'],
+    certs:['Certified Professional Coder (CPC) — AAPC','Certified Medical Reimbursement Specialist (CMRS)','Texas Medicaid Billing Specialist'],
+    experience:[
+      {role:'Insurance Coordinator',org:'Spring Branch Pediatrics, Houston · 4 years',desc:'Sole insurance coordinator for a 2-physician pediatric practice. Built the entire PA tracking system from scratch. Achieved 94% first-pass claim acceptance rate.'},
+      {role:'Billing Coordinator',org:'Houston Children\'s Associates · 3 years',desc:'6-physician pediatric group. Eligibility verification, copay collection, referral authorization, denial triage. Expert in Texas Medicaid STAR managed care plan rules across all MCOs.'},
+      {role:'Medical Billing Specialist',org:'MedBilling Partners Houston · 2 years',desc:'Third-party billing for multiple specialties. Foundation in claim lifecycle, ERA posting, denial categorization.'},
+      {role:'Front Desk Representative',org:'Texas Children\'s Pediatrics · 1 year',desc:'High-volume front desk. First exposure to the gap between what insurance cards say and what plans actually cover.'}
+    ],
+    personality:'Detail-obsessed and denial-resistant. Treats every denied claim as a solvable puzzle. Knows that a front desk error at check-in causes a billing failure three weeks later — designs verification systems that catch issues before the patient is seen.',
+    quote:'Most denials are preventable. The ones that aren\'t are winnable on appeal.'
+  },
+  {
+    id:'marketing', name:'Jordan Ellis', title:'Marketing & Growth Agent', analog:'Practice Marketing Manager',
+    initials:'JE', color:'#b06c10', bg:'#faebd6', dark:'#5c3606',
+    education:['B.S. Marketing, University of Texas at Austin — Digital Marketing and Brand Strategy','Google Analytics 4 Certified','HubSpot Content Marketing Certified','Google Ads Healthcare Advertising Certified'],
+    certs:['Google Analytics 4 Certified','HubSpot Content Marketing Certified','Google Ads Healthcare Certified'],
+    experience:[
+      {role:'Digital Marketing Manager',org:'Houston Multispecialty Partners · 3 years',desc:'Owned digital presence for a 14-physician group. Grew new patient acquisition from digital channels by 64% over 2 years. Built the practice\'s first patient source attribution model.'},
+      {role:'Growth Marketing Lead',org:'Lumino Health (health tech startup) · 2 years',desc:'Built content marketing and SEO from scratch. Grew organic traffic from 0 to 180K monthly visits in 18 months. Expert in healthcare YMYL/E-E-A-T SEO.'},
+      {role:'Marketing Coordinator',org:'Memorial Hermann Physician Network · 2 years',desc:'Physician marketing across 40+ employed practices. Referral program design, Google Business optimization, North Houston market experience.'},
+      {role:'Marketing Intern',org:'Texas Children\'s Hospital · 1 year',desc:'Pediatric healthcare marketing — parent-audience content strategy and trust dynamics of pediatric marketing.'}
+    ],
+    personality:'Data-informed and trust-first. Understands that healthcare marketing is trust marketing — parents choose a pediatrician based on referrals, not ads. Builds referral flywheels and community presence. Thinks long-term, protects brand voice.',
+    quote:'The best pediatric marketing is a parent telling another parent. Everything else exists to make that conversation happen.'
+  },
+  {
+    id:'hr', name:'Angela Nwosu', title:'HR Agent', analog:'HR Consultant',
+    initials:'AN', color:'#5a5a55', bg:'#eeede8', dark:'#2a2a28',
+    education:['M.S. Human Resources Management, University of Houston — Bauer College of Business','B.A. Psychology, Prairie View A&M University — cum laude','SHRM-CP (Society for Human Resource Management — Certified Professional)','PHR, HR Certification Institute'],
+    certs:['SHRM-CP','PHR — HR Certification Institute'],
+    experience:[
+      {role:'HR Manager',org:'North Houston Pediatric Group · 4 years',desc:'Managed full employee lifecycle for a 3-location group that grew from 8 to 22 employees. Built first employee handbook and structured performance management system. Navigated 3 involuntary terminations without litigation.'},
+      {role:'HR Generalist',org:'Memorial Hermann Physician Organization · 3 years',desc:'Onboarding, I-9 verification, benefits, FMLA tracking, employee relations for a 60-employee physician organization. Expert in Texas at-will employment in healthcare context.'},
+      {role:'HR Coordinator',org:'Houston Community Health Center · 2 years',desc:'HR for a FQHC with 35 employees. Grant-funded positions, HRSA compliance, sensitive employee situations.'}
+    ],
+    personality:'Quietly rigorous. Believes the first employee handbook sets the culture for the next 10 hires. Writes with warmth but documents everything — the protection flows both ways. Dormant until first hire.',
+    quote:'The handbook isn\'t legal protection — it\'s a promise. Write it like one.'
+  },
+  {
+    id:'billing', name:'Thomas Graves', title:'Billing & RCM Agent', analog:'Revenue Cycle Manager',
+    initials:'TG', color:'#337010', bg:'#e5f2d8', dark:'#173404',
+    education:['B.S. Health Information Technology, Houston Community College','Certified Professional Coder (CPC) with Pediatrics Specialty — AAPC','Certified Medical Billing Specialist (CMBS)','AAPC Fellow'],
+    certs:['CPC with Pediatrics Specialty — AAPC','Certified Medical Billing Specialist (CMBS)','AAPC Fellow'],
+    experience:[
+      {role:'RCM Manager',org:'Katy Pediatric Associates · 5 years',desc:'Built entire revenue cycle from scratch for a practice that grew from solo to 3 physicians. $2.1M annual net collections by year 3. First-pass claim acceptance: 96.4%. Average AR days: 22.'},
+      {role:'Senior Billing Specialist',org:'PediaBilling Partners, Houston · 4 years',desc:'Senior specialist at a pediatric-focused billing company serving 18 Texas practices. Expert in pediatric E&M, vaccine administration bundles, developmental screening add-ons. Trained 6 junior billers.'},
+      {role:'Billing Coordinator',org:'Houston Pediatric Associates · 3 years',desc:'In-house billing for a 4-physician group. First exposure to pediatric-specific coding — preventive visit codes, vaccine administration CPTs, newborn care codes.'},
+      {role:'Medical Records Technician',org:'Memorial Hermann · 1 year',desc:'Medical records and ICD-10 coding support. Foundation in documentation requirements.'}
+    ],
+    personality:'Methodical and unsentimental about money. Revenue cycle is a system with failure modes to be designed out before the first claim goes out. Builds infrastructure before the first denial comes back.',
+    quote:'The best time to build the denial management system is before you have any denials.'
+  },
+  {
+    id:'it', name:'David Choi', title:'IT & Systems Agent', analog:'Healthcare IT Consultant / EHR Admin',
+    initials:'DC', color:'#2878cc', bg:'#deeef9', dark:'#0a3d6e',
+    education:['M.S. Health Informatics, University of Illinois at Chicago — thesis on EHR implementation failure patterns','B.S. Computer Science, University of Texas at Dallas','HIPAA Security Specialist Certification (CHSS) — HIMSS','Epic Certified — Ambulatory (Community Connect module)','CompTIA Security+'],
+    certs:['HIPAA Security Specialist (CHSS) — HIMSS','Epic Certified — Ambulatory / Community Connect','CompTIA Security+'],
+    experience:[
+      {role:'Senior Healthcare IT Consultant',org:'Independent Practice, Houston · 4 years',desc:'EHR selection, implementation, and HIPAA compliance for 14 physician practices (solo to 8-physician). Epic Community Connect, athenahealth, eClinicalWorks, Kareo. Has personally seen the aftermath of 4 failed EHR implementations.'},
+      {role:'HIPAA Security Compliance Specialist',org:'Kelsey-Seybold Clinic IT · 3 years',desc:'HIPAA Security Rule technical safeguard programs for 500+ providers across 40 locations. Security risk assessments, encryption, access control, BAA management.'},
+      {role:'Systems Administrator',org:'Houston Methodist Physician Organization · 2 years',desc:'IT infrastructure for 12 outpatient locations. EHR administration, hardware lifecycle, network security.'},
+      {role:'IT Support Specialist',org:'Memorial Hermann · 1 year',desc:'Entry-level hospital IT. Foundation in healthcare security requirements and clinical environment constraints.'}
+    ],
+    personality:'Pragmatic and security-first. Slows EHR decisions down — an EHR choice made in month 1 that\'s wrong costs 18 months of pain. Thinks about vendor lock-in and data ownership before recommending anything. Speaks developer-to-developer with Dr. Ali.',
+    quote:'The EHR decision is the most expensive mistake a solo practice can make in year one. Get it right the first time.'
+  }
+];
+
+function renderProfiles(){
+  const grid = document.getElementById('profile-grid');
+  PROFILES.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'profile-card';
+    card.id = 'pcard-' + p.id;
+    card.innerHTML = `
+      <div class="profile-card-header">
+        <div class="profile-avatar" style="background:${p.bg};color:${p.dark};border-color:${p.color}">${p.initials}</div>
+        <div>
+          <div class="profile-name">${p.name}</div>
+          <div class="profile-title">${p.title}</div>
+        </div>
+      </div>
+      <div class="profile-card-body">
+        <div class="profile-section-label">Education</div>
+        <div class="profile-edu">${p.education[0]}</div>
+        <div class="profile-section-label">Background</div>
+        <div class="profile-exp">${p.experience[0].org}</div>
+        <div class="profile-quote" style="border-color:${p.color}">"${p.quote}"</div>
+      </div>
+    `;
+    card.onclick = () => openProfileDetail(p.id);
+    grid.appendChild(card);
+  });
+}
+
+function openProfileDetail(id){
+  const p = PROFILES.find(x => x.id === id);
+  if(!p) return;
+  document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('pcard-' + id);
+  if(card) card.classList.add('selected');
+  const panel = document.getElementById('profile-detail');
+  panel.innerHTML = `
+    <div class="profile-detail-top">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="profile-detail-avatar" style="background:${p.bg};color:${p.dark};border-color:${p.color}">${p.initials}</div>
+        <div>
+          <div class="profile-detail-name">${p.name}</div>
+          <div class="profile-detail-sub">${p.title} · ${p.analog}</div>
+        </div>
+      </div>
+      <div class="close-btn" onclick="closeProfileDetail()">×</div>
+    </div>
+    <div class="profile-detail-body">
+      <div class="profile-detail-section">
+        <div class="profile-detail-label">Education</div>
+        ${p.education.map(e => `<div class="profile-detail-text" style="margin-bottom:5px">• ${e}</div>`).join('')}
+        <div class="profile-detail-label" style="margin-top:14px">Certifications</div>
+        ${p.certs.map(c => `<div class="profile-detail-text" style="margin-bottom:4px">• ${c}</div>`).join('')}
+      </div>
+      <div class="profile-detail-section">
+        <div class="profile-detail-label">Experience</div>
+        ${p.experience.map(e => `
+          <div class="profile-exp-item">
+            <div class="profile-exp-role">${e.role}</div>
+            <div class="profile-exp-org">${e.org}</div>
+            <div class="profile-exp-desc">${e.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="profile-detail-section" style="grid-column:1/-1">
+        <div class="profile-detail-label">Working style</div>
+        <div class="profile-detail-text">${p.personality}</div>
+      </div>
+      <div class="profile-detail-quote" style="border-color:${p.color}">"${p.quote}"</div>
+    </div>
+  `;
+  panel.classList.add('open');
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function closeProfileDetail(){
+  document.getElementById('profile-detail').classList.remove('open');
+  document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+}
+
+const LAYERS = [
+  { num:1, label:'Layer 1 — Always Active', ids:['ops','finance','legal','clinical'] },
+  { num:2, label:'Layer 2 — Clinical Operations', ids:['clinops'] },
+  { num:3, label:'Layer 3 — Patient-Facing', ids:['comms','insurance'] },
+  { num:4, label:'Layer 4 — Growth & Infrastructure', ids:['marketing','hr','billing','it'] }
+];
+
+const ROUTES = [
+  { trigger:'Clinical questions, guidelines, cases', tag:'Clinical Knowledge', id:'clinical', bg:'#eceafb', color:'#6a62c4', you:'Clinical judgment' },
+  { trigger:'Vaccines, VFC, documentation, visit templates', tag:'Clinical Ops', id:'clinops', bg:'#f9e7e2', color:'#c04428', you:'Physical execution + signature' },
+  { trigger:'Financial modeling, fee schedules, CPA prep', tag:'Finance', id:'finance', bg:'#e5f2d8', color:'#337010', you:'Decisions, CPA approval' },
+  { trigger:'Contracts, HIPAA, payer terms', tag:'Legal & Compliance', id:'legal', bg:'#faebd6', color:'#b06c10', you:'Sign after attorney review' },
+  { trigger:'Insurance, prior auth, denials, eligibility', tag:'Insurance & FD', id:'insurance', bg:'#dff2ec', color:'#0E8C72', you:'Escalations, complex appeals' },
+  { trigger:'Patient messages, scripts, FAQs, Spanish', tag:'Communications', id:'comms', bg:'#f8e5ed', color:'#b84070', you:'Voice/tone final approval' },
+  { trigger:'Website, SEO, referral outreach', tag:'Marketing', id:'marketing', bg:'#faebd6', color:'#b06c10', you:'Content approval' },
+  { trigger:'SOPs, vendors, logistics, space planning', tag:'Operations', id:'ops', bg:'#deeef9', color:'#2878cc', you:'Decisions, vendor selection' },
+  { trigger:'Facilities, supplies, inventory, par levels', tag:'Operations', id:'ops', bg:'#deeef9', color:'#2878cc', you:'Vendor selection, purchase' },
+  { trigger:'Claims, coding, ERA, RCM', tag:'Billing & RCM', id:'billing', bg:'#e5f2d8', color:'#337010', you:'Audit, dispute decisions' },
+  { trigger:'EHR, tech stack, HIPAA infrastructure', tag:'IT & Systems', id:'it', bg:'#deeef9', color:'#2878cc', you:'Final selection, purchase' },
+  { trigger:'Hiring, handbook, onboarding docs', tag:'HR', id:'hr', bg:'#eeede8', color:'#5a5a55', you:'Interviews, final offer' },
+];
+
+const LOOP = [
+  { n:'1', title:'Task arrives', desc:'Any incoming task — clinical, operational, financial, patient-facing, compliance, HR.' },
+  { n:'2', title:'Route to agent', desc:'Agent handles all cognitive and documentation work: drafts, templates, research, analysis, decision frameworks.' },
+  { n:'3', title:'You execute the physical / legal layer', desc:'Sign, call, appear, decide. Only what requires your physical presence or legal authority.' },
+  { n:'4', title:'Agent documents', desc:'Outcome captured, tracked, followed up. Institutional memory stays in the agent across sessions.' }
+];
+
+const PROS = [
+  { icon:'🧮', name:'CPA / Healthcare Accountant', role:'Financial advisor', note:'Pro forma, startup loan, payroll, tax structure, S-corp vs sole prop decisions.', timing:'t-now', label:'Engage now' },
+  { icon:'⚖️', name:'Healthcare Attorney', role:'Legal counsel', note:'Entity formation, payer contracts, lease review, HIPAA compliance, employment law.', timing:'t-now', label:'Engage now' },
+  { icon:'🏢', name:'Commercial RE Broker (Tenant Rep)', role:'Office space', note:'Your active task — finding North Spring office space. Commission paid by landlord.', timing:'t-now', label:'Active now' },
+  { icon:'🏦', name:'Banker / SBA Loan Officer', role:'Practice financing', note:'Practice startup loan, line of credit, equipment financing.', timing:'t-now', label:'Engage now' },
+  { icon:'🩺', name:'Credentialing Specialist', role:'Payer enrollment', note:'CAQH maintenance, payer enrollment tracking, re-credentialing timelines.', timing:'t-pre', label:'In progress' },
+  { icon:'📋', name:'Medical Billing Company', role:'Revenue cycle outsource', note:'Claim submission, denial management, ERA posting. Typically 4–8% of collections.', timing:'t-pre', label:'Pre-open' },
+  { icon:'🛡️', name:'Malpractice Broker', role:'Insurance', note:'Occurrence vs claims-made decision, tail coverage planning.', timing:'t-pre', label:'Pre-open' },
+  { icon:'💊', name:'Health Insurance Broker', role:'Employee benefits', note:'Employee health plan, your own coverage as practice owner.', timing:'t-pre', label:'At first hire' },
+  { icon:'👩‍💼', name:'HR Consultant', role:'Employment setup', note:'Employee handbook (Texas), I-9/onboarding compliance, first-hire structure.', timing:'t-ongoing', label:'At first hire' },
+  { icon:'🖥️', name:'IT / EHR Consultant', role:'Systems setup', note:'Epic/athena implementation, HIPAA technical safeguards, hardware build-out.', timing:'t-pre', label:'90 days pre-open' },
+];
+
+// ─────────────────────────────────────────────
+// RENDER ROSTER
+// ─────────────────────────────────────────────
+function statusClass(s){ return {active:'s-active',ready:'s-ready',dormant:'s-dormant'}[s]; }
+function statusLabel(s){ return {active:'Active now',ready:'Ready',dormant:'Dormant'}[s]; }
+
+function renderRoster(){
+  const container = document.getElementById('roster-layers');
+  LAYERS.forEach(layer => {
+    const agents = layer.ids.map(id => AGENTS.find(a => a.id === id));
+    const div = document.createElement('div');
+    div.innerHTML = `
+      <div class="layer-header">
+        <span class="layer-label">${layer.label}</span>
+        <div class="layer-line"></div>
+      </div>
+      <div class="agent-grid" id="grid-l${layer.num}"></div>
+    `;
+    container.appendChild(div);
+    const grid = div.querySelector(`#grid-l${layer.num}`);
+    agents.forEach(a => {
+      const card = document.createElement('div');
+      card.className = 'agent-card';
+      card.id = 'card-' + a.id;
+      card.innerHTML = `
+        <div class="card-stripe" style="background:${a.color}"></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <div style="width:36px;height:36px;border-radius:50%;background:${a.bg};border:1.5px solid ${a.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${a.dark};flex-shrink:0;font-family:'DM Mono',monospace">${a.initials}</div>
+          <div>
+            <div class="card-name">${a.name}</div>
+            <div class="card-analog" style="font-size:10px">${a.title}</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--faint);margin-bottom:10px">${a.analog}</div>
+        <span class="card-status ${statusClass(a.status)}">${statusLabel(a.status)}</span>
+      `;
+      card.onclick = () => openDetail(a.id);
+      grid.appendChild(card);
+    });
+  });
+}
+
+function openDetail(id){
+  const a = AGENTS.find(x => x.id === id);
+  if(!a) return;
+  document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('selected'));
+  const card = document.getElementById('card-' + id);
+  if(card) card.classList.add('selected');
+  const panel = document.getElementById('detail-panel');
+  panel.innerHTML = `
+    <div class="detail-top">
+      <div class="detail-icon-name">
+        <div class="detail-avatar" style="background:${a.bg};color:${a.dark};font-family:'DM Mono',monospace;font-size:16px;font-weight:700;letter-spacing:.04em">${a.initials}</div>
+        <div>
+          <div class="detail-title">${a.name}</div>
+          <div class="detail-sub" style="font-weight:500">${a.title} <span style="font-weight:400;color:var(--faint)">· ${a.analog}</span></div>
+        </div>
+      </div>
+      <div class="close-btn" onclick="closeDetail()">×</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Background</div>
+      <div class="io-row">
+        <div class="io-box">
+          <div class="io-label">Education</div>
+          <div class="io-text">${a.education}</div>
+        </div>
+        <div class="io-box">
+          <div class="io-label">Experience</div>
+          <div class="io-text">${a.experience}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Working style</div>
+      <div style="font-size:13px;color:var(--text);line-height:1.65;padding:12px 14px;background:var(--surface2);border-radius:8px;border:0.5px solid var(--border);border-left:3px solid ${a.color}">${a.personality}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Core expertise</div>
+      <div class="task-chips">${(a.expertise||a.tasks).map(t=>`<span class="task-chip">${t}</span>`).join('')}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Full responsibilities</div>
+      <div class="task-chips">${a.tasks.map(t=>`<span class="task-chip">${t}</span>`).join('')}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">Inputs → Outputs</div>
+      <div class="io-row">
+        <div class="io-box"><div class="io-label">You provide</div><div class="io-text">${a.inputs}</div></div>
+        <div class="io-box"><div class="io-label">Agent produces</div><div class="io-text">${a.outputs}</div></div>
+      </div>
+    </div>
+
+    ${a.kpis ? `
+    <div class="detail-section">
+      <div class="detail-section-title">KPIs tracked</div>
+      <div class="task-chips">${a.kpis.map(k=>`<span class="task-chip" style="background:var(--surface2);border-color:${a.color};color:${a.dark}">${k}</span>`).join('')}</div>
+    </div>` : ''}
+
+    ${a.outputFormat ? `
+    <div class="detail-section">
+      <div class="detail-section-title">Default output format</div>
+      <div style="font-size:13px;color:var(--muted);padding:10px 14px;background:var(--surface2);border-radius:8px;border:0.5px solid var(--border);font-family:'DM Mono',monospace">${a.outputFormat}</div>
+    </div>` : ''}
+
+    ${a.ceiling ? `<div class="ceiling-note">⚠ Ceiling: ${a.ceiling}</div>` : ''}
+
+    <div class="detail-meta">
+      <span class="meta-pill status ${statusClass(a.status)}">${statusLabel(a.status)}</span>
+      <span class="meta-pill">Activates: ${a.activates}</span>
+      <span class="meta-pill">${a.project}</span>
+    </div>
+  `;
+  panel.classList.add('open');
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
+function closeDetail(){
+  document.getElementById('detail-panel').classList.remove('open');
+  document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('selected'));
+}
+
+// ─────────────────────────────────────────────
+// RENDER ROUTING
+// ─────────────────────────────────────────────
+function renderRouting(){
+  const table = document.getElementById('route-table');
+  ROUTES.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'route-row';
+    row.innerHTML = `
+      <div class="route-trigger">${r.trigger}</div>
+      <span class="route-tag" style="background:${r.bg};color:${r.color}">${r.tag}</span>
+    `;
+    table.appendChild(row);
+  });
+
+  const loopEl = document.getElementById('loop-steps');
+  LOOP.forEach((step, i) => {
+    const s = document.createElement('div');
+    s.innerHTML = `
+      ${i > 0 ? '<div class="loop-connector"></div>' : ''}
+      <div class="loop-step">
+        <div class="loop-step-num">${step.n}</div>
+        <div>
+          <div class="loop-step-title">${step.title}</div>
+          <div class="loop-step-desc">${step.desc}</div>
+        </div>
+      </div>
+    `;
+    loopEl.appendChild(s);
+  });
+}
+
+// ─────────────────────────────────────────────
+// RENDER PROFESSIONALS
+// ─────────────────────────────────────────────
+function renderPros(){
+  const grid = document.getElementById('pro-grid');
+  PROS.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pro-card';
+    card.innerHTML = `
+      <div class="pro-icon">${p.icon}</div>
+      <div class="pro-name">${p.name}</div>
+      <div class="pro-role">${p.role}</div>
+      <div class="pro-note">${p.note}</div>
+      <span class="pro-timing ${p.timing}">${p.label}</span>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────
+// NAV + THEME
+// ─────────────────────────────────────────────
+function showView(id, btn){
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  else {
+    const tabs = ['roster','profiles','orgchart','routing','professionals'];
+    document.querySelectorAll('.tab').forEach((t, i) => { if(tabs[i]===id) t.classList.add('active'); });
+  }
+}
+
+function goAgent(id){
+  showView('roster', null);
+  document.querySelectorAll('.tab')[0].classList.add('active');
+  setTimeout(() => openDetail(id), 80);
+}
+
+function toggleTheme(){
+  const html = document.documentElement;
+  html.dataset.theme = html.dataset.theme === 'dark' ? '' : 'dark';
+}
+
+// Auto dark mode on load
+if(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
+  document.documentElement.dataset.theme = 'dark';
+}
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+renderRoster();
+renderProfiles();
+renderRouting();
+renderPros();
+</script>
+</body>
+</html>
