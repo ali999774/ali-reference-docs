@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ali · Agentic Build Studio Map</title>
+<style>
+  :root {
+    --bg: #0f0f11;
+    --bg2: #17171a;
+    --bg3: #1e1e23;
+    --border: rgba(255,255,255,0.08);
+    --border2: rgba(255,255,255,0.14);
+    --text: #e8e6e0;
+    --text2: #9c9a92;
+    --text3: #5a5955;
+    --purple-fill: #2a2040;
+    --purple-stroke: #7f77dd;
+    --purple-text: #c4bcf5;
+    --teal-fill: #0d2820;
+    --teal-stroke: #1d9e75;
+    --teal-text: #5dcaa5;
+    --coral-fill: #2a1510;
+    --coral-stroke: #d85a30;
+    --coral-text: #f09977;
+    --gray-fill: #1e1e23;
+    --gray-stroke: rgba(255,255,255,0.15);
+    --gray-text: #9c9a92;
+    --danger: #e24b4a;
+    --line-neutral: rgba(255,255,255,0.2);
+    --line-faint: rgba(255,255,255,0.15);
+    --line-faintest: rgba(255,255,255,0.1);
+  }
+  :root.light {
+    --bg: #f5f4f0;
+    --bg2: #ffffff;
+    --bg3: #f0efe9;
+    --border: rgba(0,0,0,0.07);
+    --border2: rgba(0,0,0,0.12);
+    --text: #1a1a1c;
+    --text2: #5a5955;
+    --text3: #9c9a92;
+    --purple-fill: #eeedfe;
+    --purple-stroke: #7f77dd;
+    --purple-text: #3c3489;
+    --teal-fill: #e1f5ee;
+    --teal-stroke: #0f6e56;
+    --teal-text: #085041;
+    --coral-fill: #faece7;
+    --coral-stroke: #993c1d;
+    --coral-text: #712b13;
+    --gray-fill: #f0efe9;
+    --gray-stroke: rgba(0,0,0,0.14);
+    --gray-text: #5a5955;
+    --danger: #a32d2d;
+    --line-neutral: rgba(0,0,0,0.2);
+    --line-faint: rgba(0,0,0,0.15);
+    --line-faintest: rgba(0,0,0,0.1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px 60px;
+  }
+  header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  header h1 {
+    font-size: 22px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  header p {
+    font-size: 13px;
+    color: var(--text2);
+  }
+  header .meta {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 12px;
+  }
+  header .tag {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    background: var(--bg2);
+  }
+  .diagram-wrap {
+    width: 100%;
+    max-width: 860px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 16px;
+    padding: 32px 24px;
+  }
+  svg { display: block; width: 100%; }
+
+  /* SVG element styles */
+  .tier-label { font-size: 11px; fill: var(--text3); font-family: inherit; }
+  .section-title { font-size: 11px; fill: var(--text3); font-family: inherit; }
+  .phase-label { font-size: 11px; fill: var(--text2); font-family: inherit; }
+  .arrow-label { font-size: 11px; fill: var(--text3); font-family: inherit; }
+  .node-title { font-size: 13px; font-weight: 500; font-family: inherit; }
+  .node-sub { font-size: 11px; font-family: inherit; }
+
+  .node-ali rect { fill: var(--purple-fill); stroke: var(--purple-stroke); }
+  .node-ali .node-title { fill: var(--purple-text); }
+  .node-ali .node-sub { fill: #7f77dd; }
+
+  .node-gate rect { fill: var(--teal-fill); stroke: var(--teal-stroke); }
+  .node-gate .node-title { fill: var(--teal-text); }
+  .node-gate .node-sub { fill: #1d9e75; }
+
+  .node-phase rect { fill: var(--gray-fill); stroke: var(--gray-stroke); }
+  .node-phase .node-title { fill: var(--gray-text); }
+
+  .node-phase-retro rect { fill: var(--coral-fill); stroke: var(--coral-stroke); }
+  .node-phase-retro .node-title { fill: var(--coral-text); }
+
+  .node-agent rect { fill: var(--teal-fill); stroke: var(--teal-stroke); }
+  .node-agent .node-title { fill: var(--teal-text); }
+  .node-agent .node-sub { fill: #1d9e75; }
+
+  .node-audit rect { fill: var(--coral-fill); stroke: var(--coral-stroke); }
+  .node-audit .node-title { fill: var(--coral-text); }
+  .node-audit .node-sub { fill: #d85a30; }
+
+  .node-output rect { fill: var(--purple-fill); stroke: var(--purple-stroke); }
+  .node-output .node-title { fill: var(--purple-text); }
+  .node-output .node-sub { fill: #7f77dd; }
+
+  .node-skill-update rect { fill: var(--gray-fill); stroke: var(--gray-stroke); }
+  .node-skill-update .node-title { fill: var(--gray-text); }
+  .node-skill-update .node-sub { fill: var(--text3); }
+
+  .clickable { cursor: pointer; }
+  .clickable:hover rect { opacity: 0.8; transition: opacity 0.15s; }
+
+  /* Tooltip */
+  #tooltip {
+    position: fixed;
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    max-width: 280px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.15s;
+    z-index: 100;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text2);
+  }
+  #tooltip.show { opacity: 1; }
+  #tooltip strong { display: block; color: var(--text); font-size: 13px; margin-bottom: 4px; }
+
+  /* Legend -->*/
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  footer {
+    margin-top: 32px;
+    font-size: 11px;
+    color: var(--text3);
+    text-align: center;
+    line-height: 1.7;
+  }
+  #theme-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+    font-size: 12px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    z-index: 200;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
+  }
+  #theme-toggle:hover { color: var(--text); }
+  .toggle-icon { font-size: 14px; line-height: 1; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<button id="theme-toggle" onclick="toggleTheme()">
+  <span class="toggle-icon" id="toggle-icon">☀️</span>
+  <span id="toggle-label">Light mode</span>
+</button>
+
+<header>
+  <h1>Ali · Agentic Build Studio</h1>
+  <p>Agent architecture map — Milestone Pediatrics website build</p>
+  <div class="meta">
+    <span class="tag">Human Coordinator</span>
+    <span class="tag">Sequential Skill · Phases A–H</span>
+    <span class="tag">Agent-as-Tool execution</span>
+    <span class="tag">Loop & Critic quality gate</span>
+  </div>
+</header>
+
+<div class="diagram-wrap">
+<svg viewBox="0 0 800 680" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#5a5955" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-danger" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#e24b4a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="arr-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#7f77dd" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- ── Tier dividers ── -->
+<line x1="60" y1="162" x2="760" y2="162" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="6 5"/>
+<line x1="60" y1="310" x2="760" y2="310" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="6 5"/>
+<line x1="60" y1="500" x2="760" y2="500" stroke="rgba(255,255,255,0.05)" stroke-width="1" stroke-dasharray="6 5"/>
+
+<!-- ── Tier labels ── -->
+<text class="tier-label" x="40" y="100" text-anchor="middle" transform="rotate(-90,40,100)">Human</text>
+<text class="tier-label" x="40" y="240" text-anchor="middle" transform="rotate(-90,40,240)">Skill</text>
+<text class="tier-label" x="40" y="415" text-anchor="middle" transform="rotate(-90,40,415)">Agents</text>
+<text class="tier-label" x="40" y="575" text-anchor="middle" transform="rotate(-90,40,575)">Output</text>
+
+<!-- ══════════ TIER 1 — ALI ══════════ -->
+<g class="node-ali clickable"
+   data-tip-title="Ali — Human Coordinator"
+   data-tip="Permanent roles: Product Owner + Engineering Manager. You hold all state across the build. Every agent is a tool you pick up and put down. 5 explicit phase gates — nothing advances without your sign-off.">
+  <rect x="260" y="28" width="240" height="64" rx="10" stroke-width="1"/>
+  <text class="node-title" x="380" y="53" text-anchor="middle" dominant-baseline="central">Ali</text>
+  <text class="node-sub" x="380" y="72" text-anchor="middle" dominant-baseline="central">Human Coordinator · Product Owner</text>
+</g>
+
+<!-- Gate badge -->
+<g class="node-gate clickable"
+   data-tip-title="5 Phase Gates"
+   data-tip="C→D (Brief→Scaffold) is the highest-stakes gate. Design must be frozen before any agent touches code. Other gates: intake approval, design freeze, parallel output review, launch sign-off.">
+  <rect x="560" y="38" width="158" height="44" rx="8" stroke-width="0.8"/>
+  <text class="node-title" x="639" y="55" text-anchor="middle" dominant-baseline="central">5 Phase Gates</text>
+  <text class="node-sub" x="639" y="71" text-anchor="middle" dominant-baseline="central">Ali must approve each</text>
+</g>
+<line x1="500" y1="60" x2="558" y2="60" stroke="var(--line-neutral)" stroke-width="0.8" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+<!-- ══════════ TIER 2 — SKILL ══════════ -->
+
+<!-- Container -->
+<rect x="65" y="178" width="690" height="118" rx="12" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1" stroke-dasharray="6 4"/>
+<text class="section-title" x="82" y="194">Agentic Build Studio Skill — Sequential outer loop (Phase A → H)</text>
+
+<!-- Phase boxes -->
+<g class="node-phase clickable" data-tip-title="Phase A · Intake" data-tip="Project brief template. Ali fills it before any agent fires. Scopes the entire build.">
+  <rect x="78" y="202" width="68" height="34" rx="6" stroke-width="0.5"/>
+  <text class="node-title" x="112" y="219" text-anchor="middle" dominant-baseline="central">A · Intake</text>
+</g>
+<g class="node-phase clickable" data-tip-title="Phase B · Design" data-tip="Mood, color palette, typography direction, 2–3 reference sites. Design-before-build principle. Gemini 2.5 Pro.">
+  <rect x="158" y="202" width="72" height="34" rx="6" stroke-width="0.5"/>
+  <text class="node-title" x="194" y="219" text-anchor="middle" dominant-baseline="central">B · Design</text>
+</g>
+<g class="node-phase clickable" data-tip-title="Phase C · Copy" data-tip="All text written before any agent touches code. Hero, sections, CTAs, microcopy. Sonnet 4.6.">
+  <rect x="242" y="202" width="68" height="34" rx="6" stroke-width="0.5"/>
+  <text class="node-title" x="276" y="219" text-anchor="middle" dominant-baseline="central">C · Copy</text>
+</g>
+<g class="node-phase clickable" data-tip-title="Phase D · Scaffold" data-tip="Single agent builds project skeleton before parallel agents fire. Highest-stakes gate: C→D must be frozen. Gemini Flash.">
+  <rect x="322" y="202" width="80" height="34" rx="6" stroke-width="0.5"/>
+  <text class="node-title" x="362" y="219" text-anchor="middle" dominant-baseline="central">D · Scaffold</text>
+</g>
+<g class="node-phase clickable" data-tip-title="Phase E · Build" data-tip="Parallel execution. Multiple specialist agents work simultaneously against frozen brief and scaffold. Sonnet 4.6.">
+  <rect x="414" y="202" width="68" height="34" rx="6" stroke-width="0.5"/>
+  <text class="node-title" x="448" y="219" text-anchor="middle" dominant-baseline="central">E · Build</text>
+</g>
+<g class="node-phase clickable" data-tip-title="Phase F · QA" data-tip="Integration and quality assurance. Audit agent reviews all parallel outputs before merge.">
+  <rect x="494" y="202" width="64" height="34" rx="6" stroke-width="0.5"/>
+  <text class="node-title" x="526" y="219" text-anchor="middle" dominant-baseline="central">F · QA</text>
+</g>
+<g class="node-phase clickable" data-tip-title="Phase G · Ship" data-tip="Launch. Ali's final sign-off. milestonepediatrics.ai goes live.">
+  <rect x="570" y="202" width="60" height="34" rx="6" stroke-width="0.5"/>
+  <text class="node-title" x="600" y="219" text-anchor="middle" dominant-baseline="central">G · Ship</text>
+</g>
+<g class="node-phase-retro clickable" data-tip-title="Phase H · Retro" data-tip="Retrospective. Milestone retros after each phase gate. Final project audit at the end. Output feeds back into SKILL.md updates.">
+  <rect x="642" y="202" width="60" height="34" rx="6" stroke-width="0.5"/>
+  <text class="node-title" x="672" y="219" text-anchor="middle" dominant-baseline="central">H · Retro</text>
+</g>
+
+<!-- Phase connectors -->
+<line x1="146" y1="219" x2="158" y2="219" stroke="var(--line-neutral)" stroke-width="0.7" marker-end="url(#arr)"/>
+<line x1="230" y1="219" x2="242" y2="219" stroke="var(--line-neutral)" stroke-width="0.7" marker-end="url(#arr)"/>
+<line x1="310" y1="219" x2="322" y2="219" stroke="var(--line-neutral)" stroke-width="0.7" marker-end="url(#arr)"/>
+<line x1="402" y1="219" x2="414" y2="219" stroke="var(--line-neutral)" stroke-width="0.7" marker-end="url(#arr)"/>
+<line x1="482" y1="219" x2="494" y2="219" stroke="var(--line-neutral)" stroke-width="0.7" marker-end="url(#arr)"/>
+<line x1="558" y1="219" x2="570" y2="219" stroke="var(--line-neutral)" stroke-width="0.7" marker-end="url(#arr)"/>
+<line x1="630" y1="219" x2="642" y2="219" stroke="var(--line-neutral)" stroke-width="0.7" marker-end="url(#arr)"/>
+
+<text class="phase-label" x="400" y="265" text-anchor="middle">Skill routes each phase to the right specialist agent(s)</text>
+
+<!-- Ali → Skill -->
+<line x1="380" y1="92" x2="380" y2="176" stroke="var(--line-neutral)" stroke-width="0.8" marker-end="url(#arr)"/>
+
+<!-- ══════════ TIER 3 — AGENTS ══════════ -->
+<text class="section-title" x="400" y="328" text-anchor="middle">Each agent = stateless tool call · Ali retains context &amp; state across all phases</text>
+
+<!-- Copy Agent -->
+<g class="node-agent clickable"
+   data-tip-title="Copy Agent"
+   data-tip="Model: Sonnet 4.6. Job: Hero headline, section copy, CTAs — all text before code. Fires in Phase C. Stateless — returns text, done.">
+  <rect x="68" y="344" width="148" height="60" rx="8" stroke-width="0.7"/>
+  <text class="node-title" x="142" y="367" text-anchor="middle" dominant-baseline="central">Copy Agent</text>
+  <text class="node-sub" x="142" y="386" text-anchor="middle" dominant-baseline="central">Sonnet 4.6 · Phase C</text>
+</g>
+
+<!-- Design Agent -->
+<g class="node-agent clickable"
+   data-tip-title="Design Agent"
+   data-tip="Model: Gemini 2.5 Pro. Job: Palette, typography, component specs, reference site matching. Fires in Phase B. Output locks the design brief.">
+  <rect x="234" y="344" width="148" height="60" rx="8" stroke-width="0.7"/>
+  <text class="node-title" x="308" y="367" text-anchor="middle" dominant-baseline="central">Design Agent</text>
+  <text class="node-sub" x="308" y="386" text-anchor="middle" dominant-baseline="central">Gemini 2.5 Pro · Phase B</text>
+</g>
+
+<!-- Builder Agent -->
+<g class="node-agent clickable"
+   data-tip-title="Builder Agent"
+   data-tip="Model: Sonnet 4.6. Job: React/Tailwind/Supabase implementation against frozen design brief and scaffold. Fires in Phase E. Multiple instances run in parallel.">
+  <rect x="400" y="344" width="148" height="60" rx="8" stroke-width="0.7"/>
+  <text class="node-title" x="474" y="367" text-anchor="middle" dominant-baseline="central">Builder Agent</text>
+  <text class="node-sub" x="474" y="386" text-anchor="middle" dominant-baseline="central">Sonnet 4.6 · Phase E</text>
+</g>
+
+<!-- Audit Agent -->
+<g class="node-audit clickable"
+   data-tip-title="Audit Agent — Critic"
+   data-tip="Model: Opus 4.6 Thinking. Job: End-of-phase quality gate. Outputs pass/fail + rework list. This is the Loop & Critic pattern — rework loop continues until Ali approves. Highest model tier because this is where quality is decided.">
+  <rect x="566" y="344" width="168" height="60" rx="8" stroke-width="0.7"/>
+  <text class="node-title" x="650" y="367" text-anchor="middle" dominant-baseline="central">Audit Agent · Critic</text>
+  <text class="node-sub" x="650" y="386" text-anchor="middle" dominant-baseline="central">Opus 4.6 Thinking · Phase F</text>
+</g>
+
+<!-- Skill → Agent fan-out arrows -->
+<line x1="240" y1="296" x2="142" y2="342" stroke="var(--line-faint)" stroke-width="0.7" marker-end="url(#arr)"/>
+<line x1="320" y1="296" x2="308" y2="342" stroke="var(--line-faint)" stroke-width="0.7" marker-end="url(#arr)"/>
+<line x1="430" y1="296" x2="474" y2="342" stroke="var(--line-faint)" stroke-width="0.7" marker-end="url(#arr)"/>
+<line x1="540" y1="296" x2="650" y2="342" stroke="var(--line-faint)" stroke-width="0.7" marker-end="url(#arr)"/>
+
+<!-- Loop & Critic rework arc -->
+<path d="M650 404 Q650 460 474 460 Q474 460 474 406" fill="none" stroke="#e24b4a" stroke-width="0.8" stroke-dasharray="5 3" marker-end="url(#arr-danger)"/>
+<text class="arrow-label" x="564" y="476" text-anchor="middle" fill="#e24b4a">rework loop (until Ali approves)</text>
+
+<!-- ══════════ TIER 4 — OUTPUT ══════════ -->
+
+<!-- Site output -->
+<g class="node-output clickable"
+   data-tip-title="milestonepediatrics.ai"
+   data-tip="The live deliverable. Released only after Ali passes the final Phase G sign-off gate. Built on React + Tailwind + Supabase.">
+  <rect x="200" y="518" width="220" height="56" rx="10" stroke-width="0.8"/>
+  <text class="node-title" x="310" y="540" text-anchor="middle" dominant-baseline="central">milestonepediatrics.ai</text>
+  <text class="node-sub" x="310" y="559" text-anchor="middle" dominant-baseline="central">Live site · Phase G output</text>
+</g>
+
+<!-- Skill update -->
+<g class="node-skill-update clickable"
+   data-tip-title="Skill Update → SKILL.md"
+   data-tip="Phase H retrospective feeds back into the agentic-build-studio SKILL.md — closing the learning loop. 5 checklists to be added after first real project completes.">
+  <rect x="460" y="518" width="200" height="56" rx="10" stroke-width="0.8"/>
+  <text class="node-title" x="560" y="540" text-anchor="middle" dominant-baseline="central">Skill Update</text>
+  <text class="node-sub" x="560" y="559" text-anchor="middle" dominant-baseline="central">Retro → SKILL.md · Phase H</text>
+</g>
+
+<!-- Agents → Output -->
+<line x1="310" y1="406" x2="310" y2="516" stroke="var(--line-faint)" stroke-width="0.8" marker-end="url(#arr)"/>
+<line x1="650" y1="406" x2="560" y2="516" stroke="var(--line-faintest)" stroke-width="0.7" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+
+<!-- Retro → Skill feedback (right side curve) -->
+<path d="M660 518 Q740 420 740 240 Q740 178 736 178" fill="none" stroke="var(--line-faintest)" stroke-width="0.7" stroke-dasharray="5 3" marker-end="url(#arr)"/>
+<text class="tier-label" x="754" y="350" text-anchor="middle" transform="rotate(90,754,350)">skill learns</text>
+
+<!-- Ali ← Output feedback (left side curve) -->
+<path d="M100" y1="518" />
+<path d="M200 546 Q60 460 60 240 Q60 92 258 60" fill="none" stroke="var(--line-faintest)" stroke-width="0.7" stroke-dasharray="4 3" marker-end="url(#arr-purple)"/>
+<text class="tier-label" x="46" y="360" text-anchor="middle" transform="rotate(-90,46,360)">Ali reviews</text>
+
+</svg>
+
+<!-- Legend -->
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:#2a2040;border:1px solid #7f77dd"></div> Ali / Deliverable</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#0d2820;border:1px solid #1d9e75"></div> Execution agents</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#2a1510;border:1px solid #d85a30"></div> Critic / Retro</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#1e1e23;border:1px solid rgba(255,255,255,0.15)"></div> Neutral / Phase</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#e24b4a;border:none;border-radius:50%"></div> Rework loop</div>
+  <div class="legend-item" style="font-style:italic">Hover nodes for details</div>
+</div>
+</div>
+
+<footer>
+  Generated: March 2026 · Milestone Pediatrics website build · Agentic Build Studio methodology<br>
+  Agent patterns: Sequential outer loop · Coordinator routing · Agent-as-Tool execution · Loop &amp; Critic quality gate
+</footer>
+
+<!-- Tooltip + theme logic -->
+<div id="tooltip"></div>
+<script>
+const tip = document.getElementById('tooltip');
+
+document.querySelectorAll('[data-tip]').forEach(el => {
+  el.addEventListener('mouseenter', e => {
+    const title = el.getAttribute('data-tip-title') || '';
+    const body = el.getAttribute('data-tip') || '';
+    tip.innerHTML = `<strong>${title}</strong>${body}`;
+    tip.classList.add('show');
+  });
+  el.addEventListener('mousemove', e => {
+    let x = e.clientX + 16;
+    let y = e.clientY + 16;
+    if (x + 296 > window.innerWidth) x = e.clientX - 300;
+    if (y + 120 > window.innerHeight) y = e.clientY - 130;
+    tip.style.left = x + 'px';
+    tip.style.top = y + 'px';
+  });
+  el.addEventListener('mouseleave', () => {
+    tip.classList.remove('show');
+  });
+});
+
+let isLight = false;
+function toggleTheme() {
+  isLight = !isLight;
+  document.documentElement.classList.toggle('light', isLight);
+  document.getElementById('toggle-icon').textContent = isLight ? '🌙' : '☀️';
+  document.getElementById('toggle-label').textContent = isLight ? 'Dark mode' : 'Light mode';
+  localStorage.setItem('theme', isLight ? 'light' : 'dark');
+}
+
+// Restore saved preference
+const saved = localStorage.getItem('theme');
+if (saved === 'light') { isLight = true; document.documentElement.classList.add('light'); document.getElementById('toggle-icon').textContent = '🌙'; document.getElementById('toggle-label').textContent = 'Dark mode'; }
+</script>
+</body>
+</html>
