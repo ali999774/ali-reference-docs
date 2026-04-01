@@ -1,0 +1,347 @@
+<style>
+.layer-wrap { margin-bottom: 10px; }
+.layer-label { font-size: 11px; font-weight: 500; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; padding-left: 2px; }
+.layer-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 20px; border: 0.5px solid; font-size: 13px; font-weight: 500; cursor: pointer; transition: opacity 0.15s, transform 0.1s; user-select: none; }
+.chip:hover { opacity: 0.8; }
+.chip:active { transform: scale(0.96); }
+.chip.active { border-width: 1.5px !important; }
+.chip-gray { background: var(--color-background-secondary); border-color: var(--color-border-secondary); color: var(--color-text-primary); }
+.chip-purple { background: #EEEDFE; border-color: #AFA9EC; color: #3C3489; }
+.chip-teal { background: #E1F5EE; border-color: #5DCAA5; color: #085041; }
+.chip-amber { background: #FAEEDA; border-color: #EF9F27; color: #633806; }
+.chip-blue { background: #E6F1FB; border-color: #85B7EB; color: #0C447C; }
+.chip-coral { background: #FAECE7; border-color: #F0997B; color: #712B13; }
+@media (prefers-color-scheme: dark) {
+  .chip-purple { background: #3C3489; border-color: #7F77DD; color: #CECBF6; }
+  .chip-teal { background: #085041; border-color: #1D9E75; color: #9FE1CB; }
+  .chip-amber { background: #633806; border-color: #BA7517; color: #FAC775; }
+  .chip-blue { background: #0C447C; border-color: #378ADD; color: #B5D4F4; }
+  .chip-coral { background: #712B13; border-color: #D85A30; color: #F5C4B3; }
+}
+.divider { height: 0.5px; background: var(--color-border-tertiary); margin: 16px 0; }
+.detail-panel { background: var(--color-background-secondary); border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); padding: 16px 18px; min-height: 120px; transition: opacity 0.2s; }
+.detail-panel.empty { display: flex; align-items: center; justify-content: center; color: var(--color-text-tertiary); font-size: 13px; }
+.detail-name { font-size: 15px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+.detail-layer { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px; }
+.detail-body { font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; }
+.detail-role { font-size: 12px; color: var(--color-text-tertiary); margin-top: 10px; border-top: 0.5px solid var(--color-border-tertiary); padding-top: 10px; }
+.ask-btn { margin-top: 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 5px 12px; border-radius: 20px; border: 0.5px solid var(--color-border-secondary); background: var(--color-background-primary); color: var(--color-text-secondary); cursor: pointer; transition: background 0.15s; }
+.ask-btn:hover { background: var(--color-background-secondary); }
+</style>
+
+<div style="padding: 4px 0 12px;">
+
+<div class="layer-wrap">
+  <div class="layer-label">Native shell</div>
+  <div class="layer-row">
+    <div class="chip chip-gray" onclick="show('capacitor')">Capacitor</div>
+    <div class="chip chip-gray" onclick="show('wkwebview')">WKWebView</div>
+    <div class="chip chip-gray" onclick="show('appstore')">App Store</div>
+  </div>
+</div>
+
+<div class="layer-wrap">
+  <div class="layer-label">Boot &amp; build</div>
+  <div class="layer-row">
+    <div class="chip chip-gray" onclick="show('vite')">Vite</div>
+    <div class="chip chip-gray" onclick="show('typescript')">TypeScript</div>
+    <div class="chip chip-gray" onclick="show('serviceworker')">Service worker</div>
+    <div class="chip chip-gray" onclick="show('pwa')">PWA</div>
+  </div>
+</div>
+
+<div class="layer-wrap">
+  <div class="layer-label">UI layer</div>
+  <div class="layer-row">
+    <div class="chip chip-purple" onclick="show('react')">React</div>
+    <div class="chip chip-purple" onclick="show('tailwind')">Tailwind CSS</div>
+    <div class="chip chip-purple" onclick="show('shadcn')">shadcn/ui</div>
+    <div class="chip chip-purple" onclick="show('reactrouter')">React Router</div>
+    <div class="chip chip-purple" onclick="show('lucide')">Lucide icons</div>
+  </div>
+</div>
+
+<div class="layer-wrap">
+  <div class="layer-label">State layer</div>
+  <div class="layer-row">
+    <div class="chip chip-teal" onclick="show('zustand')">Zustand</div>
+    <div class="chip chip-teal" onclick="show('context')">React Context</div>
+    <div class="chip chip-teal" onclick="show('hooks')">Custom hooks</div>
+    <div class="chip chip-teal" onclick="show('experimentflags')">Feature flags</div>
+  </div>
+</div>
+
+<div class="layer-wrap">
+  <div class="layer-label">Services layer</div>
+  <div class="layer-row">
+    <div class="chip chip-amber" onclick="show('supabaseclient')">Supabase client</div>
+    <div class="chip chip-amber" onclick="show('i18n')">i18n</div>
+    <div class="chip chip-amber" onclick="show('tts')">Web Speech API</div>
+    <div class="chip chip-amber" onclick="show('audio')">Web Audio API</div>
+  </div>
+</div>
+
+<div class="layer-wrap">
+  <div class="layer-label">Persistence</div>
+  <div class="layer-row">
+    <div class="chip chip-blue" onclick="show('indexeddb')">IndexedDB</div>
+    <div class="chip chip-blue" onclick="show('dexie')">Dexie.js</div>
+    <div class="chip chip-blue" onclick="show('supabasedb')">Supabase (cloud DB)</div>
+    <div class="chip chip-blue" onclick="show('rls')">Row-level security</div>
+    <div class="chip chip-blue" onclick="show('localstorage')">localStorage</div>
+  </div>
+</div>
+
+<div class="layer-wrap">
+  <div class="layer-label">Deploy &amp; infra</div>
+  <div class="layer-row">
+    <div class="chip chip-coral" onclick="show('vercel')">Vercel</div>
+    <div class="chip chip-coral" onclick="show('github')">GitHub</div>
+    <div class="chip chip-coral" onclick="show('namecheap')">Namecheap DNS</div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="detail-panel empty" id="panel">
+  <span>Tap any technology above to learn what it does</span>
+</div>
+
+</div>
+
+<script>
+const data = {
+  capacitor: {
+    name: 'Capacitor',
+    layer: 'Native shell',
+    color: '#888780',
+    body: 'Capacitor is the bridge between your React web app and the iOS device. It wraps your entire app in a native iOS project, giving you access to device features (camera, haptics, notifications) that a plain website can\'t touch. When you submit to the App Store, you\'re submitting the Capacitor iOS project — which contains your React app running inside a WKWebView.',
+    role: 'Why your web app exists on the App Store at all. Without Capacitor, Morning Momentum would be a website, not an iOS app.',
+  },
+  wkwebview: {
+    name: 'WKWebView',
+    layer: 'Native shell',
+    color: '#888780',
+    body: 'WKWebView is Apple\'s built-in browser engine, the same one that powers Safari. Capacitor uses it as the container for your React app. Your app\'s HTML, CSS, and JavaScript run inside this engine. It\'s fast, secure, and supports all modern web APIs — including the Web Audio and Speech APIs your app uses.',
+    role: 'The actual runtime environment where your React code executes on an iOS device.',
+  },
+  appstore: {
+    name: 'App Store',
+    layer: 'Native shell',
+    color: '#888780',
+    body: 'Apple\'s distribution platform. You submitted Morning Momentum here after signing up for the Apple Developer Program ($99/year). The App Store handles discovery, downloads, updates, and reviews. Your app went through Apple\'s review process before it became publicly downloadable.',
+    role: 'How real users get the app on their phones.',
+  },
+  vite: {
+    name: 'Vite',
+    layer: 'Boot & build',
+    color: '#888780',
+    body: 'Vite is your build tool — it takes all your TypeScript/React source files and bundles them into optimized JavaScript that browsers can run. During development it serves your app with near-instant hot reload (change a file, see it in the browser in milliseconds). For production it creates a compact, optimized bundle. Think of it as the compiler + dev server for your project.',
+    role: 'Turns your source code into something the browser and Capacitor can actually run.',
+  },
+  typescript: {
+    name: 'TypeScript',
+    layer: 'Boot & build',
+    color: '#888780',
+    body: 'TypeScript is JavaScript with types added. You write `.ts` and `.tsx` files; Vite compiles them to plain JavaScript. The types let your editor catch errors before you run the code — "you\'re passing a string where a number is expected" shows up as a red underline, not a runtime crash. With 41 hooks and ~50 service files, types are what keep the codebase coherent as it grows.',
+    role: 'Catches bugs at write-time instead of run-time. The bigger the codebase, the more valuable it becomes.',
+  },
+  serviceworker: {
+    name: 'Service worker',
+    layer: 'Boot & build',
+    color: '#888780',
+    body: 'A service worker is a JavaScript file that runs in the background, separate from your app. It intercepts network requests and can serve cached responses when offline. Morning Momentum registers its service worker in main.tsx on startup. This is what allows the app to load and work even with no internet connection — the service worker serves the last cached version of the app.',
+    role: 'Enables offline use. Without it, a kid with no wifi gets a blank screen instead of their routine.',
+  },
+  pwa: {
+    name: 'PWA',
+    layer: 'Boot & build',
+    color: '#888780',
+    body: 'Progressive Web App — a web app that behaves like a native app. PWA features include: a manifest file (defines app name, icon, theme color), service worker (offline support), and installability (add to home screen). Morning Momentum is both a PWA and an iOS app — the Vercel-hosted web version is a PWA, while the App Store version is wrapped via Capacitor.',
+    role: 'The web version of the app has native-like behavior even without going through the App Store.',
+  },
+  react: {
+    name: 'React',
+    layer: 'UI layer',
+    color: '#7F77DD',
+    body: 'React is the UI framework your app is built on. The core idea: your UI is a function of state. You describe what the screen should look like for any given state, and React figures out the minimum DOM changes needed to get there. Every component (a step card, the timer, the settings toggle) is a React function that takes props and returns JSX (HTML-like syntax). When state changes, React re-renders only the affected components.',
+    role: 'The foundational framework everything else is built on top of. Removing React would mean rewriting the entire app.',
+  },
+  tailwind: {
+    name: 'Tailwind CSS',
+    layer: 'UI layer',
+    color: '#7F77DD',
+    body: 'Tailwind is a utility-first CSS framework. Instead of writing `.button { padding: 8px 16px; border-radius: 4px; }` in a separate CSS file, you write `className="px-4 py-2 rounded"` directly on the element. Every class name is a single CSS rule. Your tailwind.config.ts defines your design system — custom colors, spacing values, font sizes — and Tailwind generates the corresponding utility classes.',
+    role: 'Keeps the visual design consistent and co-located with the component logic. Your design system lives in one config file.',
+  },
+  shadcn: {
+    name: 'shadcn/ui',
+    layer: 'UI layer',
+    color: '#7F77DD',
+    body: 'shadcn/ui is a component library — pre-built, accessible UI components like dialogs, dropdowns, toggles, and sliders. Unlike most libraries, you don\'t install shadcn as a package — you copy the component source code directly into your project (into the ui/ folder). This means you own the code and can customize it freely. Components are built on Radix UI primitives for accessibility.',
+    role: 'The raw materials in your ui/ folder. Buttons, inputs, dialogs — built correctly once, reused everywhere.',
+  },
+  reactrouter: {
+    name: 'React Router',
+    layer: 'UI layer',
+    color: '#7F77DD',
+    body: 'React Router handles navigation between screens. When a user taps "Settings" and the URL changes (or the app state navigates), React Router decides which Page component to render. In Morning Momentum, MainAppContent.tsx sets up the router and defines which page maps to which route. It\'s the traffic controller for your app\'s different views.',
+    role: 'Connects URL/navigation state to which screen the user sees.',
+  },
+  lucide: {
+    name: 'Lucide icons',
+    layer: 'UI layer',
+    color: '#7F77DD',
+    body: 'Lucide is an icon library — a collection of clean SVG icons you can use as React components. `<CheckCircle size={24} />` renders a check-circle icon. All icons are consistent in style, accessible, and scalable. They\'re used throughout Morning Momentum for step indicators, navigation, buttons, and status displays.',
+    role: 'Visual language for the UI — replaces custom SVG work with a consistent, reusable icon set.',
+  },
+  zustand: {
+    name: 'Zustand',
+    layer: 'State layer',
+    color: '#1D9E75',
+    body: 'Zustand is your app\'s memory during a session. It\'s a state management library — it holds data that multiple components need to share (current routine steps, timer state, user settings) and notifies components when that data changes. The key advantage over React\'s built-in state: any component can read or update any store directly, without "prop drilling" (passing data down through 5 layers of components).',
+    role: 'The central nervous system of the app. useStore, useRoutineStore, useSettingsStore, useUIStore, useParentStore — each owns one domain of truth.',
+  },
+  context: {
+    name: 'React Context',
+    layer: 'State layer',
+    color: '#1D9E75',
+    body: 'React Context is the framework\'s built-in way to share data across a component tree without passing props manually. Morning Momentum uses Context for three things: Theme (light/dark mode, accessible everywhere), Modal state (which dialog is open), and ParentalAuth (PIN lock status). These are good candidates for Context because they\'re needed by many deeply-nested components and don\'t change frequently.',
+    role: 'For truly global, infrequently-changing state — a lighter alternative to Zustand when you don\'t need fine-grained reactivity.',
+  },
+  hooks: {
+    name: 'Custom hooks',
+    layer: 'State layer',
+    color: '#1D9E75',
+    body: 'React hooks are functions that start with "use" and let you tap into React features from functional components. Custom hooks are hooks you write yourself to encapsulate reusable behavior. Morning Momentum has ~41 of them — things like useTimer (countdown logic), useRoutineProgress (completion tracking), useSound (audio playback). Hooks keep component files clean by extracting logic into named, testable units.',
+    role: 'Reusable behavior packages. 41 hooks means 41 distinct behaviors defined once and used anywhere.',
+  },
+  experimentflags: {
+    name: 'Feature flags',
+    layer: 'State layer',
+    color: '#1D9E75',
+    body: 'Feature flags (flags.ts + experimentFlags.ts in the store) let you toggle features on or off without deploying new code. You can ship a feature in a disabled state, enable it for testing, or run A/B experiments. For Morning Momentum, this is useful for rolling out new features to test users before the full release, or for quickly disabling something broken in production.',
+    role: 'Ship code safely. Turn features on/off without an App Store update.',
+  },
+  supabaseclient: {
+    name: 'Supabase client',
+    layer: 'Services layer',
+    color: '#BA7517',
+    body: 'The Supabase JavaScript client is the library in your lib/ folder that lets your React app communicate with your Supabase cloud database. It handles authentication, database queries, and real-time subscriptions. When your app saves a completed routine or fetches household data, it\'s calling methods on this client: `supabase.from("routines").select(...)`. The client manages auth tokens automatically.',
+    role: 'The interface between your frontend code and your cloud database. All Supabase queries go through it.',
+  },
+  i18n: {
+    name: 'i18n (localization)',
+    layer: 'Services layer',
+    color: '#BA7517',
+    body: 'Internationalization — your app supports 5 languages: English, Spanish, Arabic, French, German. The locales/ folder holds JSON files mapping keys to translated strings. Instead of hardcoding "Good morning!" your components use translation keys like `t("greeting.morning")` which resolve to the right string for the user\'s language. Arabic (ar) adds right-to-left layout considerations on top of translation.',
+    role: 'Opens the app to non-English speaking families. The Spanish locale alone could significantly expand your addressable market.',
+  },
+  tts: {
+    name: 'Web Speech API',
+    layer: 'Services layer',
+    color: '#BA7517',
+    body: 'The Web Speech API is a browser-native API (no library needed) that converts text to spoken audio. Morning Momentum uses it for text-to-speech (TTS) — reading step names aloud to kids who can\'t read yet, or who benefit from audio cues. You call `speechSynthesis.speak(utterance)` and the device speaks the text using its built-in voices. Controllable via the settings store (on/off, voice selection).',
+    role: 'Accessibility and EF support — kids with reading difficulties or younger children can follow routines by listening.',
+  },
+  audio: {
+    name: 'Web Audio API',
+    layer: 'Services layer',
+    color: '#BA7517',
+    body: 'The Web Audio API is a browser-native API for generating and playing sounds programmatically. It\'s more powerful than a simple `<audio>` tag — you can create tones, control timing precisely, and apply effects. Morning Momentum uses it for sound cues (completion chimes, timer alerts). The audio/ folder contains utilities that wrap this API into simple functions like `playCompletionSound()`.',
+    role: 'The sonic feedback layer — reinforcement sounds for completing steps, which is clinically meaningful for kids with ADHD.',
+  },
+  indexeddb: {
+    name: 'IndexedDB',
+    layer: 'Persistence',
+    color: '#185FA5',
+    body: 'IndexedDB is the browser\'s built-in database — a key-value store that persists data on the device even after the app closes. Unlike localStorage (which only holds strings), IndexedDB can store complex JavaScript objects. It\'s what makes Morning Momentum work offline: routines and settings are saved locally first, then synced to Supabase when online. It\'s available inside WKWebView on iOS.',
+    role: 'Local-first storage. Your app data survives closing the app, rebooting the phone, and going offline.',
+  },
+  dexie: {
+    name: 'Dexie.js',
+    layer: 'Persistence',
+    color: '#185FA5',
+    body: 'Dexie is a wrapper around IndexedDB that makes it much easier to use. Raw IndexedDB has a complex, callback-heavy API. Dexie gives you a clean, Promise-based interface: `db.tasks.where("id").equals(id).first()`. It handles database versioning (schema migrations), transactions, and error handling. Think of it as the ORM layer on top of your local database.',
+    role: 'Makes IndexedDB usable. Without Dexie, working with local storage would require significantly more boilerplate code.',
+  },
+  supabasedb: {
+    name: 'Supabase (cloud DB)',
+    layer: 'Persistence',
+    color: '#185FA5',
+    body: 'Supabase is a Firebase alternative built on PostgreSQL. It gives you a real relational database, authentication, storage, and a REST/realtime API — all without managing a backend server. Your app\'s households, profiles, routines, and completion stats are stored here. The supabase/migrations/ folder holds the SQL that created and evolved this schema. Supabase auto-generates API endpoints from your tables.',
+    role: 'The cloud database that enables sync across devices and long-term data retention beyond what fits on a single phone.',
+  },
+  rls: {
+    name: 'Row-level security',
+    layer: 'Persistence',
+    color: '#185FA5',
+    body: 'RLS is a PostgreSQL feature that Supabase uses to enforce data access rules at the database level. Instead of trusting your app code to only query the right data, RLS policies say "a user can only SELECT rows where household_id = their household_id." Even if a bug in your app code tried to fetch another family\'s data, the database would block it. Note: your Supabase project has an identified RLS issue that needs remediation.',
+    role: 'Security layer. Ensures one family can never access another family\'s data, even if the app has a bug.',
+  },
+  localstorage: {
+    name: 'localStorage',
+    layer: 'Persistence',
+    color: '#185FA5',
+    body: 'localStorage is the simplest browser storage — a synchronous key-value store that holds strings. Morning Momentum uses it only for lightweight, non-critical state: the current theme preference and the auth token. It\'s not used for routine data because it\'s synchronous (blocks the UI for large data), string-only, and has a 5MB limit. Bigger data goes to IndexedDB/Dexie.',
+    role: 'Quick-access storage for tiny, non-sensitive values that need to survive page refresh.',
+  },
+  vercel: {
+    name: 'Vercel',
+    layer: 'Deploy & infra',
+    color: '#D85A30',
+    body: 'Vercel is the hosting platform for the web version of Morning Momentum. When you push to GitHub, Vercel automatically builds and deploys your app (CI/CD). It also hosts the web build that gets embedded in your Capacitor iOS app. vercel.json configures security headers, routing rules, and environment variables. Vercel\'s CDN serves your app from edge locations globally for fast load times.',
+    role: 'Hosts the web app, automates deployments, and serves the bundle that Capacitor packages into the iOS app.',
+  },
+  github: {
+    name: 'GitHub',
+    layer: 'Deploy & infra',
+    color: '#D85A30',
+    body: 'GitHub is where your source code lives (ali999774/wake-up-wizardry). Git tracks every change to every file — who changed what, when, and why. GitHub adds collaboration features on top: pull requests, issues, and the webhook that triggers Vercel deployments when you push. As a solo dev, the main value is version history ("I broke something, let me go back 3 commits") and backup.',
+    role: 'Version control + deployment trigger. Every `git push` kicks off a Vercel build automatically.',
+  },
+  namecheap: {
+    name: 'Namecheap DNS',
+    layer: 'Deploy & infra',
+    color: '#D85A30',
+    body: 'Namecheap is your domain registrar — where you bought and manage your domain name. DNS (Domain Name System) is the internet\'s phonebook: it maps a human-readable domain to Vercel\'s server IP address. When someone types your domain, Namecheap\'s DNS records tell their browser "go to Vercel\'s servers." You configure these records in the Namecheap dashboard.',
+    role: 'Connects your domain name to Vercel\'s servers. Without DNS configuration, the domain would go nowhere.',
+  },
+};
+
+const layerColors = {
+  'Native shell': '#888780',
+  'Boot & build': '#888780',
+  'UI layer': '#534AB7',
+  'State layer': '#0F6E56',
+  'Services layer': '#854F0B',
+  'Persistence': '#185FA5',
+  'Deploy & infra': '#993C1D',
+};
+
+let active = null;
+
+function show(key) {
+  const d = data[key];
+  if (!d) return;
+  if (active) {
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  }
+  active = key;
+  const chips = document.querySelectorAll('.chip');
+  chips.forEach(c => {
+    if (c.getAttribute('onclick') === `show('${key}')`) c.classList.add('active');
+  });
+  const panel = document.getElementById('panel');
+  const layerColor = layerColors[d.layer] || '#888';
+  panel.className = 'detail-panel';
+  panel.innerHTML = `
+    <div class="detail-name">${d.name}</div>
+    <div class="detail-layer" style="color:${layerColor}">${d.layer}</div>
+    <div class="detail-body">${d.body}</div>
+    <div class="detail-role"><strong>Role in your app:</strong> ${d.role}</div>
+    <button class="ask-btn" onclick="sendPrompt('Tell me more about ${d.name} in the context of Morning Momentum')">Ask a follow-up ↗</button>
+  `;
+}
+</script>
