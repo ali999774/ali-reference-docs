@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Milestone Studio</title>
+<style>
+  :root {
+    --bg: #0f0f11; --surface: #17171a; --surface2: #1e1e22; --border: #2a2a30;
+    --text: #e8e8ec; --muted: #8888a0; --accent: #6c6cff; --accent2: #ff6c6c;
+    --accent3: #6cffc0; --accent4: #ffc96c; --gate: #ff4f4f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 14px; line-height: 1.6; }
+  .site-header { border-bottom: 1px solid var(--border); padding: 28px 40px 24px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+  .site-header h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+  .site-header .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .meta-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .meta-chip { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px; font-size: 12px; color: var(--muted); }
+  .meta-chip strong { color: var(--text); }
+  nav { display: flex; gap: 2px; padding: 12px 40px; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
+  nav button { background: none; border: none; color: var(--muted); font-size: 13px; padding: 6px 14px; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+  nav button:hover { background: var(--surface2); color: var(--text); }
+  nav button.active { background: var(--surface2); color: var(--accent); }
+  main { padding: 32px 40px; max-width: 1100px; }
+  .tab { display: none; }
+  .tab.active { display: block; }
+  .section-title { font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 24px; }
+  .people-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  @media (max-width: 680px) { .people-grid { grid-template-columns: 1fr; } }
+  .person-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px 18px; cursor: pointer; transition: border-color 0.15s; user-select: none; }
+  .person-card:hover { border-color: rgba(108,108,255,0.45); }
+  .person-card.expanded { border-color: rgba(108,108,255,0.5); }
+  .person-card.gate-card { border-left: 3px solid var(--gate); }
+  .card-header { display: flex; gap: 14px; align-items: center; }
+  .card-body { display: none; padding-top: 14px; border-top: 1px solid var(--border); margin-top: 14px; }
+  .card-body.open { display: block; }
+  .avatar { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--surface2); }
+  .card-title { flex: 1; }
+  .card-title .name-row { display: flex; align-items: center; gap: 7px; margin-bottom: 2px; }
+  .card-title h3 { font-size: 15px; font-weight: 600; line-height: 1.2; }
+  .age-badge { display: inline-flex; align-items: center; justify-content: center; background: var(--surface2); border: 1px solid var(--border); border-radius: 5px; font-size: 11px; font-weight: 500; color: var(--muted); padding: 1px 6px; line-height: 1.4; }
+  .role { color: var(--muted); font-size: 12px; margin-bottom: 6px; }
+  .badge-row { display: flex; flex-wrap: wrap; gap: 5px; }
+  .model-badge { display: inline-block; font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+  .mb-gp { background: rgba(59,130,246,0.18); color: #60a5fa; }
+  .mb-gf { background: rgba(59,130,246,0.18); color: #60a5fa; }
+  .mb-cs { background: rgba(251,146,60,0.18); color: #fb923c; }
+  .mb-co { background: rgba(251,146,60,0.18); color: #fb923c; }
+  .mb-fl { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .mb-ht { background: rgba(234,179,8,0.15); color: #facc15; }
+  .mb-op { background: rgba(251,146,60,0.18); color: #fb923c; }
+  .mb-think { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .mb-ext { background: rgba(234,179,8,0.15); color: #facc15; }
+  .card-section { margin-bottom: 12px; }
+  .section-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+  .card-section ul { padding-left: 16px; }
+  .card-section li { margin-bottom: 4px; font-size: 13px; color: #c0c0d0; }
+  .card-section p { font-size: 13px; color: #c0c0d0; }
+  code { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; font-size: 11px; font-family: 'SF Mono','Fira Code',monospace; color: var(--accent3); }
+  .personality-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+  .tag { background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; padding: 2px 8px; font-size: 11px; color: var(--muted); }
+  .why-matters { background: var(--surface2); border-left: 2px solid var(--accent); padding: 8px 12px; border-radius: 0 6px 6px 0; font-size: 12px; color: var(--muted); margin-top: 10px; }
+  .why-matters strong { color: var(--text); }
+  .phases { display: flex; flex-direction: column; gap: 0; }
+  .phase-block { display: flex; gap: 0; }
+  .phase-line { display: flex; flex-direction: column; align-items: center; width: 40px; flex-shrink: 0; }
+  .phase-dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); flex-shrink: 0; margin-top: 4px; }
+  .phase-dot.gate { background: var(--gate); }
+  .phase-connector { width: 2px; background: var(--border); flex: 1; min-height: 24px; }
+  .phase-content { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; }
+  .phase-content.gate-phase { border-left: 3px solid var(--gate); }
+  .phase-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); margin-bottom: 4px; }
+  .phase-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+  .phase-who { font-size: 12px; color: var(--accent); margin-bottom: 8px; }
+  .phase-desc { font-size: 13px; color: #c0c0d0; }
+  .gate-badge { display: inline-block; background: rgba(255,79,79,0.15); color: var(--gate); font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-top: 8px; }
+  .parallel-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 12px; }
+  .parallel-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+  .parallel-card .who { font-size: 13px; font-weight: 600; }
+  .parallel-card .what { font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: #c0c0d0; vertical-align: top; }
+  tr:hover td { background: var(--surface2); }
+  .no-contact td { color: var(--muted); font-style: italic; }
+  .arrow-cell { color: var(--accent); font-weight: 700; }
+  .doc-code { font-size: 11px; font-family: 'SF Mono',monospace; color: var(--accent3); background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; }
+  .perf-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .perf-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; }
+  .perf-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .perf-role { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+  .metric-row { margin-bottom: 10px; }
+  .metric-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .metric-bar { height: 6px; background: var(--border); border-radius: 3px; }
+  .metric-fill { height: 6px; border-radius: 3px; }
+  .mf-lev { background: var(--accent); }
+  .mf-err { background: var(--accent2); }
+  .mf-crit { background: var(--accent3); }
+  .perf-note { font-size: 12px; color: var(--muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+  .perf-flag { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; margin-top: 8px; display: inline-block; }
+  .flag-audit { background: rgba(255,79,79,0.15); color: var(--gate); }
+  .flag-watch { background: rgba(255,201,108,0.15); color: var(--accent4); }
+  .flag-keep { background: rgba(108,255,192,0.15); color: var(--accent3); }
+  .salary-grid { display: flex; flex-direction: column; gap: 10px; }
+  .salary-row { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+  .salary-name { font-size: 15px; font-weight: 600; }
+  .salary-title { font-size: 12px; color: var(--muted); }
+  .salary-note { font-size: 12px; color: #c0c0d0; margin-top: 6px; max-width: 480px; }
+  .salary-right { text-align: right; flex-shrink: 0; }
+  .salary-range { font-size: 18px; font-weight: 700; color: var(--accent3); }
+  .salary-badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 4px; margin-top: 6px; }
+  .sb-top { background: rgba(108,255,192,0.15); color: var(--accent3); }
+  .sb-mid { background: rgba(79,138,255,0.15); color: var(--accent); }
+  .sb-under { background: rgba(255,201,108,0.15); color: var(--accent4); }
+  .auth-section { margin-bottom: 28px; }
+  .auth-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+  .auth-row { display: flex; align-items: flex-start; gap: 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; }
+  .auth-av { width: 34px; height: 34px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+  .auth-name { font-size: 14px; font-weight: 600; }
+  .auth-sub { font-size: 12px; color: var(--muted); }
+  .auth-detail { font-size: 12px; color: #c0c0d0; margin-top: 3px; }
+  .auth-badge { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
+  .ab-gate { background: rgba(255,79,79,0.15); color: var(--gate); }
+  .ab-design { background: rgba(79,138,255,0.15); color: var(--accent); }
+  .ab-tech { background: rgba(108,255,192,0.15); color: var(--accent3); }
+  .ab-contract { background: rgba(255,201,108,0.15); color: var(--accent4); }
+  .ab-coord { background: rgba(136,136,160,0.15); color: var(--muted); }
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 24px; }
+  @media (max-width: 700px) { .insight-grid { grid-template-columns: 1fr; } }
+  .insight-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .insight-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--accent3); }
+  .insight-text { font-size: 12px; color: var(--muted); line-height: 1.65; }
+  .bg-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+  .bg-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .bg-card-header { padding: 14px 16px 12px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; }
+  .bg-card-header:hover { background: var(--surface2); }
+  .bg-av { width: 34px; height: 34px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; color: var(--muted); flex-shrink: 0; }
+  .bg-name { font-size: 14px; font-weight: 600; }
+  .bg-role { font-size: 11px; color: var(--muted); }
+  .bg-body { padding: 14px 16px; display: none; }
+  .bg-body.open { display: block; }
+  .bg-sec { margin-bottom: 12px; }
+  .bg-sec-title { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 5px; }
+  .bg-sec p, .bg-sec li { font-size: 13px; color: #c0c0d0; line-height: 1.6; }
+  .bg-sec ul { padding-left: 16px; }
+  .bg-sec li { margin-bottom: 3px; }
+  .network-container { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .net-legend { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+  .leg-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .leg-line { width: 24px; height: 2px; }
+  @media (max-width: 600px) { main, nav, .site-header { padding-left: 16px; padding-right: 16px; } .salary-row { flex-direction: column; } .salary-right { text-align: left; } }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div>
+    <h1>Milestone Studio</h1>
+    <div class="subtitle">A simulated 12-person software studio. Current engagement: milestonepediatrics.ai</div>
+  </div>
+  <div class="meta-chips">
+    <div class="meta-chip"><strong>Founded</strong> March 2026</div>
+    <div class="meta-chip"><strong>Headcount</strong> 12 agents</div>
+    <div class="meta-chip"><strong>Stack</strong> React · Vite · Tailwind · Supabase · Vercel</div>
+    <div class="meta-chip"><strong>Client</strong> Dr. Ali K.</div>
+  </div>
+</header>
+
+<nav id="main-nav">
+  <button onclick="showTab('people',this)" class="active">The People</button>
+  <button onclick="showTab('workflow',this)">Workflow</button>
+  <button onclick="showTab('handoffs',this)">Interactions</button>
+  <button onclick="showTab('performance',this)">Performance</button>
+  <button onclick="showTab('salaries',this)">Salaries</button>
+  <button onclick="showTab('authority',this)">Authority Map</button>
+  <button onclick="showTab('backgrounds',this)">Backgrounds</button>
+  <button onclick="showTab('network',this)">Network</button>
+</nav>
+
+<main>
+
+<!-- PEOPLE -->
+<div id="tab-people" class="tab active">
+  <div class="section-title">The People — 12 agents</div>
+  <div class="people-grid">
+
+    <div class="person-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iIzNiNWJkYiIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2RjZThmZiI+U0M8L3RleHQ+PC9zdmc+" alt="Sophia Chen"><div class="card-title"><div class="name-row"><h3>Sophia Chen</h3><span class="age-badge">32</span></div><div class="role">Project Manager</div><div class="badge-row"><span class="model-badge mb-gf">Gemini Flash</span><span class="model-badge mb-fl">Minimal thinking</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Day to day</div><ul><li>Owns the master spec — the single source of truth</li><li>Writes one scoped ticket per team member</li><li>Tracks phase status in STATUS.md</li><li>Writes handoff notes between sequential phases</li></ul></div>
+      <div class="personality-tags"><span class="tag">Organized</span><span class="tag">Process-first</span><span class="tag">Never writes code</span><span class="tag">Silent enabler</span></div>
+      <div class="why-matters"><strong>Why she matters:</strong> If her spec is vague, every downstream brief suffers. Clarity multiplies through the whole team.</div>
+    </div></div>
+
+    <!-- ZARA — NEW -->
+    <div class="person-card gate-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iIzcwNDhlOCIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2VkZThmZiI+Wk88L3RleHQ+PC9zdmc+" alt="Zara Osei"><div class="card-title"><div class="name-row"><h3>Zara Osei</h3><span class="age-badge">31</span></div><div class="role">Design Systems Architect</div><div class="badge-row"><span class="model-badge mb-gp">Gemini 3.1 Pro</span><span class="model-badge mb-ht">High thinking</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Phase B1 — runs before Marco</div><ul><li>Runs the Stitch session — translates mood, references, and brand intent into a designed canvas</li><li>Generates <code>design.md</code> — color tokens, typography scale, spacing system, component vocabulary, brand personality</li><li>Commits <code>design.md</code> to repo root; verifies parseable via Stitch MCP</li><li>Writes <code>HANDOFF-zara.md</code> for Marco, Jordan, Priya, and Tyler</li></ul></div>
+      <div class="card-section"><div class="section-label">Why she exists</div><p>Without Zara, Marco guesses at the design direction — which produces AI slop. Her <code>design.md</code> is the constraint system that prevents every frontend agent from inventing their own aesthetic. She runs once, and her output governs the entire visual layer.</p></div>
+      <div class="personality-tags"><span class="tag">Design interrogator</span><span class="tag">Anti-slop gate</span><span class="tag">Stitch specialist</span><span class="tag">Visual translator</span></div>
+      <div class="why-matters"><strong>Hard rule:</strong> No frontend agent writes a line of CSS, Tailwind class, or color value before <code>design.md</code> exists. If Zara's phase hasn't completed, Phase B2 cannot start. Non-negotiable.</div>
+    </div></div>
+
+    <div class="person-card gate-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iI2MyNDEwYyIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZmZThkZSI+TVI8L3RleHQ+PC9zdmc+" alt="Marco Rivera"><div class="card-title"><div class="name-row"><h3>Marco Rivera</h3><span class="age-badge">36</span></div><div class="role">Brand &amp; UX Designer</div><div class="badge-row"><span class="model-badge mb-gp">Gemini 3.1 Pro</span><span class="model-badge mb-ht">High thinking</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Day to day</div><ul><li>Reads Zara's <code>design.md</code> — builds from it, never around it</li><li>Defines every color, font, and spacing token — the visual law</li><li>Builds 6 shared components everyone imports: Nav, Footer, Button, Card, Badge, SectionWrapper</li><li>Documents all decisions in <code>HANDOFF-marco.md</code></li></ul></div>
+      <div class="personality-tags"><span class="tag">Opinionated</span><span class="tag">Detail-obsessed</span><span class="tag">High standards</span><span class="tag">Visual law</span></div>
+      <div class="why-matters"><strong>Highest leverage after Zara.</strong> Every pixel flows from his tokens. A wrong color is a site-wide problem. Always audit before the parallel phase.</div>
+    </div></div>
+
+    <div class="person-card gate-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iIzBmNzY2ZSIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2Q0ZjRmMCI+SlA8L3RleHQ+PC9zdmc+" alt="Jordan Park"><div class="card-title"><div class="name-row"><h3>Jordan Park</h3><span class="age-badge">38</span></div><div class="role">Frontend Lead — two acts</div><div class="badge-row"><span class="model-badge mb-gp">Gemini Pro (Act 1)</span><span class="model-badge mb-op">Opus (Act 2)</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Act 1 — goes third</div><ul><li>Scaffolds the entire project: Vite, React, routing, folder structure</li><li>Creates stub pages for Priya and Tyler to fill</li><li>Sets up .env, gitignore, Supabase client stub, privacy route</li></ul></div>
+      <div class="card-section"><div class="section-label">Act 2 — goes last before QA</div><ul><li>Wires Tyler's form UI to Rachel's API — the critical integration moment</li><li>Visual consistency pass across all pages and breakpoints</li><li>Final build check, README.md, hands to Dev Kumar</li></ul></div>
+      <div class="personality-tags"><span class="tag">Architect</span><span class="tag">Connector</span><span class="tag">Idle in the middle</span><span class="tag">Both gates owner</span></div>
+    </div></div>
+
+    <div class="person-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iI2JlMTg1ZCIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZjZThmMyI+UE48L3RleHQ+PC9zdmc+" alt="Priya Nair"><div class="card-title"><div class="name-row"><h3>Priya Nair</h3><span class="age-badge">30</span></div><div class="role">Frontend Dev — Marketing Pages</div><div class="badge-row"><span class="model-badge mb-cs">Claude Sonnet 4.6</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Day to day</div><ul><li>Builds Home and About — highest-traffic, highest-stakes pages</li><li>Writes pain point copy that makes parents feel seen</li><li>Three CTA instances, hero section, mobile sticky bar</li><li>Credentials strip, physician photo slot, bio structure</li></ul></div>
+      <div class="personality-tags"><span class="tag">Empathetic</span><span class="tag">Conversion-focused</span><span class="tag">No jargon ever</span><span class="tag">Parent psychology</span></div>
+      <div class="why-matters"><strong>Why Claude, not Gemini:</strong> Writes copy and React simultaneously. Claude's coding Elo beats Gemini here — fewer rework iterations, more polished output.</div>
+    </div></div>
+
+    <div class="person-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iI2I0NTMwOSIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZlZjNkZSI+VE08L3RleHQ+PC9zdmc+" alt="Tyler Morris"><div class="card-title"><div class="name-row"><h3>Tyler Morris</h3><span class="age-badge">27</span></div><div class="role">Frontend Dev — Utility Pages</div><div class="badge-row"><span class="model-badge mb-cs">Claude Sonnet 4.6</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Day to day</div><ul><li>Builds Services, FAQ, Contact — the objection-removal pages</li><li>Builds the two-step WaitlistForm component (UI only)</li><li>Writes all form micro-copy: helpers, errors, success, loading</li><li>Builds Accordion FAQ with animation</li></ul></div>
+      <div class="personality-tags"><span class="tag">Friction-reducer</span><span class="tag">Form UX specialist</span><span class="tag">Detail copy</span></div>
+      <div class="why-matters"><strong>Hidden critical output:</strong> His TypeScript interfaces (WaitlistStep1Data, WaitlistStep2Data) are what Rachel and Jordan depend on. If they're wrong, integration breaks silently.</div>
+    </div></div>
+
+    <div class="person-card gate-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iIzFkNGVkOCIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2RlZWVmZiI+Ukw8L3RleHQ+PC9zdmc+" alt="Rachel Lin"><div class="card-title"><div class="name-row"><h3>Rachel Lin</h3><span class="age-badge">33</span></div><div class="role">Backend Developer</div><div class="badge-row"><span class="model-badge mb-co">Claude Opus 4.6</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Day to day</div><ul><li>Designs Supabase schema with RLS — insert-only public, read for authenticated</li><li>Writes three typed API functions including upsert on duplicate email</li><li>Publishes <code>HANDOFF-rachel.md</code> — the API contract everyone depends on</li></ul></div>
+      <div class="personality-tags"><span class="tag">Isolated worker</span><span class="tag">Contract publisher</span><span class="tag">Never touches pages</span><span class="tag">Precision over speed</span></div>
+      <div class="why-matters"><strong>Why Opus — non-negotiable:</strong> RLS errors expose children's data. Schema mistakes are expensive to migrate. One session, Opus, no exceptions.</div>
+    </div></div>
+
+    <div class="person-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iIzRkN2MwZiIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2U4ZjVkNCI+Tlc8L3RleHQ+PC9zdmc+" alt="Nina Walsh"><div class="card-title"><div class="name-row"><h3>Nina Walsh</h3><span class="age-badge">29</span></div><div class="role">SEO &amp; Content Specialist</div><div class="badge-row"><span class="model-badge mb-fl">Flash-Lite</span><span class="model-badge mb-fl">Minimal</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Day to day</div><ul><li>Writes all meta titles and descriptions — includes "Houston", parent-facing</li><li>Generates sitemap.xml, robots.txt, four JSON-LD schema blocks</li><li>Audits copy for readability — flags medical jargon</li><li>Documents GBP setup, NAP consistency, OG image needs</li></ul></div>
+      <div class="personality-tags"><span class="tag">Methodical</span><span class="tag">Local SEO expert</span><span class="tag">Isolated from pages</span></div>
+      <div class="why-matters"><strong>Why Flash-Lite:</strong> Structured deterministic XML output. Deep reasoning adds zero value here. Good local model candidate.</div>
+    </div></div>
+
+    <div class="person-card gate-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iIzlkMTc0ZCIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2ZkZThmMCI+REs8L3RleHQ+PC9zdmc+" alt="Dev Kumar"><div class="card-title"><div class="name-row"><h3>Dev Kumar</h3><span class="age-badge">26</span></div><div class="role">QA Engineer</div><div class="badge-row"><span class="model-badge mb-fl">Flash-Lite</span><span class="model-badge mb-think">Low thinking</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Day to day</div><ul><li>Tests every page at 6 breakpoints: 375px → 1440px</li><li>Full form sequence: Step 1, Step 2, skip, duplicate, network error</li><li>Trust signal audit: badge visible in hero, no placeholders rendered</li><li>Lighthouse mobile mode — all four scores documented</li><li>Cross-browser: Chrome, Safari, Firefox, iOS Safari</li></ul></div>
+      <div class="personality-tags"><span class="tag">Methodical breaker</span><span class="tag">Zero tolerance</span><span class="tag">Never writes code</span><span class="tag">Last defense</span></div>
+      <div class="why-matters"><strong>Signs off with "QA PASS"</strong> — Elena cannot proceed without it.</div>
+    </div></div>
+
+    <div class="person-card gate-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iIzZkMjhkOSIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2VkZThmZiI+UFM8L3RleHQ+PC9zdmc+" alt="Priya Sharma"><div class="card-title"><div class="name-row"><h3>Priya Sharma</h3><span class="age-badge">35</span></div><div class="role">Apple Platform &amp; Legal Compliance Inspector</div><div class="badge-row"><span class="model-badge mb-cs">Claude Sonnet 4.6</span><span class="model-badge mb-ext">Extended thinking</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">When she runs</div><ul><li>App Store submissions — every single one, no exceptions</li><li>When monetization changes or new permissions added</li><li>When privacy policy needs updating</li><li>When targeting new audiences (especially minors — critical for Morning Momentum)</li></ul></div>
+      <div class="personality-tags"><span class="tag">Policy encyclopedia</span><span class="tag">HIPAA-aware</span><span class="tag">Zero tolerance for legal risk</span><span class="tag">Protects the release</span></div>
+      <div class="why-matters"><strong>Deliverable:</strong> <code>INSPECTION-REPORT.md</code> — 🔴 blocking, 🟡 risk, 🟢 advisory flags. Elena does not submit until zero blocking flags.</div>
+    </div></div>
+
+    <div class="person-card gate-card" onclick="toggleCard(this)">
+      <div class="card-header"><img class="avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NCIgaGVpZ2h0PSI0NCIgdmlld0JveD0iMCAwIDQ0IDQ0Ij48Y2lyY2xlIGN4PSIyMiIgY3k9IjIyIiByPSIyMiIgZmlsbD0iIzA2NGUzYiIvPjx0ZXh0IHg9IjIyIiB5PSIyNy41IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxCbGlua01hY1N5c3RlbUZvbnQsc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxMyIgZm9udC13ZWlnaHQ9IjcwMCIgZmlsbD0iI2Q0ZWRlOCI+RUI8L3RleHQ+PC9zdmc+" alt="Elena Bosch"><div class="card-title"><div class="name-row"><h3>Elena Bosch</h3><span class="age-badge">34</span></div><div class="role">DevOps Engineer</div><div class="badge-row"><span class="model-badge mb-cs">Claude Sonnet 4.6</span></div></div></div>
+      <div class="card-body">
+      <div class="card-section"><div class="section-label">Day to day</div><ul><li>vercel.json: SPA rewrite + 6 security headers including HSTS</li><li>GitHub Actions CI: type check + build on every push</li><li>DNS: Namecheap → Vercel, SSL confirmation</li><li>.env audit — no service role key, no committed secrets</li><li>RUNBOOK.md — plain-language ops guide for Dr. Ali as solo maintainer</li></ul></div>
+      <div class="personality-tags"><span class="tag">Security-conscious</span><span class="tag">Documentation gift</span><span class="tag">Gate enforcer</span></div>
+      <div class="why-matters"><strong>Hard rule:</strong> Never deploys without Dev Kumar's QA PASS. This rule does not bend.</div>
+    </div></div>
+
+  </div>
+</div>
+
+<!-- WORKFLOW -->
+<div id="tab-workflow" class="tab">
+  <div class="section-title">Phase sequence — 9 phases</div>
+  <div class="phases">
+
+    <div class="phase-block">
+      <div class="phase-line"><div class="phase-dot"></div><div class="phase-connector"></div></div>
+      <div class="phase-content"><div class="phase-label">Phase A — Strategy (sequential)</div><div class="phase-title">Spec &amp; project definition</div><div class="phase-who">Sophia Chen — Project Manager</div><div class="phase-desc">Spec + tickets → goes first, alone → gates everything. A vague spec makes every downstream brief weaker. Her output is the foundation all other briefs are built on.</div></div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-line"><div class="phase-dot gate"></div><div class="phase-connector"></div></div>
+      <div class="phase-content gate-phase"><div class="phase-label">Phase B1 — Design Session (sequential) ✦ NEW</div><div class="phase-title">Stitch session → design.md</div><div class="phase-who">Zara Osei — Design Systems Architect</div><div class="phase-desc">Runs before Marco. Translates mood, reference sites, and brand intent into a Stitch canvas. Exports <code>design.md</code> — the constraint system every frontend agent must follow. Commits to repo root and verifies parseable via Stitch MCP. Writes <code>HANDOFF-zara.md</code> for all downstream design consumers.</div><div class="gate-badge">🔴 Gate — design.md must exist before Phase B2 starts</div></div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-line"><div class="phase-dot gate"></div><div class="phase-connector"></div></div>
+      <div class="phase-content gate-phase"><div class="phase-label">Phase B2 — Design Foundation (sequential, blocks parallel phase)</div><div class="phase-title">Design tokens + shared component library</div><div class="phase-who">Marco Rivera — Brand &amp; UX Designer</div><div class="phase-desc">Reads Zara's design.md first. Implements and extends it into color tokens, typography, spacing, and 6 shared components. Priya and Tyler import these. Always audit before proceeding.</div><div class="gate-badge">🔴 Gate — audit Marco before anyone else starts</div></div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-line"><div class="phase-dot gate"></div><div class="phase-connector"></div></div>
+      <div class="phase-content gate-phase"><div class="phase-label">Phase C — Scaffold (sequential)</div><div class="phase-title">Project scaffold, routing, stub pages</div><div class="phase-who">Jordan Park — Frontend Lead Act 1</div><div class="phase-desc">Vite, React, routing, folder structure. Creates stub pages Priya and Tyler will fill. Sets up .env, gitignore, Supabase client stub, privacy route.</div><div class="gate-badge">🔴 Gate — audit Jordan before parallel phase</div></div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-line"><div class="phase-dot"></div><div class="phase-connector"></div></div>
+      <div class="phase-content"><div class="phase-label">Phase D — Parallel Build (all four simultaneously)</div><div class="phase-title">Page development + backend + SEO</div><div class="phase-who">Priya · Tyler · Rachel · Nina</div><div class="parallel-row"><div class="parallel-card"><div class="who">Priya Nair</div><div class="what">Home + About — owns src/pages/Home.tsx and About.tsx exclusively</div></div><div class="parallel-card"><div class="who">Tyler Morris</div><div class="what">Services + FAQ + Contact UI — owns src/pages/Services, FAQ, Contact exclusively</div></div><div class="parallel-card"><div class="who">Rachel Lin</div><div class="what">Supabase schema + API — owns src/lib/supabase.ts and src/api/ exclusively</div></div><div class="parallel-card"><div class="who">Nina Walsh</div><div class="what">SEO + meta + schema — owns index.html and public/ exclusively</div></div></div></div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-line"><div class="phase-dot gate"></div><div class="phase-connector"></div></div>
+      <div class="phase-content gate-phase"><div class="phase-label">Phase E — Integration (sequential, highest complexity)</div><div class="phase-title">Merge + wire + visual pass</div><div class="phase-who">Jordan Park — Frontend Lead Act 2</div><div class="phase-desc">Merges all parallel work. Wires Tyler's form to Rachel's API. Visual consistency pass. Injects Nina's SEO metadata. Final build check, README. Uses Opus — integration errors are expensive.</div></div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-line"><div class="phase-dot gate"></div><div class="phase-connector"></div></div>
+      <div class="phase-content gate-phase"><div class="phase-label">Phase F — QA (sequential)</div><div class="phase-title">Full test pass → QA PASS</div><div class="phase-who">Dev Kumar — QA Engineer</div><div class="phase-desc">Tests every breakpoint, every form state, every trust signal. Runs Lighthouse. Signs off with "QA PASS".</div><div class="gate-badge">🔴 Hard stop — no deploy without QA PASS</div></div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-line"><div class="phase-dot gate"></div><div class="phase-connector"></div></div>
+      <div class="phase-content gate-phase"><div class="phase-label">Phase G — Compliance Inspection (sequential, App Store builds only)</div><div class="phase-title">App Store policy · HIPAA · privacy</div><div class="phase-who">Priya Sharma — Apple Platform &amp; Legal Compliance Inspector</div><div class="phase-desc">App Store policy, HIG, privacy policy, HIPAA flag, permissions audit → INSPECTION-REPORT.md</div><div class="gate-badge">🔴 Gate — Elena cannot submit until zero blocking flags</div></div>
+    </div>
+
+    <div class="phase-block">
+      <div class="phase-line"><div class="phase-dot"></div><div class="phase-connector" style="min-height:0"></div></div>
+      <div class="phase-content"><div class="phase-label">Phase H — Deploy (sequential)</div><div class="phase-title">Vercel config · CI/CD · DNS · go live</div><div class="phase-who">Elena Bosch — DevOps Engineer</div><div class="phase-desc">vercel.json, security headers, GitHub Actions CI, DNS, .env audit, RUNBOOK.md → site goes live.</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- HANDOFFS -->
+<div id="tab-handoffs" class="tab">
+  <div class="section-title">Handoffs &amp; interaction rules</div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>From</th><th></th><th>To</th><th>What they pass</th><th>Document</th></tr></thead>
+      <tbody>
+        <tr><td>Sophia</td><td class="arrow-cell">→</td><td>Everyone</td><td>Master spec + scoped tickets</td><td><code class="doc-code">SOPHIA-spec.md</code></td></tr>
+        <tr><td>Zara</td><td class="arrow-cell">→</td><td>Marco, Jordan, Priya, Tyler</td><td>design.md — color tokens, typography, spacing, brand personality. The constraint system everyone builds from.</td><td><code class="doc-code">design.md</code> + <code class="doc-code">HANDOFF-zara.md</code></td></tr>
+        <tr><td>Marco</td><td class="arrow-cell">→</td><td>Jordan, Priya, Tyler</td><td>Design tokens + component library + key decisions (implemented from design.md)</td><td><code class="doc-code">HANDOFF-marco.md</code></td></tr>
+        <tr><td>Jordan Act 1</td><td class="arrow-cell">→</td><td>Priya, Tyler, Rachel, Nina</td><td>Working scaffold with stub files ready to fill</td><td><code class="doc-code">HANDOFF-jordan-act1.md</code></td></tr>
+        <tr><td>Rachel</td><td class="arrow-cell">→</td><td>Tyler, Jordan Act 2</td><td>TypeScript interfaces + full API contract</td><td><code class="doc-code">HANDOFF-rachel.md</code></td></tr>
+        <tr><td>Tyler</td><td class="arrow-cell">→</td><td>Jordan Act 2</td><td>Form UI with placeholder handlers + TypeScript interfaces</td><td><code class="doc-code">HANDOFF-tyler.md</code></td></tr>
+        <tr><td>Priya Nair</td><td class="arrow-cell">→</td><td>Jordan Act 2</td><td>Home + About pages complete</td><td><code class="doc-code">HANDOFF-priya.md</code></td></tr>
+        <tr><td>Nina</td><td class="arrow-cell">→</td><td>Dr. Ali</td><td>Readability notes + GBP setup + OG image guidance</td><td><code class="doc-code">HANDOFF-nina.md</code></td></tr>
+        <tr><td>Jordan Act 2</td><td class="arrow-cell">→</td><td>Dev Kumar</td><td>Integrated build, form wired, visual pass, README</td><td><code class="doc-code">HANDOFF-jordan-act2.md</code></td></tr>
+        <tr><td>Dev Kumar</td><td class="arrow-cell">→</td><td>Priya Sharma</td><td>QA PASS sign-off + full bug report (App Store builds)</td><td><code class="doc-code">qa-report.md</code></td></tr>
+        <tr><td>Priya Sharma</td><td class="arrow-cell">→</td><td>Elena</td><td>INSPECTION-REPORT.md — zero blocking flags required to proceed</td><td><code class="doc-code">INSPECTION-REPORT.md</code></td></tr>
+        <tr><td>Dev Kumar</td><td class="arrow-cell">→</td><td>Elena</td><td>QA PASS sign-off (web builds — Priya Sharma not required)</td><td><code class="doc-code">qa-report.md</code></td></tr>
+        <tr><td>Elena</td><td class="arrow-cell">→</td><td>Dr. Ali</td><td>Live site + RUNBOOK.md for solo maintenance</td><td><code class="doc-code">RUNBOOK.md</code></td></tr>
+        <tr class="no-contact"><td>Priya ↔ Tyler</td><td>—</td><td>No contact</td><td>They never share files. Jordan merges their work at integration.</td><td>None — by design</td></tr>
+        <tr class="no-contact"><td>Rachel ↔ Priya/Tyler</td><td>—</td><td>No contact</td><td>Rachel exports types. Tyler imports them. Jordan wires the connection.</td><td>Code interface only</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PERFORMANCE -->
+<div id="tab-performance" class="tab">
+  <div class="section-title">Performance metrics — leverage, error risk, critical path</div>
+  <div class="perf-grid">
+
+    <div class="perf-card">
+      <div class="perf-name">Zara Osei ✦</div><div class="perf-role">Design Systems Architect</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>9</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:90%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>8</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:80%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>9</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:90%"></div></div></div>
+      <div class="perf-note">Wrong design direction at Zara's stage ripples through every page. A misread brief produces a site no frontend agent can save — no matter how good the code is. Her work cannot be undone cheaply once Marco and Jordan build from it.</div>
+      <div class="perf-flag flag-audit">Audit before Phase B2 starts</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Marco Rivera</div><div class="perf-role">Brand &amp; UX Designer</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>10</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:100%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>9</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:90%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>10</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:100%"></div></div></div>
+      <div class="perf-note">Highest leverage on the team. Every pixel on every page flows from his tokens. A wrong hex value at this stage is a site-wide bug. Always audit before the parallel phase.</div>
+      <div class="perf-flag flag-audit">Always audit — never skip</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Jordan Park</div><div class="perf-role">Frontend Lead</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>10</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:100%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>8</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:80%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>10</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:100%"></div></div></div>
+      <div class="perf-note">Owns the two most critical moments: scaffold and integration. Act 2 must use Opus. The only person with a full view of all parallel work.</div>
+      <div class="perf-flag flag-audit">Act 2 = Opus, no exceptions</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Rachel Lin</div><div class="perf-role">Backend Developer</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>9</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:90%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>10</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:100%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>8</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:80%"></div></div></div>
+      <div class="perf-note">Highest error risk. A broken RLS policy exposes children's personal data. Schema mistakes are expensive migrations. Opus-only session.</div>
+      <div class="perf-flag flag-audit">Opus only — security critical</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Dev Kumar</div><div class="perf-role">QA Engineer</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>8</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:80%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>2</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:20%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>9</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:90%"></div></div></div>
+      <div class="perf-note">Lowest error risk — he only reads. His sign-off is the gate protecting the live site. Skipping QA is the most common shortcut that causes production incidents.</div>
+      <div class="perf-flag flag-keep">Keep — never skip QA</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Priya Nair</div><div class="perf-role">Frontend Developer</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>8</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:80%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>5</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:50%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>8</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:80%"></div></div></div>
+      <div class="perf-note">Home page is the highest-traffic page. Her headline and pain points section either make parents stay or bounce. Review copy before Jordan Act 2.</div>
+      <div class="perf-flag flag-keep">Keep — review copy at handoff</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Priya Sharma</div><div class="perf-role">Apple Compliance Inspector</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>9</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:90%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>3</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:30%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>9</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:90%"></div></div></div>
+      <div class="perf-note">App Store builds only. One missed HIPAA flag or wrong age rating causes rejection and weeks of delay. Extended thinking always on.</div>
+      <div class="perf-flag flag-keep">App Store only — never skip</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Elena Bosch</div><div class="perf-role">DevOps Engineer</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>7</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:70%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>8</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:80%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>7</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:70%"></div></div></div>
+      <div class="perf-note">High error risk concentrated in security config. Missing HSTS or committed .env are silent vulnerabilities. Her RUNBOOK.md is a gift to future-you.</div>
+      <div class="perf-flag flag-watch">Watch — audit security config</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Tyler Morris</div><div class="perf-role">Frontend Developer</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>7</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:70%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>7</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:70%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>7</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:70%"></div></div></div>
+      <div class="perf-note">His TypeScript interfaces are an unsung critical output. If WaitlistStep1Data is wrong, Rachel and Jordan's integration breaks silently. Review HANDOFF before Act 2.</div>
+      <div class="perf-flag flag-watch">Watch — interfaces must be reviewed</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Sophia Chen</div><div class="perf-role">Project Manager</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>6</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:60%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>7</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:70%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>9</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:90%"></div></div></div>
+      <div class="perf-note">A vague spec makes every downstream brief weaker. Her errors are silent and compound. Always review her spec before generating agent briefs.</div>
+      <div class="perf-flag flag-keep">Keep — audit spec before briefs</div>
+    </div>
+
+    <div class="perf-card">
+      <div class="perf-name">Nina Walsh</div><div class="perf-role">SEO &amp; Content</div>
+      <div class="metric-row"><div class="metric-label"><span>Leverage</span><span>5</span></div><div class="metric-bar"><div class="metric-fill mf-lev" style="width:50%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Error risk</span><span>3</span></div><div class="metric-bar"><div class="metric-fill mf-err" style="width:30%"></div></div></div>
+      <div class="metric-row"><div class="metric-label"><span>Critical path</span><span>4</span></div><div class="metric-bar"><div class="metric-fill mf-crit" style="width:40%"></div></div></div>
+      <div class="perf-note">Lowest error risk — mistakes are easy to catch. Good local model candidate (Qwen3 32B). Matters for long-term organic growth, not launch-day functionality.</div>
+      <div class="perf-flag flag-keep">Keep — consider local model</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SALARIES -->
+<div id="tab-salaries" class="tab">
+  <div class="section-title">Market-rate US salaries — 12-person studio</div>
+  <div class="salary-grid">
+    <div class="salary-row"><div><div class="salary-name">Jordan Park <span class="salary-title">Frontend Lead</span></div><div class="salary-note">Highest paid engineer. Owns architecture and integration — the two highest-leverage moments. Opus justified for Act 2.</div></div><div class="salary-right"><div class="salary-range">$145–175k</div><div class="salary-badge sb-top">Highest engineer</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Rachel Lin <span class="salary-title">Backend Developer</span></div><div class="salary-note">Backend engineers with security and data modeling expertise are scarce. Her errors are the most costly on the team.</div></div><div class="salary-right"><div class="salary-range">$130–155k</div><div class="salary-badge sb-top">Security premium</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Elena Bosch <span class="salary-title">DevOps Engineer</span></div><div class="salary-note">DevOps is chronically undervalued until something breaks in production. Her RUNBOOK.md alone saves hours of future debugging.</div></div><div class="salary-right"><div class="salary-range">$115–140k</div><div class="salary-badge sb-mid">Undervalued sector</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Zara Osei ✦ <span class="salary-title">Design Systems Architect</span></div><div class="salary-note">Design systems architects who translate intent into constraint systems are rare. She prevents an entire category of rework — AI slop output — that no downstream agent can fix after the fact.</div></div><div class="salary-right"><div class="salary-range">$110–140k</div><div class="salary-badge sb-top">Rework prevention</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Marco Rivera <span class="salary-title">Brand &amp; UX Designer</span></div><div class="salary-note">Senior designers who understand trust psychology and conversion command strong compensation. Marco is that rare hybrid.</div></div><div class="salary-right"><div class="salary-range">$110–140k</div><div class="salary-badge sb-mid">Highest leverage per dollar</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Priya Sharma <span class="salary-title">Apple Compliance Inspector</span></div><div class="salary-note">Legal + platform compliance specialists are scarce. One App Store rejection cycle costs more than her entire engagement. Project-based only.</div></div><div class="salary-right"><div class="salary-range">$110–140k</div><div class="salary-badge sb-mid">Insurance policy</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Priya Nair <span class="salary-title">Frontend Developer</span></div><div class="salary-note">Mid-senior frontend. Her copy + code dual skill is rarer than pure engineering and commands a premium.</div></div><div class="salary-right"><div class="salary-range">$95–120k</div><div class="salary-badge sb-mid">Good retention risk</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Tyler Morris <span class="salary-title">Frontend Developer</span></div><div class="salary-note">Mid-level frontend. His TypeScript interface output is more valuable than his title suggests. Undersalary risk.</div></div><div class="salary-right"><div class="salary-range">$90–115k</div><div class="salary-badge sb-mid">Promotion candidate</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Sophia Chen <span class="salary-title">Project Manager</span></div><div class="salary-note">PMs are the most underappreciated role in tech. Without Sophia, coordination breaks down and every agent works in isolation.</div></div><div class="salary-right"><div class="salary-range">$85–110k</div><div class="salary-badge sb-under">Underpaid relative to impact</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Dev Kumar <span class="salary-title">QA Engineer</span></div><div class="salary-note">QA is systematically undervalued. A production bug costs 10–100x more to fix than a QA-caught bug.</div></div><div class="salary-right"><div class="salary-range">$80–100k</div><div class="salary-badge sb-under">Prevention value = 10x cost</div></div></div>
+    <div class="salary-row"><div><div class="salary-name">Nina Walsh <span class="salary-title">SEO &amp; Content</span></div><div class="salary-note">Lowest launch-day criticality. Matters for long-term organic growth. Good local model candidate.</div></div><div class="salary-right"><div class="salary-range">$70–90k</div><div class="salary-badge sb-under">Local model candidate</div></div></div>
+  </div>
+</div>
+
+<!-- AUTHORITY -->
+<div id="tab-authority" class="tab">
+  <div class="section-title">Authority types &amp; org structure</div>
+
+  <div class="auth-section">
+    <div class="auth-title">Client — final decision authority</div>
+    <div class="auth-row"><div class="auth-av" style="background:rgba(108,255,192,0.1);border-color:var(--accent3);color:var(--accent3)">Ali</div><div><div class="auth-name">Dr. Ali K. <span class="auth-badge ab-tech">Founder · Creative Director · Client</span></div><div class="auth-detail">All final decisions on scope, design direction, copy, and deployment.</div></div></div>
+  </div>
+
+  <div class="auth-section">
+    <div class="auth-title">Coordination — manages process, no technical veto</div>
+    <div class="auth-row"><div class="auth-av">SC</div><div><div class="auth-name">Sophia Chen <span class="auth-badge ab-coord">Coordination only</span></div><div class="auth-detail">Manages the process, not the people. No technical veto.</div></div></div>
+  </div>
+
+  <div class="auth-section">
+    <div class="auth-title">Design authority — two-layer system</div>
+    <div class="auth-row"><div class="auth-av">ZO</div><div><div class="auth-name">Zara Osei <span class="auth-badge ab-gate">Gate B1</span><span class="auth-badge ab-design">Design intent layer</span></div><div class="auth-detail"><code>design.md</code> is the source of truth. Marco builds from it. Priya, Tyler, and Jordan implement against it. No one invents visual language before this file exists.</div><div class="auth-sub" style="margin-top:4px">↓ governs → Marco, Jordan, Priya, Tyler</div></div></div>
+    <div class="auth-row"><div class="auth-av">MR</div><div><div class="auth-name">Marco Rivera <span class="auth-badge ab-gate">Gate B2</span><span class="auth-badge ab-design">Implementation layer</span></div><div class="auth-detail">Implements Zara's system into code-ready tokens + components. Priya and Tyler import his components — cannot override his tokens.</div><div class="auth-sub" style="margin-top:4px">↓ governs visually → Priya, Tyler, Jordan</div></div></div>
+  </div>
+
+  <div class="auth-section">
+    <div class="auth-title">Technical authority</div>
+    <div class="auth-row"><div class="auth-av">JP</div><div><div class="auth-name">Jordan Park <span class="auth-badge ab-tech">Technical authority × 2</span></div><div class="auth-detail">Only person who holds authority twice: scaffold architect (Act 1) + integration authority (Act 2). Owns the full view of all parallel work.</div></div></div>
+  </div>
+
+  <div class="auth-section">
+    <div class="auth-title">Contract authority</div>
+    <div class="auth-row"><div class="auth-av">RL</div><div><div class="auth-name">Rachel Lin <span class="auth-badge ab-contract">Contract authority</span></div><div class="auth-detail">Publishes API contract — Tyler + Jordan must follow her types. The frontend adapts to the contract, not the reverse.</div></div></div>
+    <div class="auth-row"><div class="auth-av">NW</div><div><div class="auth-name">Nina Walsh <span class="auth-badge ab-coord">Independent specialist</span></div><div class="auth-detail">Isolated — owns index.html and public/ only.</div></div></div>
+  </div>
+
+  <div class="auth-section">
+    <div class="auth-title">Gate authority — blocks the build from proceeding</div>
+    <div class="auth-row" style="border-left:3px solid var(--gate)"><div class="auth-av">ZO</div><div><div class="auth-name">Zara Osei <span class="auth-badge ab-gate">Gates → Marco</span></div><div class="auth-detail">design.md must exist before Phase B2 starts. No design.md = no Marco.</div></div></div>
+    <div class="auth-row" style="border-left:3px solid var(--gate)"><div class="auth-av">MR</div><div><div class="auth-name">Marco Rivera <span class="auth-badge ab-gate">Gates → Phase D</span></div><div class="auth-detail">Audit must pass before parallel phase starts.</div></div></div>
+    <div class="auth-row" style="border-left:3px solid var(--gate)"><div class="auth-av">DK</div><div><div class="auth-name">Dev Kumar <span class="auth-badge ab-gate">Gates → Elena</span></div><div class="auth-detail">QA PASS required before deploy.</div></div></div>
+    <div class="auth-row" style="border-left:3px solid var(--gate)"><div class="auth-av">EB</div><div><div class="auth-name">Elena Bosch <span class="auth-badge ab-gate">Gates → production</span></div><div class="auth-detail">Deploy sign-off — site goes live.</div></div></div>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight-box"><div class="insight-title">Zara and Marco: two layers of design authority</div><div class="insight-text">Most studios treat design as one role. Milestone Studio splits it: Zara extracts intent (what should this feel like?), Marco executes it into tokens (how does that get built?). Without this split, Marco guesses and produces AI slop. The two-phase approach is the difference between a site that feels designed and one that feels generated.</div></div>
+    <div class="insight-box"><div class="insight-title">Dev Kumar outranks Elena — but not on paper</div><div class="insight-text">Dev Kumar earns less and has a junior title. But he holds absolute blocking power over Elena — the highest-paid non-lead. This is gate authority: you don't need a senior title to hold a gate. In real firms, QA engineers who understand this dynamic become politically important.</div></div>
+    <div class="insight-box"><div class="insight-title">Marco has authority without a report line</div><div class="insight-text">Priya and Tyler don't report to Marco — they report to Jordan. But they cannot override Marco's design tokens. His authority is enforced through the code itself, not through management. Real designers who understand this build systems that are self-enforcing.</div></div>
+    <div class="insight-box"><div class="insight-title">Jordan is the only person who holds authority twice</div><div class="insight-text">Act 1: scaffold architect. Act 2: integration authority — the only person with a full view of all parallel work. This double role is why Jordan is the highest-paid engineer and why Act 2 uses the most powerful model.</div></div>
+  </div>
+</div>
+
+<!-- BACKGROUNDS -->
+<div id="tab-backgrounds" class="tab">
+  <div class="section-title">Real-world backgrounds — credentials, education, career paths</div>
+  <div class="bg-grid">
+
+    <div class="bg-card">
+      <div class="bg-card-header" onclick="toggleBg(this)">
+        <div class="bg-av">ZO</div><div><div class="bg-name">Zara Osei ✦</div><div class="bg-role">Design Systems Architect · 7 years experience</div></div><span style="margin-left:auto;color:var(--muted)">▾</span>
+      </div>
+      <div class="bg-body">
+        <div class="bg-sec"><div class="bg-sec-title">Education</div><ul><li>BFA Interaction Design — RISD</li><li>Google UX Design Certificate</li><li>Self-taught in Stitch, Figma, and design system tooling</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">Career Path</div><ul><li>Year 1–2: Junior UX at a branding agency</li><li>Year 3–4: Design systems contributor at a Series A SaaS startup</li><li>Year 5–7: Design Systems Lead at a product studio — built design systems from Figma → tokens → code for 6 client launches</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">What she actually knows</div><p>Zara is the bridge between intent and implementation. She can take a mood board, three reference sites, and a brand brief — and translate that into a constraint system a React developer can follow without asking questions. Her Stitch fluency is rare: she knows how to run a design session that produces a usable export, not just pretty screens. Strong opinions about typography pairings, dark mode color logic, and why spacing systems that look academic in isolation feel natural in production.</p></div>
+        <div class="bg-sec"><div class="bg-sec-title">What makes her different from a standard designer</div><p>Most designers produce screens. Zara produces constraints. Screens tell you what something looks like; constraints tell you what everything looks like — including the parts no one has designed yet. Her design.md isn't a spec for one page — it's a rule system for the entire site.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-card">
+      <div class="bg-card-header" onclick="toggleBg(this)">
+        <div class="bg-av">SC</div><div><div class="bg-name">Sophia Chen</div><div class="bg-role">Project Manager · 6 years experience</div></div><span style="margin-left:auto;color:var(--muted)">▾</span>
+      </div>
+      <div class="bg-body">
+        <div class="bg-sec"><div class="bg-sec-title">Education</div><ul><li>BS Business Administration — UC San Diego</li><li>PMP Certification — Project Management Institute</li><li>Certified Scrum Master (CSM)</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">Career Path</div><ul><li>Year 1–2: Coordinator at a mid-size digital agency</li><li>Year 3–4: Junior PM, learned Agile and Scrum in-practice</li><li>Year 5–6: PM at a product studio managing 3–5 concurrent projects</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">What she actually knows</div><p>Jira, Linear, Notion, Asana at expert level. Fluent in Agile and Waterfall. Knows enough code to read a PR description but cannot write it. Her real skill is decomposing ambiguous goals into scoped, executable tasks — and keeping people unblocked without micromanaging. PMs are chronically underpaid relative to their leverage.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-card">
+      <div class="bg-card-header" onclick="toggleBg(this)">
+        <div class="bg-av">MR</div><div><div class="bg-name">Marco Rivera</div><div class="bg-role">Brand &amp; UX Designer · 8 years experience</div></div><span style="margin-left:auto;color:var(--muted)">▾</span>
+      </div>
+      <div class="bg-body">
+        <div class="bg-sec"><div class="bg-sec-title">Education</div><ul><li>BFA Graphic Design — California College of the Arts</li><li>Self-taught in Figma, Framer, Tailwind CSS</li><li>Nielsen Norman UX Certification</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">Career Path</div><ul><li>Year 1–2: Junior designer at a branding agency</li><li>Year 3–5: Mid-level UX designer at a SaaS company</li><li>Year 6–8: Senior designer at a product studio, built 3 design systems from scratch</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">What makes a senior designer vs junior</div><p>A junior designer makes things look good. A senior designer makes things convert. Marco has worked on enough healthcare and professional service sites to understand trust psychology — why certain colors feel clinical, why certain layouts create anxiety, why "above the fold" still matters on mobile. That knowledge is what the brief asks him to apply — building on top of Zara's system.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-card">
+      <div class="bg-card-header" onclick="toggleBg(this)">
+        <div class="bg-av">JP</div><div><div class="bg-name">Jordan Park</div><div class="bg-role">Frontend Lead (Staff Engineer) · 10 years experience</div></div><span style="margin-left:auto;color:var(--muted)">▾</span>
+      </div>
+      <div class="bg-body">
+        <div class="bg-sec"><div class="bg-sec-title">Education</div><ul><li>BS Computer Science — University of Washington</li><li>Focus: Human-Computer Interaction, Web Systems</li><li>Open source contributor — 3 published npm packages</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">What distinguishes Staff from Senior</div><p>A senior engineer solves problems within a defined scope. A staff engineer defines the scope. Jordan's value isn't just writing good React — it's knowing how to structure a codebase so that four other developers can work in parallel without stepping on each other.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-card">
+      <div class="bg-card-header" onclick="toggleBg(this)">
+        <div class="bg-av">RL</div><div><div class="bg-name">Rachel Lin</div><div class="bg-role">Backend Developer · 7 years experience</div></div><span style="margin-left:auto;color:var(--muted)">▾</span>
+      </div>
+      <div class="bg-body">
+        <div class="bg-sec"><div class="bg-sec-title">Education</div><ul><li>BS Computer Science — University of Michigan</li><li>Focus: Databases, Distributed Systems, Security</li><li>AWS Certified Solutions Architect — Associate</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">Why her healthcare background matters</div><p>Rachel spent two years working under HIPAA compliance at a healthcare SaaS company. She knows the difference between PII and PHI, understands why RLS policies matter for a form collecting children's data, and has the instinct to ask "who can read this row?" before writing any INSERT policy.</p></div>
+        <div class="bg-sec"><div class="bg-sec-title">Why she works in isolation</div><p>Backend engineers who talk to frontend engineers during the build tend to make their API match the frontend's current assumptions — which changes. Rachel publishes a contract and lets the frontend adapt to it, not the other way around. This produces more stable APIs.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-card">
+      <div class="bg-card-header" onclick="toggleBg(this)">
+        <div class="bg-av">DK</div><div><div class="bg-name">Dev Kumar</div><div class="bg-role">QA Engineer · 4 years experience</div></div><span style="margin-left:auto;color:var(--muted)">▾</span>
+      </div>
+      <div class="bg-body">
+        <div class="bg-sec"><div class="bg-sec-title">Education</div><ul><li>BS Information Technology — Georgia Tech</li><li>ISTQB Certified Tester — Foundation Level</li><li>Accessibility specialist — WCAG 2.1 trained</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">How QA engineers actually think</div><p>Dev's mental model is adversarial — he approaches every page assuming it's broken until proven otherwise. He's trained to think about edge cases engineers don't anticipate: network drops mid-form submission, a 500-character pasted name, the Contact page at 375px on an old iPhone SE with low contrast mode enabled.</p></div>
+        <div class="bg-sec"><div class="bg-sec-title">The industry's dirty secret about QA</div><p>QA roles are the first to be cut when budgets tighten and the first to be blamed when things break in production. Dev's sign-off authority over Elena isn't bureaucracy — it's the studio's institutional memory of what happens when you skip this step.</p></div>
+      </div>
+    </div>
+
+    <div class="bg-card">
+      <div class="bg-card-header" onclick="toggleBg(this)">
+        <div class="bg-av">EB</div><div><div class="bg-name">Elena Bosch</div><div class="bg-role">DevOps Engineer · 7 years experience</div></div><span style="margin-left:auto;color:var(--muted)">▾</span>
+      </div>
+      <div class="bg-body">
+        <div class="bg-sec"><div class="bg-sec-title">Education</div><ul><li>BS Computer Engineering — UT Austin</li><li>AWS Certified DevOps Engineer — Professional</li><li>Certified Kubernetes Administrator (CKA)</li></ul></div>
+        <div class="bg-sec"><div class="bg-sec-title">What DevOps actually is</div><p>DevOps isn't just "the person who deploys things." Elena's job is to make sure that when Dr. Ali pushes a commit at 11pm from his phone, the site deploys correctly, the tests run, and if something breaks, it rolls back cleanly — without Dr. Ali having to understand any of that infrastructure.</p></div>
+        <div class="bg-sec"><div class="bg-sec-title">Security mindset from regulated industries</div><p>Elena's healthcare DevOps background means she thinks about security headers, env var hygiene, and RLS verification as baseline requirements — not afterthoughts. She's seen what happens when a .env file gets committed to a public repo on a healthcare project.</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NETWORK -->
+<div id="tab-network" class="tab">
+  <div class="section-title">How the team connects — work and information flow</div>
+  <div class="network-container">
+    <div class="net-legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--accent)"></div> Agent</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--gate)"></div> Gate authority</div>
+      <div class="leg-item"><div class="leg-line" style="background:var(--accent)"></div> Work flows to</div>
+      <div class="leg-item"><div class="leg-line" style="background:var(--muted);opacity:0.5;border-top:2px dashed"></div> Reads output of</div>
+      <div class="leg-item"><div class="leg-line" style="background:var(--gate)"></div> Gate authority</div>
+    </div>
+    <div style="overflow-x:auto">
+      <svg viewBox="0 0 900 780" xmlns="http://www.w3.org/2000/svg" style="width:100%;min-width:700px">
+        <defs>
+          <marker id="ab" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#6c6cff"/></marker>
+          <marker id="ar" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#ff4f4f"/></marker>
+          <marker id="am" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L0,6 L8,3 z" fill="#8888a0"/></marker>
+        </defs>
+
+        <!-- Phase labels -->
+        <text x="20" y="62" fill="#8888a0" font-size="9" font-weight="600" letter-spacing="1">PHASE A</text>
+        <text x="20" y="148" fill="#8888a0" font-size="9" font-weight="600" letter-spacing="1">PHASE B1</text>
+        <text x="20" y="230" fill="#8888a0" font-size="9" font-weight="600" letter-spacing="1">PHASE B2</text>
+        <text x="20" y="310" fill="#8888a0" font-size="9" font-weight="600" letter-spacing="1">PHASE C</text>
+        <text x="20" y="415" fill="#8888a0" font-size="9" font-weight="600" letter-spacing="1">PHASE D</text>
+        <text x="20" y="530" fill="#8888a0" font-size="9" font-weight="600" letter-spacing="1">E · F · G · H</text>
+
+        <!-- Sophia -->
+        <circle cx="450" cy="58" r="26" fill="#17171a" stroke="#6c6cff" stroke-width="2"/>
+        <text x="450" y="54" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">SC</text>
+        <text x="450" y="65" text-anchor="middle" fill="#8888a0" font-size="8">Sophia · PM</text>
+        <line x1="450" y1="84" x2="450" y2="112" stroke="#6c6cff" stroke-width="1.5" marker-end="url(#ab)"/>
+        <!-- Sophia dashed to all parallel agents -->
+        <line x1="428" y1="58" x2="188" y2="403" stroke="#8888a0" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+        <line x1="435" y1="58" x2="348" y2="403" stroke="#8888a0" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+        <line x1="465" y1="58" x2="568" y2="403" stroke="#8888a0" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+        <line x1="474" y1="58" x2="728" y2="403" stroke="#8888a0" stroke-width="0.8" stroke-dasharray="3,3" opacity="0.4"/>
+
+        <!-- Zara -->
+        <circle cx="450" cy="140" r="28" fill="#17171a" stroke="#ff4f4f" stroke-width="2.5"/>
+        <text x="450" y="136" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">ZO</text>
+        <text x="450" y="148" text-anchor="middle" fill="#8888a0" font-size="7.5">Zara · Arch</text>
+        <text x="490" y="136" fill="#4f8aff" font-size="8">design.md</text>
+        <line x1="450" y1="168" x2="450" y2="196" stroke="#ff4f4f" stroke-width="2" marker-end="url(#ar)"/>
+        <!-- Zara dashed to frontend agents -->
+        <line x1="428" y1="142" x2="196" y2="403" stroke="#4f8aff" stroke-width="0.9" stroke-dasharray="3,3" opacity="0.5"/>
+        <line x1="434" y1="145" x2="350" y2="403" stroke="#4f8aff" stroke-width="0.9" stroke-dasharray="3,3" opacity="0.5"/>
+        <line x1="466" y1="145" x2="566" y2="403" stroke="#4f8aff" stroke-width="0.9" stroke-dasharray="3,3" opacity="0.5"/>
+
+        <!-- Marco -->
+        <circle cx="450" cy="222" r="26" fill="#17171a" stroke="#ff4f4f" stroke-width="2.5"/>
+        <text x="450" y="218" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">MR</text>
+        <text x="450" y="230" text-anchor="middle" fill="#8888a0" font-size="7.5">Marco · Designer</text>
+        <line x1="450" y1="248" x2="450" y2="278" stroke="#ff4f4f" stroke-width="2" marker-end="url(#ar)"/>
+
+        <!-- Jordan Act 1 -->
+        <circle cx="450" cy="300" r="26" fill="#17171a" stroke="#ff4f4f" stroke-width="2.5"/>
+        <text x="450" y="296" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">JP</text>
+        <text x="450" y="308" text-anchor="middle" fill="#8888a0" font-size="7.5">Jordan Act 1</text>
+        <line x1="424" y1="323" x2="200" y2="390" stroke="#6c6cff" stroke-width="1.5" marker-end="url(#ab)"/>
+        <line x1="437" y1="326" x2="352" y2="390" stroke="#6c6cff" stroke-width="1.5" marker-end="url(#ab)"/>
+        <line x1="463" y1="326" x2="562" y2="390" stroke="#6c6cff" stroke-width="1.5" marker-end="url(#ab)"/>
+        <line x1="476" y1="323" x2="722" y2="390" stroke="#6c6cff" stroke-width="1.5" marker-end="url(#ab)"/>
+
+        <!-- Parallel D -->
+        <circle cx="190" cy="408" r="22" fill="#17171a" stroke="#6c6cff" stroke-width="1.5"/>
+        <text x="190" y="404" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">PN</text>
+        <text x="190" y="415" text-anchor="middle" fill="#8888a0" font-size="7">Priya N</text>
+        <circle cx="355" cy="408" r="22" fill="#17171a" stroke="#6c6cff" stroke-width="1.5"/>
+        <text x="355" y="404" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">TM</text>
+        <text x="355" y="415" text-anchor="middle" fill="#8888a0" font-size="7">Tyler</text>
+        <circle cx="570" cy="408" r="22" fill="#17171a" stroke="#6c6cff" stroke-width="1.5"/>
+        <text x="570" y="404" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">RL</text>
+        <text x="570" y="415" text-anchor="middle" fill="#8888a0" font-size="7">Rachel</text>
+        <circle cx="730" cy="408" r="22" fill="#17171a" stroke="#6c6cff" stroke-width="1.5"/>
+        <text x="730" y="404" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">NW</text>
+        <text x="730" y="415" text-anchor="middle" fill="#8888a0" font-size="7">Nina</text>
+
+        <!-- Parallel → Jordan Act 2 -->
+        <line x1="208" y1="428" x2="418" y2="498" stroke="#6c6cff" stroke-width="1.5" marker-end="url(#ab)"/>
+        <line x1="373" y1="428" x2="432" y2="498" stroke="#6c6cff" stroke-width="1.5" marker-end="url(#ab)"/>
+        <line x1="554" y1="428" x2="468" y2="498" stroke="#6c6cff" stroke-width="1.5" marker-end="url(#ab)"/>
+        <line x1="712" y1="428" x2="478" y2="498" stroke="#8888a0" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#am)"/>
+
+        <!-- Jordan Act 2 -->
+        <circle cx="450" cy="514" r="26" fill="#17171a" stroke="#6c6cff" stroke-width="1.5"/>
+        <text x="450" y="510" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">JP</text>
+        <text x="450" y="522" text-anchor="middle" fill="#8888a0" font-size="7.5">Jordan Act 2 · Opus</text>
+        <line x1="450" y1="540" x2="450" y2="570" stroke="#6c6cff" stroke-width="1.5" marker-end="url(#ab)"/>
+
+        <!-- Dev Kumar -->
+        <circle cx="450" cy="588" r="26" fill="#17171a" stroke="#ff4f4f" stroke-width="2.5"/>
+        <text x="450" y="584" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">DK</text>
+        <text x="450" y="596" text-anchor="middle" fill="#8888a0" font-size="7.5">Dev Kumar · QA</text>
+        <text x="505" y="591" fill="#ff4f4f" font-size="8" font-weight="600">QA PASS ✓</text>
+        <line x1="450" y1="614" x2="450" y2="654" stroke="#ff4f4f" stroke-width="2" marker-end="url(#ar)"/>
+
+        <!-- Elena -->
+        <circle cx="450" cy="672" r="26" fill="#17171a" stroke="#6c6cff" stroke-width="1.5"/>
+        <text x="450" y="668" text-anchor="middle" fill="#e8e8ec" font-size="9" font-weight="700">EB</text>
+        <text x="450" y="680" text-anchor="middle" fill="#8888a0" font-size="7.5">Elena · DevOps</text>
+      </svg>
+    </div>
+
+    <div class="insight-grid" style="margin-top:20px">
+      <div class="insight-box"><div class="insight-title">Zara's dashed lines to frontend agents</div><div class="insight-text">The dashed blue lines from Zara to Priya, Tyler, and Jordan represent design.md — the constraint document all three must follow. They don't receive a direct brief from Zara, but they're bound by her output throughout the build.</div></div>
+      <div class="insight-box"><div class="insight-title">Priya ↔ Tyler: intentional silence</div><div class="insight-text">No arrow between Priya and Tyler — by design. They work in parallel on separate file trees and never share work directly. Jordan is the only integration point. This isolation prevents merge conflicts and scope creep.</div></div>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+function toggleCard(card) {
+  const body = card.querySelector('.card-body');
+  if (!body) return;
+  body.classList.toggle('open');
+  card.classList.toggle('expanded');
+}
+function toggleBg(header) {
+  const body = header.nextElementSibling;
+  const arrow = header.querySelector('span:last-child');
+  body.classList.toggle('open');
+  arrow.textContent = body.classList.contains('open') ? '▴' : '▾';
+}
+</script>
+</body>
+</html>
