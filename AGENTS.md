@@ -36,7 +36,7 @@ No build step. No framework. No dependencies. Pure static files.
 | `ali-agent-studio-map.html` | Agent Studio reference map |
 | `milestone-practice-os.html` | Agent roster for Milestone Pediatrics |
 | `milestone-studio-org.html` | Simulated 10-person studio team |
-| `milestone-studio-org 2.html` | Updated studio organization chart |
+| `milestone-studio-org-2.html` | Updated studio organization chart |
 | `Taskmatrix.html` | Task Matrix reference |
 | `color-palette-explorer.html` | Color palette reference tool |
 | `mm-tech-stack.html` | Morning Momentum tech stack |
@@ -45,6 +45,16 @@ No build step. No framework. No dependencies. Pure static files.
 | `exec-allowlist-reference.html` | Shell command safety tiers for AI exec wrappers |
 | `index.html` | Gallery homepage |
 
+## Adding New Artifacts
+
+Use `add-card.sh`:
+
+```bash
+./add-card.sh "Title" "Description" "🧠" "filename.html"
+```
+
+It inserts a new card into `index.html` and pushes to GitHub.
+
 ---
 
 ## Agent Rules
@@ -52,8 +62,8 @@ No build step. No framework. No dependencies. Pure static files.
 - No build step — edit HTML directly and push
 - Push to `main` deploys to GitHub Pages automatically
 - Keep artifacts self-contained (inline CSS + JS)
-- No external dependencies unless necessary
-- Space in filename: `milestone-studio-org 2.html` — preserve this
+- Run `add-card.sh` when adding new HTML artifacts
+- No spaces in filenames (lesson learned from `milestone-studio-org%202.html` bug)
 
 ---
 
