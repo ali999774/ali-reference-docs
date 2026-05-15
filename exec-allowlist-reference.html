@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>exec Command Allowlist — AI Agent Shell Safety Tiers</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root[data-theme="light"] {
+  --bg: #f7f6f2;
+  --surface: #ffffff;
+  --surface2: #f0efe9;
+  --border: rgba(0,0,0,0.09);
+  --border-strong: rgba(0,0,0,0.16);
+  --text: #1a1a18;
+  --text-2: #5a5a54;
+  --text-3: #9a9a90;
+  --toggle-bg: #e0dfd8;
+  --toggle-knob: #ffffff;
+
+  --green-bg: #edf7ee;
+  --green-border: #b6deb9;
+  --green-text: #1a6b22;
+  --green-badge: #2a8c35;
+
+  --yellow-bg: #fef9ec;
+  --yellow-border: #f0d87a;
+  --yellow-text: #7a5c00;
+  --yellow-badge: #a07800;
+
+  --orange-bg: #fff3ea;
+  --orange-border: #f5c49a;
+  --orange-text: #8a3d00;
+  --orange-badge: #b85000;
+
+  --red-bg: #fdeeed;
+  --red-border: #f0b4b0;
+  --red-text: #8a1a16;
+  --red-badge: #c0251f;
+
+  --blue-bg: #edf3fc;
+  --blue-border: #b0c8f0;
+  --blue-text: #1a3d7a;
+  --blue-badge: #2455a8;
+
+  --tag-bg: #ededea;
+}
+:root[data-theme="dark"] {
+  --bg: #141412;
+  --surface: #1e1d1a;
+  --surface2: #272622;
+  --border: rgba(255,255,255,0.07);
+  --border-strong: rgba(255,255,255,0.13);
+  --text: #e8e7e0;
+  --text-2: #9a9a90;
+  --text-3: #5a5a54;
+  --toggle-bg: #3a3930;
+  --toggle-knob: #e8e7e0;
+
+  --green-bg: #0e2410;
+  --green-border: #2a5c2e;
+  --green-text: #78d480;
+  --green-badge: #3aaa44;
+
+  --yellow-bg: #1e1800;
+  --yellow-border: #5a4400;
+  --yellow-text: #f0cc60;
+  --yellow-badge: #ccaa00;
+
+  --orange-bg: #1e1000;
+  --orange-border: #6a3000;
+  --orange-text: #f0a060;
+  --orange-badge: #e06020;
+
+  --red-bg: #1e0a0a;
+  --red-border: #6a1a16;
+  --red-text: #f08080;
+  --red-badge: #e03030;
+
+  --blue-bg: #0a1220;
+  --blue-border: #1a3060;
+  --blue-text: #80aaee;
+  --blue-badge: #4070cc;
+
+  --tag-bg: #2a2a26;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  padding: 32px 24px 60px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 36px;
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.header-left h1 {
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: 3px;
+}
+.header-left p {
+  font-size: 12px;
+  color: var(--text-3);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.toggle {
+  width: 40px; height: 22px;
+  background: var(--toggle-bg);
+  border-radius: 11px;
+  position: relative;
+  cursor: pointer;
+  border: none;
+  flex-shrink: 0;
+  margin-top: 3px;
+  transition: background 0.2s;
+}
+.toggle::after {
+  content: '';
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 16px; height: 16px;
+  background: var(--toggle-knob);
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+[data-theme="dark"] .toggle::after { transform: translateX(18px); }
+
+.content { max-width: 820px; margin: 0 auto; }
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-2);
+  font-family: 'IBM Plex Mono', monospace;
+}
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.tier-section { margin-bottom: 28px; }
+
+.tier-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.tier-badge {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+.tier-header h2 {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.tier-header .tier-desc {
+  font-size: 12px;
+  color: var(--text-3);
+  margin-left: auto;
+}
+
+.tier-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 8px;
+}
+
+.cmd-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+.cmd-card.green  { border-left: 3px solid var(--green-badge); }
+.cmd-card.yellow { border-left: 3px solid var(--yellow-badge); }
+.cmd-card.orange { border-left: 3px solid var(--orange-badge); }
+.cmd-card.red    { border-left: 3px solid var(--red-badge); }
+.cmd-card.blue   { border-left: 3px solid var(--blue-badge); }
+
+.cmd-name {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 4px;
+  color: var(--text);
+}
+.cmd-desc {
+  font-size: 11px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.cmd-flags {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.flag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  background: var(--tag-bg);
+  color: var(--text-2);
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+.flag.danger {
+  background: var(--red-bg);
+  color: var(--red-text);
+}
+.flag.ok {
+  background: var(--green-bg);
+  color: var(--green-text);
+}
+
+.tier-green .tier-badge  { background: var(--green-bg);  color: var(--green-badge);  }
+.tier-yellow .tier-badge { background: var(--yellow-bg); color: var(--yellow-badge); }
+.tier-orange .tier-badge { background: var(--orange-bg); color: var(--orange-badge); }
+.tier-red .tier-badge    { background: var(--red-bg);    color: var(--red-badge);    }
+.tier-blue .tier-badge   { background: var(--blue-bg);   color: var(--blue-badge);   }
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin-bottom: 28px;
+}
+
+.policy-box {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 28px;
+}
+.policy-box h3 {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 12px;
+  font-family: 'IBM Plex Mono', monospace;
+}
+.policy-row {
+  display: flex;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.6;
+  margin-bottom: 6px;
+  align-items: flex-start;
+}
+.policy-row:last-child { margin-bottom: 0; }
+.policy-key {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text);
+  flex-shrink: 0;
+  min-width: 80px;
+}
+
+footer {
+  max-width: 820px;
+  margin: 40px auto 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-3);
+  font-family: 'IBM Plex Mono', monospace;
+}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-left">
+    <h1>&#128737; exec Command Allowlist</h1>
+    <p>shell safety tiers &middot; ai agent exec wrappers</p>
+  </div>
+  <button class="toggle" id="themeToggle" aria-label="Toggle dark mode"></button>
+</div>
+
+<div class="content">
+
+  <div class="policy-box">
+    <h3>Wrapper Policy</h3>
+    <div class="policy-row"><span class="policy-key">default</span> deny-all; only allowlisted commands pass through exec()</div>
+    <div class="policy-row"><span class="policy-key">scope</span> per-command AND per-flag &mdash; a safe command with a dangerous flag is blocked</div>
+    <div class="policy-row"><span class="policy-key">cwd</span> constrained to workspace root; path traversal (../) is rejected pre-exec</div>
+    <div class="policy-row"><span class="policy-key">env</span> stripped to minimal set; no credential env vars forwarded</div>
+    <div class="policy-row"><span class="policy-key">timeout</span> hard 30s wall-clock per exec call; long-running blocked at spawn</div>
+    <div class="policy-row"><span class="policy-key">pipes</span> stdout/stderr captured; shell operators (|, &amp;, ;, `) require explicit approval</div>
+  </div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="dot" style="background:var(--green-badge)"></span>T1 &middot; Safe (read-only)</div>
+    <div class="legend-item"><span class="dot" style="background:var(--yellow-badge)"></span>T2 &middot; Allowed (reversible write)</div>
+    <div class="legend-item"><span class="dot" style="background:var(--orange-badge)"></span>T3 &middot; Restricted (confirm required)</div>
+    <div class="legend-item"><span class="dot" style="background:var(--blue-badge)"></span>T4 &middot; Network (audit logged)</div>
+    <div class="legend-item"><span class="dot" style="background:var(--red-badge)"></span>T5 &middot; Blocked (never exec'd)</div>
+  </div>
+
+  <!-- T1 -->
+  <div class="tier-section tier-green">
+    <div class="tier-header">
+      <span class="tier-badge">T1 &middot; Safe</span>
+      <h2>Read-Only &mdash; exec without confirmation</h2>
+      <span class="tier-desc">No side effects &middot; idempotent</span>
+    </div>
+    <div class="tier-grid">
+      <div class="cmd-card green">
+        <div class="cmd-name">ls / dir</div>
+        <div class="cmd-desc">List directory contents.</div>
+        <div class="cmd-flags"><span class="flag ok">-la</span><span class="flag ok">-R</span><span class="flag ok">--color</span></div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">cat / head / tail</div>
+        <div class="cmd-desc">Print file contents. tail -f blocked (blocking I/O).</div>
+        <div class="cmd-flags"><span class="flag ok">-n</span><span class="flag danger">-f (tail)</span></div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">pwd</div>
+        <div class="cmd-desc">Print working directory. Always safe.</div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">echo / printf</div>
+        <div class="cmd-desc">Print to stdout. Redirect to file upgrades to T2.</div>
+        <div class="cmd-flags"><span class="flag ok">stdout</span><span class="flag danger">&gt; file</span></div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">grep / rg / ag</div>
+        <div class="cmd-desc">Search file contents. Pattern match only.</div>
+        <div class="cmd-flags"><span class="flag ok">-r</span><span class="flag ok">-i</span><span class="flag ok">-n</span><span class="flag ok">-l</span></div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">find</div>
+        <div class="cmd-desc">Locate files by name/type/date. -exec upgrades tier.</div>
+        <div class="cmd-flags"><span class="flag ok">-name</span><span class="flag ok">-type</span><span class="flag danger">-exec rm</span></div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">wc / sort / uniq</div>
+        <div class="cmd-desc">Count, sort, deduplicate. Pure stream transforms.</div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">diff / diff3</div>
+        <div class="cmd-desc">Compare file contents. Patch application is T2.</div>
+        <div class="cmd-flags"><span class="flag ok">-u</span><span class="flag ok">-r</span></div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">stat / file / du</div>
+        <div class="cmd-desc">File metadata, type detection, disk usage.</div>
+        <div class="cmd-flags"><span class="flag ok">-h</span><span class="flag ok">-s</span></div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">env / printenv</div>
+        <div class="cmd-desc">Print environment. Filtered &mdash; credentials stripped before output.</div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">which / type / whereis</div>
+        <div class="cmd-desc">Locate binaries. Safe lookup only.</div>
+      </div>
+      <div class="cmd-card green">
+        <div class="cmd-name">date / uname / uptime</div>
+        <div class="cmd-desc">System info &mdash; time, OS version, load. Read-only.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- T2 -->
+  <div class="tier-section tier-yellow">
+    <div class="tier-header">
+      <span class="tier-badge">T2 &middot; Allowed</span>
+      <h2>Reversible Writes &mdash; exec in workspace scope</h2>
+      <span class="tier-desc">Changes files &middot; recoverable via git</span>
+    </div>
+    <div class="tier-grid">
+      <div class="cmd-card yellow">
+        <div class="cmd-name">mkdir</div>
+        <div class="cmd-desc">Create directories within workspace. Parent traversal blocked.</div>
+        <div class="cmd-flags"><span class="flag ok">-p</span><span class="flag danger">/ (root)</span></div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">touch</div>
+        <div class="cmd-desc">Create empty file or update timestamp. Workspace-scoped.</div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">cp</div>
+        <div class="cmd-desc">Copy file or directory. Source and dest must be within workspace.</div>
+        <div class="cmd-flags"><span class="flag ok">-r</span><span class="flag ok">-p</span></div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">mv</div>
+        <div class="cmd-desc">Move or rename. Both paths workspace-scoped. Overwrite allowed.</div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">echo / printf &gt; file</div>
+        <div class="cmd-desc">Write stdout to file within workspace. Redirect operator requires T2.</div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">sed -i / awk</div>
+        <div class="cmd-desc">In-place text transforms on workspace files. Backup flag recommended.</div>
+        <div class="cmd-flags"><span class="flag ok">-i.bak</span><span class="flag ok">-E</span></div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">patch</div>
+        <div class="cmd-desc">Apply unified diff. Files must be within workspace.</div>
+        <div class="cmd-flags"><span class="flag ok">-p1</span><span class="flag ok">--dry-run</span></div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">git (read/stage)</div>
+        <div class="cmd-desc">status, log, diff, add, commit within repo. Push/remote = T3.</div>
+        <div class="cmd-flags"><span class="flag ok">status</span><span class="flag ok">log</span><span class="flag ok">diff</span><span class="flag ok">add</span><span class="flag ok">commit</span></div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">zip / tar (create)</div>
+        <div class="cmd-desc">Archive workspace files. Extraction to workspace only.</div>
+        <div class="cmd-flags"><span class="flag ok">-czf</span><span class="flag danger">-C /</span></div>
+      </div>
+      <div class="cmd-card yellow">
+        <div class="cmd-name">node / python / ruby</div>
+        <div class="cmd-desc">Run local scripts. Network calls from script = T4. System calls = T3.</div>
+        <div class="cmd-flags"><span class="flag ok">--no-warnings</span><span class="flag danger">-e 'import os'</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- T3 -->
+  <div class="tier-section tier-orange">
+    <div class="tier-header">
+      <span class="tier-badge">T3 &middot; Restricted</span>
+      <h2>Confirm Required &mdash; human approval before exec</h2>
+      <span class="tier-desc">Broader system impact &middot; may be irreversible</span>
+    </div>
+    <div class="tier-grid">
+      <div class="cmd-card orange">
+        <div class="cmd-name">rm</div>
+        <div class="cmd-desc">Delete files. Always requires confirmation. -rf on directories double-confirms.</div>
+        <div class="cmd-flags"><span class="flag danger">-rf</span><span class="flag danger">--no-preserve-root</span></div>
+      </div>
+      <div class="cmd-card orange">
+        <div class="cmd-name">chmod / chown</div>
+        <div class="cmd-desc">Change permissions or ownership. Confirm for recursive or 777 patterns.</div>
+        <div class="cmd-flags"><span class="flag danger">-R</span><span class="flag danger">777</span></div>
+      </div>
+      <div class="cmd-card orange">
+        <div class="cmd-name">git push / pull / clone</div>
+        <div class="cmd-desc">Remote git operations. Requires confirm + credential scope check.</div>
+        <div class="cmd-flags"><span class="flag ok">--dry-run</span><span class="flag danger">--force</span></div>
+      </div>
+      <div class="cmd-card orange">
+        <div class="cmd-name">npm / pip / brew install</div>
+        <div class="cmd-desc">Package installs modify system or project deps. Confirm + lockfile review.</div>
+        <div class="cmd-flags"><span class="flag ok">--dry-run</span><span class="flag danger">-g (global)</span></div>
+      </div>
+      <div class="cmd-card orange">
+        <div class="cmd-name">make / cmake / gradle</div>
+        <div class="cmd-desc">Build systems can exec arbitrary targets. Confirm target name.</div>
+        <div class="cmd-flags"><span class="flag ok">-n (dry)</span><span class="flag danger">install</span><span class="flag danger">deploy</span></div>
+      </div>
+      <div class="cmd-card orange">
+        <div class="cmd-name">docker run / compose</div>
+        <div class="cmd-desc">Containers with volume mounts, port binding, or privileged mode.</div>
+        <div class="cmd-flags"><span class="flag danger">--privileged</span><span class="flag danger">-v /:/</span></div>
+      </div>
+      <div class="cmd-card orange">
+        <div class="cmd-name">systemctl / launchctl</div>
+        <div class="cmd-desc">Start/stop system services. Confirm service name and action.</div>
+        <div class="cmd-flags"><span class="flag danger">enable</span><span class="flag danger">disable</span></div>
+      </div>
+      <div class="cmd-card orange">
+        <div class="cmd-name">crontab / at</div>
+        <div class="cmd-desc">Schedule future commands. Requires explicit approval + content review.</div>
+        <div class="cmd-flags"><span class="flag danger">-e</span><span class="flag ok">-l (list)</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- T4 -->
+  <div class="tier-section tier-blue">
+    <div class="tier-header">
+      <span class="tier-badge">T4 &middot; Network</span>
+      <h2>Audit Logged &mdash; all network exec is recorded</h2>
+      <span class="tier-desc">URL + payload logged &middot; confirm + scope check</span>
+    </div>
+    <div class="tier-grid">
+      <div class="cmd-card blue">
+        <div class="cmd-name">curl</div>
+        <div class="cmd-desc">HTTP requests. URL allowlist checked. Pipe to shell blocked at parse time.</div>
+        <div class="cmd-flags"><span class="flag ok">-I (HEAD)</span><span class="flag ok">-o file</span><span class="flag danger">| sh</span><span class="flag danger">| bash</span></div>
+      </div>
+      <div class="cmd-card blue">
+        <div class="cmd-name">wget</div>
+        <div class="cmd-desc">File download. Destination must be workspace. Recursive crawl blocked.</div>
+        <div class="cmd-flags"><span class="flag ok">-O outfile</span><span class="flag danger">-r</span><span class="flag danger">--mirror</span></div>
+      </div>
+      <div class="cmd-card blue">
+        <div class="cmd-name">ssh</div>
+        <div class="cmd-desc">Remote shell. Host must be in allowlist. Agent forwarding blocked.</div>
+        <div class="cmd-flags"><span class="flag danger">-A (fwd)</span><span class="flag danger">-L (tunnel)</span></div>
+      </div>
+      <div class="cmd-card blue">
+        <div class="cmd-name">scp / rsync</div>
+        <div class="cmd-desc">Remote copy. Both endpoints verified. No wildcard remote paths.</div>
+        <div class="cmd-flags"><span class="flag ok">-n (dry)</span><span class="flag danger">--delete</span></div>
+      </div>
+      <div class="cmd-card blue">
+        <div class="cmd-name">ping / traceroute / nslookup</div>
+        <div class="cmd-desc">Network diagnostics. Read-only but network egress &mdash; logged.</div>
+        <div class="cmd-flags"><span class="flag ok">-c 4</span></div>
+      </div>
+      <div class="cmd-card blue">
+        <div class="cmd-name">gh / git remote</div>
+        <div class="cmd-desc">GitHub CLI and remote git ops. Credentials scoped, actions logged.</div>
+        <div class="cmd-flags"><span class="flag ok">pr list</span><span class="flag ok">issue view</span><span class="flag danger">repo delete</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- T5 -->
+  <div class="tier-section tier-red">
+    <div class="tier-header">
+      <span class="tier-badge">T5 &middot; Blocked</span>
+      <h2>Never Exec'd &mdash; rejected before process spawn</h2>
+      <span class="tier-desc">Denied regardless of framing or context</span>
+    </div>
+    <div class="tier-grid">
+      <div class="cmd-card red">
+        <div class="cmd-name">sudo / su / doas</div>
+        <div class="cmd-desc">Privilege escalation. Blocked unconditionally. No exceptions.</div>
+      </div>
+      <div class="cmd-card red">
+        <div class="cmd-name">rm -rf /</div>
+        <div class="cmd-desc">Root deletion. Rejected by path check before any other evaluation.</div>
+      </div>
+      <div class="cmd-card red">
+        <div class="cmd-name">dd</div>
+        <div class="cmd-desc">Raw disk I/O. Can overwrite block devices. Always blocked.</div>
+        <div class="cmd-flags"><span class="flag danger">if=/dev/zero</span><span class="flag danger">of=/dev/sd*</span></div>
+      </div>
+      <div class="cmd-card red">
+        <div class="cmd-name">mkfs / fdisk / parted</div>
+        <div class="cmd-desc">Partition and format operations. Irreversible data loss risk.</div>
+      </div>
+      <div class="cmd-card red">
+        <div class="cmd-name">kill -9 / killall</div>
+        <div class="cmd-desc">Force-kill processes. Blocked to prevent host disruption or self-termination.</div>
+        <div class="cmd-flags"><span class="flag danger">-9</span><span class="flag danger">-KILL</span></div>
+      </div>
+      <div class="cmd-card red">
+        <div class="cmd-name">curl &hellip; | sh</div>
+        <div class="cmd-desc">Remote code execution pattern. Detected at AST parse. Always denied.</div>
+      </div>
+      <div class="cmd-card red">
+        <div class="cmd-name">nc / netcat (listen)</div>
+        <div class="cmd-desc">Bind sockets / reverse shells. -l flag triggers immediate block.</div>
+        <div class="cmd-flags"><span class="flag danger">-l</span><span class="flag danger">-e /bin/sh</span></div>
+      </div>
+      <div class="cmd-card red">
+        <div class="cmd-name">iptables / pfctl / ufw</div>
+        <div class="cmd-desc">Firewall modification. Network policy changes always blocked.</div>
+      </div>
+      <div class="cmd-card red">
+        <div class="cmd-name">crontab -r</div>
+        <div class="cmd-desc">Delete all cron jobs. Destructive and non-workspace. Blocked.</div>
+      </div>
+      <div class="cmd-card red">
+        <div class="cmd-name">history -c / shred</div>
+        <div class="cmd-desc">Evidence destruction. Blocked for audit integrity.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="policy-box">
+    <h3>Implementation Notes</h3>
+    <div class="policy-row"><span class="policy-key">parse first</span>Tokenize the full command string before exec. Flag conflicts (safe cmd + dangerous flag) are caught here, not at runtime.</div>
+    <div class="policy-row"><span class="policy-key">no shell=True</span>Use execvp() / subprocess list form &mdash; never shell=True. Shell operators bypass the allowlist entirely when shell=True is set.</div>
+    <div class="policy-row"><span class="policy-key">chroot / sandbox</span>Run T2&ndash;T3 in a chroot or container with workspace bind-mounted read-write and / read-only.</div>
+    <div class="policy-row"><span class="policy-key">symlink check</span>Resolve symlinks before path scope check. A symlink inside workspace pointing to /etc/passwd is a T5 attempt.</div>
+    <div class="policy-row"><span class="policy-key">prompt injection</span>Agent input from untrusted sources (web pages, emails) must be sanitized before reaching exec wrapper &mdash; treat as hostile by default.</div>
+    <div class="policy-row"><span class="policy-key">log format</span>Each exec: timestamp &middot; tier &middot; full argv &middot; cwd &middot; exit code &middot; stdout hash. Stored append-only.</div>
+  </div>
+
+</div>
+
+<footer>&#128737; exec-allowlist-reference &middot; ali999774.github.io/ali-reference-docs</footer>
+
+<script>
+  const toggle = document.getElementById('themeToggle');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('exec-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  toggle.addEventListener('click', () => {
+    const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('exec-theme', next);
+  });
+</script>
+</body>
+</html>
